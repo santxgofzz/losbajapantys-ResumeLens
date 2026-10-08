@@ -1,0 +1,16 @@
+Wednesday Addams
+Fictional resume for extraction tests; contact details are illustrative.
+
+Contact Information
+Email: Wednesday.Addams@example.com
+Phone: +57 300 123 4567
+
+Professional Experience
+3 years of experience developing web applications.
+Developed user interfaces and backend services for academic projects.
+
+Education
+Bachelor's degree in Systems Engineering.
+
+Technical Skills
+JS, React.js, NodeJS, Postgres, Git.
