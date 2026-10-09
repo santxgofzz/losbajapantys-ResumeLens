@@ -5,8 +5,9 @@
 Extract explicitly written contact information and technical terms using
 Python's standard `re` module. This increment implements emails, Colombian-style
 phone numbers, programming languages, frameworks/libraries/runtimes, databases,
-and tools below. It does not normalize text or evaluate candidate qualifications. Education, experience,
-and other qualifications will be implemented in later increments.
+tools, academic qualifications, and explicit experience durations below.
+It does not normalize text or evaluate candidate qualifications.
+Other qualifications and the combined extraction function remain future work.
 
 ## Step 4: initial programming-language vocabulary
 
@@ -58,7 +59,7 @@ not prove that a mention represents a candidate's skill or proficiency.
 
 ## Functions and storage
 
-All six functions are defined in `src/extraction/regex_extractor.py`:
+All eight functions are defined in `src/extraction/regex_extractor.py`:
 
 | Function | Input | Output |
 | --- | --- | --- |
@@ -68,6 +69,8 @@ All six functions are defined in `src/extraction/regex_extractor.py`:
 | `extract_frameworks(text)` | Resume text as a `str` | `list[str]` of supported frameworks, libraries and runtimes |
 | `extract_databases(text)` | Resume text as a `str` | `list[str]` of supported database names |
 | `extract_tools(text)` | Resume text as a `str` | `list[str]` of supported tool names |
+| `extract_education(text)` | Resume text as a `str` | `list[str]` of supported degree-and-field phrases |
+| `extract_experience(text)` | Resume text as a `str` | `list[str]` of explicit numeric experience phrases |
 
 Each returned list stores the extracted information in memory. Empty input or
 text without matches produces `[]`. Matches retain original capitalization,
@@ -252,6 +255,93 @@ hyphenated expression may match. Matching names alone cannot establish
 proficiency, interpret negation, or rule out mentions in unrelated contexts.
 This initial list still needs review against the team's four profiles.
 
+## Academic qualifications
+
+`extract_education(text)` recognizes an explicit English degree followed by
+`in` and a field from the initial vocabulary. It searches the whole text and
+returns original phrases, without requiring an Education heading.
+
+Supported degrees: `Bachelor's degree`, `Master's degree` (straight or curly
+apostrophe), `Bachelor of Science`, `Master of Science`, `PhD`, `Ph.D.`,
+`BSc`, `B.Sc.`, `MSc`, and `M.Sc.`. Matching ignores letter case.
+
+Supported fields: Systems Engineering, Computer Science, Software Engineering,
+Computer Engineering, Data Science, Artificial Intelligence, Machine Learning,
+and Information Technology. A finite field list avoids greedily swallowing
+institutions or arbitrary prose after the qualification.
+
+```python
+EDUCATION_PATTERN = (
+    r"(?<![\w.])"
+    r"(?:(?:Bachelor|Master)['’]s[ \t]+degree|"
+    r"(?:Bachelor|Master)[ \t]+of[ \t]+Science|PhD|Ph\.D\.|[BM]Sc|[BM]\.Sc\.)"
+    r"[ \t]+in[ \t]+"
+    r"(?:Systems[ \t]+Engineering|Computer[ \t]+Science|Software[ \t]+Engineering|"
+    r"Computer[ \t]+Engineering|Data[ \t]+Science|Artificial[ \t]+Intelligence|"
+    r"Machine[ \t]+Learning|Information[ \t]+Technology)\b"
+)
+```
+
+- `(?<![\w.])` prevents starting inside a word or directly after a dot.
+- Degree alternatives recognize only the listed title spellings. `[BM]`
+  chooses B or M; escaped dots in abbreviations are literal.
+- `['’]` accepts either apostrophe without replacing it.
+- `[ \t]+` accepts one or more spaces/tabs, preserving them in the result;
+  it does not cross line breaks.
+- Literal `in` connects the degree and required field. The final `\b`
+  prevents a field match ending inside a longer word.
+
+For `PhD in Computer Science at Example University.`, the result is
+`["PhD in Computer Science"]`. The institution and sentence period are not
+included. `Bachelor's degree in Systems Engineering` is extracted intact
+from the example resume.
+
+Limitations: other fields, languages, standalone titles, certifications,
+unlisted abbreviations and line-wrapped phrases are not covered yet. A listed
+field may be extracted as the prefix of a longer compound field, such as
+`Computer Science and Mathematics`. The function cannot establish whether a
+degree was completed: a phrase in `pursuing a PhD in Computer Science` still
+matches. It does not normalize degrees or infer institutions or dates.
+
+## Professional experience
+
+`extract_experience(text)` recognizes numeric durations explicitly attached to
+the word `experience`, anywhere in the text. This increment extracts duration
+phrases, not complete employment histories, employers, dates or responsibilities.
+
+```python
+EXPERIENCE_PATTERN = (
+    r"(?<![\w.+-])[0-9]+(?:\.[0-9]+)?\+?"
+    r"[ \t]+(?:years?|months?)[ \t]+(?:of[ \t]+)?"
+    r"(?:(?:professional|work)[ \t]+)?experience\b"
+)
+```
+
+- The initial lookbehind avoids starting inside a word, signed number or
+  compact numeric range.
+- `[0-9]+(?:\.[0-9]+)?` recognizes integers or dot-decimal numbers.
+- `\+?` accepts an optional plus sign, as in `5+`.
+- `years?` and `months?` accept singular and plural units.
+- `of` is optional, as is one modifier: `professional` or `work`.
+- `experience\b` requires the complete final word, not `experienced`.
+- `[ \t]+` permits spaces/tabs without crossing lines. Matching uses
+  `re.IGNORECASE` and returns the original case, spacing and duplicates.
+
+Examples: `3 years of experience`, `6 months experience`,
+`2.5 years of experience`, `5+ years of professional experience`.
+For `3 years of experience developing web applications.`, only
+`3 years of experience` is returned. Date ranges such as `2020-2024` produce no
+duration; the function does not calculate, add, convert or validate durations.
+
+Limitations: spelled-out numbers, possessive forms (`3 years' experience`),
+other languages, compound durations, and numeric ranges are unsupported.
+A spaced range such as `3 - 5 years of experience` can still yield its final
+duration fragment; the boundary guard handles compact ranges only. Qualifiers
+such as `at least` are not captured. Numeric grammar is lexical, so implausible
+durations or number/unit agreement errors can match. The function does not
+distinguish professional from academic experience when the text does not say,
+interpret negation, or decide whether experience is relevant to a profile.
+
 ## Shared regex concepts
 
 Python concatenates adjacent string literals into one pattern. The `r` prefix
@@ -280,6 +370,8 @@ programming_languages = ['JS']
 frameworks = ['React.js', 'NodeJS']
 databases = ['Postgres']
 tools = ['Git']
+education = ["Bachelor's degree in Systems Engineering"]
+experience = ['3 years of experience']
 ```
 
 From the `resumeLeans` directory, run all current tests:
@@ -300,7 +392,7 @@ is installed in the team's environment.
 
 ## Test design
 
-Twenty-seven test methods in `tests/test_extraction.py` cover:
+Thirty-eight test methods in `tests/test_extraction.py` cover:
 
 - Common email syntax, subdomains, plus addressing and surrounding punctuation.
 - Original email case, order and repeated occurrences.
@@ -328,6 +420,12 @@ Eight database/tool test methods cover the supported names, original case,
 order and duplicates, prose without headings, punctuation and line breaks,
 empty text, other categories, longer words and dotted fragments, and the
 example resume results `["Postgres"]` and `["Git"]`.
+
+Five education tests cover degree/field spellings, original case and spacing,
+curly apostrophes, repetitions, prose boundaries, unsupported/incomplete phrases,
+and the sample resume. Six experience tests cover numeric formats, units,
+modifiers, original case/spacing/order/repetitions, prose, date ranges without
+inferred durations, invalid or unsupported phrases, and the sample resume.
 
 ## Limitations
 

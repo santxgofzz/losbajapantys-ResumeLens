@@ -87,3 +87,39 @@ def extract_tools(text: str) -> list[str]:
     Search the entire text; do not infer Git from GitHub or GitLab mentions.
     """
     return re.findall(TOOLS_PATTERN, text, flags=re.IGNORECASE)
+
+
+EDUCATION_PATTERN = (
+    r"(?<![\w.])"
+    r"(?:(?:Bachelor|Master)['’]s[ \t]+degree|"
+    r"(?:Bachelor|Master)[ \t]+of[ \t]+Science|PhD|Ph\.D\.|[BM]Sc|[BM]\.Sc\.)"
+    r"[ \t]+in[ \t]+"
+    r"(?:Systems[ \t]+Engineering|Computer[ \t]+Science|Software[ \t]+Engineering|"
+    r"Computer[ \t]+Engineering|Data[ \t]+Science|Artificial[ \t]+Intelligence|"
+    r"Machine[ \t]+Learning|Information[ \t]+Technology)\b"
+)
+
+
+def extract_education(text: str) -> list[str]:
+    """Return supported English degree-and-field phrases as originally written.
+
+    Require an explicit degree followed by 'in' and a listed computing field.
+    Do not infer completion status, institutions or equivalent qualifications.
+    """
+    return re.findall(EDUCATION_PATTERN, text, flags=re.IGNORECASE)
+
+
+EXPERIENCE_PATTERN = (
+    r"(?<![\w.+-])[0-9]+(?:\.[0-9]+)?\+?"
+    r"[ \t]+(?:years?|months?)[ \t]+(?:of[ \t]+)?"
+    r"(?:(?:professional|work)[ \t]+)?experience\b"
+)
+
+
+def extract_experience(text: str) -> list[str]:
+    """Return explicit numeric experience durations, preserving original text.
+
+    Support years/months, decimals and a trailing plus sign on the number.
+    Do not calculate durations from dates or infer relevance to a job profile.
+    """
+    return re.findall(EXPERIENCE_PATTERN, text, flags=re.IGNORECASE)

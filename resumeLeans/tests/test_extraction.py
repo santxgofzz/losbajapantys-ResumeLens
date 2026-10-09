@@ -213,5 +213,78 @@ class ToolExtractionTests(unittest.TestCase):
         )
 
 
+class EducationExtractionTests(unittest.TestCase):
+    def test_supported_degrees_and_fields(self):
+        for phrase in [
+            "Bachelor's degree in Systems Engineering", "Bachelor of Science in Computer Science",
+            "Master's degree in Data Science", "Master of Science in Software Engineering",
+            "PhD in Artificial Intelligence", "Ph.D. in Machine Learning",
+            "BSc in Computer Engineering", "B.Sc. in Information Technology",
+            "MSc in Data Science", "M.Sc. in Computer Science",
+        ]:
+            with self.subTest(phrase=phrase):
+                self.assertEqual(regex_extractor.extract_education(phrase + "."), [phrase])
+
+    def test_preserves_case_spacing_apostrophe_and_repetitions(self):
+        phrase = "MASTER’S  degree in data science"
+        self.assertEqual(regex_extractor.extract_education(phrase + "; " + phrase), [phrase, phrase])
+
+    def test_stops_before_institution_and_following_prose(self):
+        self.assertEqual(
+            regex_extractor.extract_education(
+                "I earned a PhD in Computer Science at Example University. I use Python.\n"
+                "Master's degree in Data Science, 2024."
+            ),
+            ["PhD in Computer Science", "Master's degree in Data Science"],
+        )
+
+    def test_no_matches_for_unsupported_or_incomplete_phrases(self):
+        for text in ["", "Computer Science", "Bachelor's degree", "PhD in History",
+                     "NotPhD in Computer Science", "PhD in Computer ScienceExtra",
+                     "Master of ceremonies", "PhD\nin Computer Science"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_education(text), [])
+
+    def test_sample_resume(self):
+        sample = Path(__file__).resolve().parents[1] / "data" / "resume_example.txt"
+        self.assertEqual(regex_extractor.extract_education(sample.read_text(encoding="utf-8")),
+                         ["Bachelor's degree in Systems Engineering"])
+
+
+class ExperienceExtractionTests(unittest.TestCase):
+    def test_supported_durations(self):
+        for phrase in ["3 years of experience", "1 year of experience", "6 months of experience",
+                       "1 month experience", "2.5 years of experience", "5+ years of experience",
+                       "4 years of professional experience", "12 months of work experience"]:
+            with self.subTest(phrase=phrase):
+                self.assertEqual(regex_extractor.extract_experience(phrase + "."), [phrase])
+
+    def test_preserves_case_spacing_order_and_repetitions(self):
+        self.assertEqual(
+            regex_extractor.extract_experience("3 YEARS  OF EXPERIENCE; 6 months experience; 3 YEARS  OF EXPERIENCE"),
+            ["3 YEARS  OF EXPERIENCE", "6 months experience", "3 YEARS  OF EXPERIENCE"],
+        )
+
+    def test_prose_without_heading(self):
+        self.assertEqual(regex_extractor.extract_experience(
+            "I have 3 years of experience developing web applications and 6 months experience testing."),
+            ["3 years of experience", "6 months experience"])
+
+    def test_does_not_infer_duration_from_dates(self):
+        self.assertEqual(regex_extractor.extract_experience("Software Engineer, 2020-2024. Python and Git."), [])
+
+    def test_no_matches_for_unsupported_or_incomplete_phrases(self):
+        for text in ["", "3 years", "experience", "three years of experience",
+                     "-3 years of experience", "3-5 years of experience", "v3 years of experience",
+                     "3 years of experienced", "3\nyears of experience"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_experience(text), [])
+
+    def test_sample_resume(self):
+        sample = Path(__file__).resolve().parents[1] / "data" / "resume_example.txt"
+        self.assertEqual(regex_extractor.extract_experience(sample.read_text(encoding="utf-8")),
+                         ["3 years of experience"])
+
+
 if __name__ == "__main__":
     unittest.main()
