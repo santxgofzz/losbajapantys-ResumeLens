@@ -12,20 +12,19 @@ EMAIL_PATTERN = (
     r"(?![\w@+-]|\.\w)"
 )
 
-PHONE_PATTERN = (
-    r"(?<![\w+])(?<![0-9][ -])"
-    r"(?:\+57[ -]?)?"
-    r"(?:3[0-9]{2}|60[0-9])[ -]?[0-9]{3}[ -]?[0-9]{4}"
-    r"(?!\w|[ -]?[0-9])"
-)
-
-
 def extract_emails(text: str) -> list[str]:
     """Return common ASCII email addresses, preserving case, order and repeats.
 
     The input must be a string. This is extraction, not mailbox validation.
     """
     return re.findall(EMAIL_PATTERN, text)
+
+PHONE_PATTERN = (
+    r"(?<![\w+])(?<![0-9][ -])"
+    r"(?:\+57[ -]?)?"
+    r"(?:3[0-9]{2}|60[0-9])[ -]?[0-9]{3}[ -]?[0-9]{4}"
+    r"(?!\w|[ -]?[0-9])"
+)
 
 
 def extract_phones(text: str) -> list[str]:
@@ -65,3 +64,26 @@ def extract_frameworks(text: str) -> list[str]:
     order and repetitions. Multiword variants use a single literal space.
     """
     return re.findall(FRAMEWORKS_PATTERN, text, flags=re.IGNORECASE)
+
+
+DATABASES_PATTERN = r"(?<![\w.])(?:PostgreSQL|Postgres|MySQL|MongoDB)(?!\w|\.\w)"
+
+
+def extract_databases(text: str) -> list[str]:
+    """Return supported database names with original case, order and repeats.
+
+    Recognize PostgreSQL, Postgres, MySQL and MongoDB throughout the text.
+    Do not normalize aliases or infer a database from SQL/NoSQL mentions.
+    """
+    return re.findall(DATABASES_PATTERN, text, flags=re.IGNORECASE)
+
+
+TOOLS_PATTERN = r"(?<![\w.])(?:Git|Docker)(?!\w|\.\w)"
+
+
+def extract_tools(text: str) -> list[str]:
+    """Return Git and Docker mentions with original case, order and repeats.
+
+    Search the entire text; do not infer Git from GitHub or GitLab mentions.
+    """
+    return re.findall(TOOLS_PATTERN, text, flags=re.IGNORECASE)

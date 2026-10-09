@@ -161,5 +161,57 @@ class FrameworkExtractionTests(unittest.TestCase):
         )
 
 
+class DatabaseExtractionTests(unittest.TestCase):
+    def test_supported_names_preserve_case_order_and_repetitions(self):
+        self.assertEqual(
+            regex_extractor.extract_databases("Postgres PostgreSQL mysql MongoDB Postgres POSTGRESQL"),
+            ["Postgres", "PostgreSQL", "mysql", "MongoDB", "Postgres", "POSTGRESQL"],
+        )
+
+    def test_prose_punctuation_and_line_breaks(self):
+        self.assertEqual(
+            regex_extractor.extract_databases("I used (MySQL),\nMongoDB/Postgres."),
+            ["MySQL", "MongoDB", "Postgres"],
+        )
+
+    def test_no_matches_or_partial_names(self):
+        for text in ["", "Python React.js Git SQL NoSQL", "PostgreSQLExtra MySQL8 my_MongoDB",
+                     "Postgres.js prefix.MySQL", "Mongo DB"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_databases(text), [])
+
+    def test_sample_resume(self):
+        sample = Path(__file__).resolve().parents[1] / "data" / "resume_example.txt"
+        self.assertEqual(
+            regex_extractor.extract_databases(sample.read_text(encoding="utf-8")), ["Postgres"]
+        )
+
+
+class ToolExtractionTests(unittest.TestCase):
+    def test_supported_names_preserve_case_order_and_repetitions(self):
+        self.assertEqual(
+            regex_extractor.extract_tools("Docker git GIT docker Git"),
+            ["Docker", "git", "GIT", "docker", "Git"],
+        )
+
+    def test_prose_punctuation_and_line_breaks(self):
+        self.assertEqual(
+            regex_extractor.extract_tools("I use (Git),\nDocker. Git/Docker"),
+            ["Git", "Docker", "Git", "Docker"],
+        )
+
+    def test_no_matches_or_partial_names(self):
+        for text in ["", "Python React.js Postgres", "GitHub GitLab Dockerfile digital",
+                     "my_Git Docker2 Git.exe prefix.Docker"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_tools(text), [])
+
+    def test_sample_resume(self):
+        sample = Path(__file__).resolve().parents[1] / "data" / "resume_example.txt"
+        self.assertEqual(
+            regex_extractor.extract_tools(sample.read_text(encoding="utf-8")), ["Git"]
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

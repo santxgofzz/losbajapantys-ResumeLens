@@ -4,8 +4,8 @@
 
 Extract explicitly written contact information and technical terms using
 Python's standard `re` module. This increment implements emails, Colombian-style
-phone numbers, programming languages, and frameworks/libraries/runtimes below.
-It does not normalize text or evaluate candidate qualifications. Databases, education, experience, tools,
+phone numbers, programming languages, frameworks/libraries/runtimes, databases,
+and tools below. It does not normalize text or evaluate candidate qualifications. Education, experience,
 and other qualifications will be implemented in later increments.
 
 ## Step 4: initial programming-language vocabulary
@@ -58,7 +58,7 @@ not prove that a mention represents a candidate's skill or proficiency.
 
 ## Functions and storage
 
-All four functions are defined in `src/extraction/regex_extractor.py`:
+All six functions are defined in `src/extraction/regex_extractor.py`:
 
 | Function | Input | Output |
 | --- | --- | --- |
@@ -66,6 +66,8 @@ All four functions are defined in `src/extraction/regex_extractor.py`:
 | `extract_phones(text)` | Resume text as a `str` | `list[str]` of matching phone numbers |
 | `extract_programming_languages(text)` | Resume text as a `str` | `list[str]` of supported language mentions |
 | `extract_frameworks(text)` | Resume text as a `str` | `list[str]` of supported frameworks, libraries and runtimes |
+| `extract_databases(text)` | Resume text as a `str` | `list[str]` of supported database names |
+| `extract_tools(text)` | Resume text as a `str` | `list[str]` of supported tool names |
 
 Each returned list stores the extracted information in memory. Empty input or
 text without matches produces `[]`. Matches retain original capitalization,
@@ -202,6 +204,54 @@ ordinary prose such as `react` or `pandas` from technology mentions, prove skill
 or interpret negation. Dotted boundary guards can miss names immediately after
 a sentence-ending dot without whitespace. Names in URLs can still match.
 
+## Databases and tools
+
+The initial vocabulary is intentionally limited to these names, with any
+capitalization. The expressions are defined in Python, not loaded from this document.
+
+| Category | Supported names |
+| --- | --- |
+| Databases | `PostgreSQL`, `Postgres`, `MySQL`, `MongoDB` |
+| Tools | `Git`, `Docker` |
+
+```python
+DATABASES_PATTERN = r"(?<![\w.])(?:PostgreSQL|Postgres|MySQL|MongoDB)(?!\w|\.\w)"
+TOOLS_PATTERN = r"(?<![\w.])(?:Git|Docker)(?!\w|\.\w)"
+```
+
+Both functions use `re.findall` with `re.IGNORECASE`. The recognized language
+is the finite set of listed names in any letter case, with boundary checks:
+
+- `(?<![\w.])` excludes a start directly after a word character or dot.
+- `(?:...|...)` groups alternative names without capturing subgroups.
+- `(?!\w|\.\w)` excludes a continuation with a word character or a dot followed
+  by a word character. Thus `MySQL8`, `my_MongoDB`, `GitHub`, `GitLab`,
+  `Dockerfile`, and `Git.exe` do not produce partial matches.
+- Whitespace, commas, parentheses, slashes, and sentence-ending periods can
+  delimit matches. A terminal period is excluded from the returned string.
+
+Search covers the entire resume. Output preserves spelling, capitalization,
+order, and repetitions. Empty input or no supported names produces `[]`.
+
+```python
+extract_databases("I use Postgres, POSTGRESQL and MongoDB.")
+# ['Postgres', 'POSTGRESQL', 'MongoDB']
+extract_tools("I use git and Docker. I teach git.")
+# ['git', 'Docker', 'git']
+```
+
+`Postgres` is not converted to `PostgreSQL`; normalization belongs to the next
+component. `SQL` and `NoSQL` do not identify a specific database product and are
+not included in this database vocabulary. Their treatment as qualifications
+can be defined in a later increment. GitHub and GitLab are not aliases for Git.
+
+Limitations: unlisted products and spellings (such as `Mongo DB`) are not
+recognized. The dot guard excludes a name immediately after a sentence-ending
+dot without a space. A hyphen is a separator, so a supported name within a
+hyphenated expression may match. Matching names alone cannot establish
+proficiency, interpret negation, or rule out mentions in unrelated contexts.
+This initial list still needs review against the team's four profiles.
+
 ## Shared regex concepts
 
 Python concatenates adjacent string literals into one pattern. The `r` prefix
@@ -228,6 +278,8 @@ emails = ['Wednesday.Addams@example.com']
 phones = ['+57 300 123 4567']
 programming_languages = ['JS']
 frameworks = ['React.js', 'NodeJS']
+databases = ['Postgres']
+tools = ['Git']
 ```
 
 From the `resumeLeans` directory, run all current tests:
@@ -248,7 +300,7 @@ is installed in the team's environment.
 
 ## Test design
 
-Nineteen test methods in `tests/test_extraction.py` cover:
+Twenty-seven test methods in `tests/test_extraction.py` cover:
 
 - Common email syntax, subdomains, plus addressing and surrounding punctuation.
 - Original email case, order and repeated occurrences.
@@ -271,6 +323,11 @@ Six framework test methods cover all listed web and data/ML variants, original
 case/order/repetitions in prose, punctuation and line breaks between mentions,
 longer words, malformed dotted names, unsupported line-wrapped names, empty text,
 other categories, and the example resume result `["React.js", "NodeJS"]`.
+
+Eight database/tool test methods cover the supported names, original case,
+order and duplicates, prose without headings, punctuation and line breaks,
+empty text, other categories, longer words and dotted fragments, and the
+example resume results `["Postgres"]` and `["Git"]`.
 
 ## Limitations
 
