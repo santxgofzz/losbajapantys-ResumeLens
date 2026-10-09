@@ -1,4 +1,4 @@
-"""Behavior tests for contact extraction (standard library only)."""
+"""Behavior tests for resume extraction (standard library only)."""
 
 from pathlib import Path
 import unittest
@@ -73,6 +73,92 @@ class ContactExtractionTests(unittest.TestCase):
         text = sample.read_text(encoding="utf-8")
         self.assertEqual(regex_extractor.extract_emails(text), ["Wednesday.Addams@example.com"])
         self.assertEqual(regex_extractor.extract_phones(text), ["+57 300 123 4567"])
+
+
+class ProgrammingLanguageExtractionTests(unittest.TestCase):
+    def test_supported_names_and_case_variants(self):
+        text = "JavaScript JS javascript js TypeScript TS typescript ts Python PYTHON Java JAVA"
+        self.assertEqual(
+            regex_extractor.extract_programming_languages(text),
+            ["JavaScript", "JS", "javascript", "js", "TypeScript", "TS",
+             "typescript", "ts", "Python", "PYTHON", "Java", "JAVA"],
+        )
+
+    def test_preserves_order_and_repetitions_in_prose(self):
+        self.assertEqual(
+            regex_extractor.extract_programming_languages("I use python and JS. I teach python."),
+            ["python", "JS", "python"],
+        )
+
+    def test_punctuation_and_line_breaks(self):
+        self.assertEqual(
+            regex_extractor.extract_programming_languages("(JAVA), PYTHON;\nTS/JS."),
+            ["JAVA", "PYTHON", "TS", "JS"],
+        )
+
+    def test_excludes_longer_words_and_other_categories(self):
+        for text in [
+            "Pythonista JavaScriptCore Python3 my_python",
+            "React.js Node.js NodeJS Postgres Git", "", "No technical skills listed.",
+        ]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_programming_languages(text), [])
+
+    def test_sample_resume(self):
+        sample = Path(__file__).resolve().parents[1] / "data" / "resume_example.txt"
+        self.assertEqual(
+            regex_extractor.extract_programming_languages(sample.read_text(encoding="utf-8")),
+            ["JS"],
+        )
+
+
+class FrameworkExtractionTests(unittest.TestCase):
+    def test_web_variants(self):
+        self.assertEqual(
+            regex_extractor.extract_frameworks(
+                "React, React.js, ReactJS, Angular, Vue, Vue.js, NodeJS, Node.js, Django, Spring Boot"
+            ),
+            ["React", "React.js", "ReactJS", "Angular", "Vue", "Vue.js",
+             "NodeJS", "Node.js", "Django", "Spring Boot"],
+        )
+
+    def test_data_and_machine_learning_variants(self):
+        self.assertEqual(
+            regex_extractor.extract_frameworks(
+                "Pandas, NumPy, Scikit-learn, sklearn, scikit learn, TensorFlow, Tensor Flow, PyTorch, Py Torch"
+            ),
+            ["Pandas", "NumPy", "Scikit-learn", "sklearn", "scikit learn",
+             "TensorFlow", "Tensor Flow", "PyTorch", "Py Torch"],
+        )
+
+    def test_preserves_case_order_and_repetitions_in_prose(self):
+        self.assertEqual(
+            regex_extractor.extract_frameworks("I use react.js and PANDAS. I also teach react.js."),
+            ["react.js", "PANDAS", "react.js"],
+        )
+
+    def test_separators_and_sentence_punctuation(self):
+        self.assertEqual(
+            regex_extractor.extract_frameworks("(Django),\nVue.js/NumPy; Spring Boot."),
+            ["Django", "Vue.js", "NumPy", "Spring Boot"],
+        )
+
+    def test_rejects_longer_words_and_unlisted_variants(self):
+        for text in [
+            "Reactive ReactJSExtra Angularity Vue.jsExtra my_Django Pandas2",
+            "React.jsx ReactXjs Vue.jsx NodeXjs scikitXlearn",
+            "Spring\nBoot Tensor\nFlow Py\nTorch scikit\nlearn",
+            "Python JS Postgres Git", "", "No technologies listed.",
+        ]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_frameworks(text), [])
+
+    def test_sample_resume(self):
+        sample = Path(__file__).resolve().parents[1] / "data" / "resume_example.txt"
+        self.assertEqual(
+            regex_extractor.extract_frameworks(sample.read_text(encoding="utf-8")),
+            ["React.js", "NodeJS"],
+        )
 
 
 if __name__ == "__main__":

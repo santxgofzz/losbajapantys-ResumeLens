@@ -1,25 +1,75 @@
-# Regular-expression extraction: contact information
+# Regular-expression extraction
 
 ## Objective
 
-Extract explicitly written contact information using Python's standard `re`
-module. This increment implements emails and Colombian-style phone numbers
-only. It does not normalize text or evaluate candidate qualifications.
-Programming languages, frameworks, databases, education, experience, tools,
+Extract explicitly written contact information and technical terms using
+Python's standard `re` module. This increment implements emails, Colombian-style
+phone numbers, programming languages, and frameworks/libraries/runtimes below.
+It does not normalize text or evaluate candidate qualifications. Databases, education, experience, tools,
 and other qualifications will be implemented in later increments.
+
+## Step 4: initial programming-language vocabulary
+
+This section defines the vocabulary and behavior of
+`extract_programming_languages(text)`. The vocabulary is implemented in the Python pattern;
+the function does not read this Markdown file.
+
+| Language | Recognized names and abbreviations | Examples of case variants |
+| --- | --- | --- |
+| JavaScript | `JavaScript`, `JS` | `Javascript`, `javascript`, `js`, `JS` |
+| TypeScript | `TypeScript`, `TS` | `Typescript`, `typescript`, `ts`, `TS` |
+| Python | `Python` | `python`, `PYTHON` |
+| Java | `Java` | `java`, `JAVA` |
+
+Matching is case-insensitive; the case variants above are examples, not
+an exhaustive list. The language column organizes this document only: it is
+not a mapping used to normalize the extracted strings.
+
+Recognition rules:
+
+- Search the entire resume, including prose outside a skills section.
+- Return the exact matched text, preserving case, order, and repetitions.
+- Recognize complete names or abbreviations, not parts of longer words:
+  `JavaScript` must not also produce `Java`, and `Pythonista` must not
+  produce `Python`. Adjacent letters, digits, or underscores prevent a
+  complete-word match (for example, `Python3` and `my_python`).
+- Accept surrounding separators such as spaces, commas, parentheses, and
+  line breaks.
+- Return an empty list when no supported language is present.
+- Keep `React.js`, `NodeJS`, `Postgres`, and `Git` outside this category.
+
+Expected examples:
+
+| Input text | Expected list |
+| --- | --- |
+| `JS, React.js, NodeJS, Postgres, Git.` | `["JS"]` |
+| `I use JS and python. I also know JavaScript, Java and React.js.` | `["JS", "python", "JavaScript", "Java"]` |
+| `TypeScript, TS, typescript, ts` | `["TypeScript", "TS", "typescript", "ts"]` |
+| `Python, Python` | `["Python", "Python"]` |
+| `(JAVA), PYTHON` | `["JAVA", "PYTHON"]` |
+| `Pythonista, JavaScriptCore, Python3, my_python` | `[]` |
+| `React.js, NodeJS, Postgres, Git` | `[]` |
+| Empty text | `[]` |
+
+This is an initial vocabulary, not complete coverage of all four professional
+profiles. Additional languages can be added in later increments. Abbreviations
+such as `JS` and `TS` can be ambiguous in prose; lexical extraction alone does
+not prove that a mention represents a candidate's skill or proficiency.
 
 ## Functions and storage
 
-Both functions are defined in `src/extraction/regex_extractor.py`:
+All four functions are defined in `src/extraction/regex_extractor.py`:
 
 | Function | Input | Output |
 | --- | --- | --- |
 | `extract_emails(text)` | Resume text as a `str` | `list[str]` of matching email addresses |
 | `extract_phones(text)` | Resume text as a `str` | `list[str]` of matching phone numbers |
+| `extract_programming_languages(text)` | Resume text as a `str` | `list[str]` of supported language mentions |
+| `extract_frameworks(text)` | Resume text as a `str` | `list[str]` of supported frameworks, libraries and runtimes |
 
 Each returned list stores the extracted information in memory. Empty input or
 text without matches produces `[]`. Matches retain original capitalization,
-separators, order, and repeated occurrences. Neither function reads files,
+separators, order, and repeated occurrences. None of the functions reads files,
 changes the input, requires a section heading, or removes duplicates.
 Inputs other than strings are outside the interface contract.
 
@@ -74,6 +124,84 @@ chosen extraction heuristic, not a complete telephone numbering validator.
 | `[ -]?[0-9]{3}[ -]?[0-9]{4}` | Remaining seven digits, optionally separated into groups of three and four. |
 | `(?!\w|[ -]?[0-9])` | Do not end before a word character or another digit, even with one intervening separator. |
 
+## Programming-language expression
+
+```python
+PROGRAMMING_LANGUAGES_PATTERN = r"(?<![\w.])(?:JavaScript|JS|TypeScript|TS|Python|Java)\b"
+```
+
+- `(?<![\w.])` prevents a match immediately after a word character or a dot.
+  The dot check prevents extracting `js` from `React.js` or `Node.js`.
+- `(?:JavaScript|JS|TypeScript|TS|Python|Java)` lists the supported alternatives
+  without capturing subgroups.
+- `\b` requires a word boundary at the end, excluding suffixes such as
+  `Python3`, `Pythonista`, and `JavaScriptCore`.
+- `re.findall(..., flags=re.IGNORECASE)` accepts case variants while returning
+  the original matched strings, with no normalization.
+
+The language recognized consists of the six listed spellings in any letter
+case, subject to these surrounding-character checks. The vocabulary is finite;
+the function does not infer languages that are missing from the list.
+
+The dot guard is a deliberate heuristic: it also excludes a language directly
+after a sentence-ending dot without a space, such as `experience.Python`.
+Names in URLs or contact details can still be matched in other positions.
+Lexical matching does not establish proficiency or handle negation.
+
+## Frameworks, libraries and runtimes
+
+`extract_frameworks(text)` groups the following technologies for extraction.
+Node.js is a runtime, not a framework; it is deliberately included in this
+category. All listed spellings support case-insensitive matching and retain
+their original representation in the output.
+
+| Technology | Supported spellings |
+| --- | --- |
+| React | `React`, `React.js`, `ReactJS` |
+| Angular | `Angular` |
+| Vue | `Vue`, `Vue.js` |
+| Node.js | `NodeJS`, `Node.js` |
+| Django | `Django` |
+| Spring Boot | `Spring Boot` |
+| Pandas | `Pandas` |
+| NumPy | `NumPy` |
+| Scikit-learn | `Scikit-learn`, `scikit learn`, `sklearn` |
+| TensorFlow | `TensorFlow`, `Tensor Flow` |
+| PyTorch | `PyTorch`, `Py Torch` |
+
+```python
+FRAMEWORKS_PATTERN = (
+    r"(?<![\w.])"
+    r"(?:React(?:\.js|JS)?|Angular|Vue(?:\.js)?|Node(?:JS|\.js)|"
+    r"Django|Spring Boot|Pandas|NumPy|Scikit[- ]learn|sklearn|"
+    r"Tensor ?Flow|Py ?Torch)"
+    r"(?!\w|\.\w)"
+)
+```
+
+- `React(?:\.js|JS)?` accepts the full dotted or joined suffix, or bare `React`.
+  `Vue(?:\.js)?` accepts `Vue.js` and `Vue`.
+- `Node(?:JS|\.js)` requires a suffix, avoiding a match for the generic word `Node`.
+- `Scikit[- ]learn` accepts a single hyphen or space; `sklearn` is another alternative.
+- `Tensor ?Flow` and `Py ?Torch` accept zero or one literal space.
+- `Spring Boot` requires one literal space. Multiword matches cannot span lines.
+- `(?<![\w.])` prevents starting inside a word or after a dot.
+- `(?!\w|\.\w)` prevents ending inside a word or immediately before a dotted
+  continuation. This avoids partial matches such as `React` from `React.jsx`.
+  A sentence-ending dot is allowed when it is not followed by a word character.
+- `re.IGNORECASE` allows variants such as `react.js` and `PANDAS` without changing
+  their spelling. Noncapturing groups keep each `findall` result a complete match.
+
+The function searches the whole input and preserves order and duplicates.
+For `I use React.js, NodeJS and sklearn.`, the result is
+`["React.js", "NodeJS", "sklearn"]`. Empty input or no supported terms produces `[]`.
+
+This is a finite initial vocabulary. Unlisted spellings, multiple internal
+spaces, and line-wrapped names are unsupported. Word matching cannot distinguish
+ordinary prose such as `react` or `pandas` from technology mentions, prove skill,
+or interpret negation. Dotted boundary guards can miss names immediately after
+a sentence-ending dot without whitespace. Names in URLs can still match.
+
 ## Shared regex concepts
 
 Python concatenates adjacent string literals into one pattern. The `r` prefix
@@ -92,12 +220,14 @@ digit groups across line breaks.
 ## Example and execution
 
 `data/resume_example.txt` contains a fictional candidate with contact,
-experience, education, and technical skills. Only contact information is
+experience, education, and technical skills. Contact information and supported technical terms are
 extracted in this increment. Expected results:
 
 ```python
 emails = ['Wednesday.Addams@example.com']
 phones = ['+57 300 123 4567']
+programming_languages = ['JS']
+frameworks = ['React.js', 'NodeJS']
 ```
 
 From the `resumeLeans` directory, run all current tests:
@@ -106,7 +236,7 @@ From the `resumeLeans` directory, run all current tests:
 python -B -m unittest discover -s tests -v
 ```
 
-To try both functions on the example file:
+To try the contact functions on the example file:
 
 ```powershell
 python -B -c "from pathlib import Path; from src.extraction.regex_extractor import extract_emails, extract_phones; text = Path('data/resume_example.txt').read_text(encoding='utf-8'); print('Emails:', extract_emails(text)); print('Phones:', extract_phones(text))"
@@ -118,7 +248,7 @@ is installed in the team's environment.
 
 ## Test design
 
-Eight test methods in `tests/test_extraction.py` cover:
+Nineteen test methods in `tests/test_extraction.py` cover:
 
 - Common email syntax, subdomains, plus addressing and surrounding punctuation.
 - Original email case, order and repeated occurrences.
@@ -129,8 +259,18 @@ Eight test methods in `tests/test_extraction.py` cover:
 - Empty text, dates, incorrect lengths, unsupported prefixes, embedded numbers,
   and digit groups split over lines.
 - Both extractors applied to the actual example file.
+- Language names and abbreviations with case variations.
+- Original language order and repeated occurrences in prose.
+- Language separators, punctuation, and line breaks.
+- Empty input, longer words, and other technology categories, including `React.js`.
+- Language extraction from the actual example file, producing only `["JS"]`.
 
 Expected outputs are literal values, independent of the expressions.
+
+Six framework test methods cover all listed web and data/ML variants, original
+case/order/repetitions in prose, punctuation and line breaks between mentions,
+longer words, malformed dotted names, unsupported line-wrapped names, empty text,
+other categories, and the example resume result `["React.js", "NodeJS"]`.
 
 ## Limitations
 

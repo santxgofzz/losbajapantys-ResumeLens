@@ -1,4 +1,4 @@
-"""Extract original contact information from resume text using re."""
+"""Extract original contact information and technical terms using re."""
 
 import re
 
@@ -35,3 +35,33 @@ def extract_phones(text: str) -> list[str]:
     or hyphens. Preserve order and repeats; do not verify number allocation.
     """
     return re.findall(PHONE_PATTERN, text)
+
+
+PROGRAMMING_LANGUAGES_PATTERN = r"(?<![\w.])(?:JavaScript|JS|TypeScript|TS|Python|Java)\b"
+
+
+def extract_programming_languages(text: str) -> list[str]:
+    """Return supported language mentions with original case, order and repeats.
+
+    Match JavaScript/JS, TypeScript/TS, Python and Java throughout the text.
+    Exclude longer words and dotted suffixes such as the js in React.js.
+    """
+    return re.findall(PROGRAMMING_LANGUAGES_PATTERN, text, flags=re.IGNORECASE)
+
+
+FRAMEWORKS_PATTERN = (
+    r"(?<![\w.])"
+    r"(?:React(?:\.js|JS)?|Angular|Vue(?:\.js)?|Node(?:JS|\.js)|"
+    r"Django|Spring Boot|Pandas|NumPy|Scikit[- ]learn|sklearn|"
+    r"Tensor ?Flow|Py ?Torch)"
+    r"(?!\w|\.\w)"
+)
+
+
+def extract_frameworks(text: str) -> list[str]:
+    """Return supported frameworks, libraries and runtimes as originally written.
+
+    Search the entire text without normalizing case or spelling. Preserve
+    order and repetitions. Multiword variants use a single literal space.
+    """
+    return re.findall(FRAMEWORKS_PATTERN, text, flags=re.IGNORECASE)
