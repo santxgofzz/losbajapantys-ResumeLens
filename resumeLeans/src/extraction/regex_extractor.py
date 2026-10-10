@@ -123,3 +123,39 @@ def extract_experience(text: str) -> list[str]:
     Do not calculate durations from dates or infer relevance to a job profile.
     """
     return re.findall(EXPERIENCE_PATTERN, text, flags=re.IGNORECASE)
+
+
+OTHER_QUALIFICATIONS_PATTERN = (
+    r"(?<![\w.])"
+    r"(?:REST[ \t]+APIs?|NoSQL|SQL|"
+    r"machine(?:-|[ \t]+)learning[ \t]+model[ \t]+development)"
+    r"(?!\w|\.\w)"
+)
+
+
+def extract_other_qualifications(text: str) -> list[str]:
+    """Return explicit mentions of the supported additional qualifications.
+
+    Recognize REST API(s), SQL, NoSQL and machine-learning model development.
+    Preserve case, spacing, order and repeats; do not infer skills from products.
+    """
+    return re.findall(OTHER_QUALIFICATIONS_PATTERN, text, flags=re.IGNORECASE)
+
+
+def extract_resume_info(text: str) -> dict[str, list[str]]:
+    """Return all nine extraction categories, including empty lists.
+
+    Input is resume text, not a file path. Values retain original matched text.
+    This function does not normalize, classify, or perform file operations.
+    """
+    return {
+        "emails": extract_emails(text),
+        "phones": extract_phones(text),
+        "programming_languages": extract_programming_languages(text),
+        "frameworks": extract_frameworks(text),
+        "databases": extract_databases(text),
+        "education": extract_education(text),
+        "experience": extract_experience(text),
+        "tools": extract_tools(text),
+        "other_qualifications": extract_other_qualifications(text),
+    }

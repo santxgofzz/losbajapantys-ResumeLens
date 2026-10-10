@@ -286,5 +286,53 @@ class ExperienceExtractionTests(unittest.TestCase):
                          ["3 years of experience"])
 
 
+class OtherQualificationExtractionTests(unittest.TestCase):
+    def test_supported_concepts_and_variants(self):
+        self.assertEqual(regex_extractor.extract_other_qualifications(
+            "REST APIs; REST API; SQL; NoSQL; machine-learning model development; "
+            "machine learning model development"),
+            ["REST APIs", "REST API", "SQL", "NoSQL", "machine-learning model development",
+             "machine learning model development"])
+
+    def test_preserves_case_spacing_order_and_repetitions(self):
+        self.assertEqual(regex_extractor.extract_other_qualifications(
+            "I build rest  apis using sql. I also teach sql."),
+            ["rest  apis", "sql", "sql"])
+
+    def test_does_not_infer_from_products_or_partial_words(self):
+        for text in ["", "MySQL PostgreSQL TensorFlow Python Git", "NoSQLExtra REST APIservice",
+                     "SQLAlchemy my_SQL SQL.js", "machine learning", "REST\nAPIs"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_other_qualifications(text), [])
+
+
+class ResumeInfoExtractionTests(unittest.TestCase):
+    def test_sample_resume_complete_dictionary(self):
+        sample = Path(__file__).resolve().parents[1] / "data" / "resume_example.txt"
+        self.assertEqual(regex_extractor.extract_resume_info(sample.read_text(encoding="utf-8")), {
+            "emails": ["Wednesday.Addams@example.com"], "phones": ["+57 300 123 4567"],
+            "programming_languages": ["JS"], "frameworks": ["React.js", "NodeJS"],
+            "databases": ["Postgres"], "education": ["Bachelor's degree in Systems Engineering"],
+            "experience": ["3 years of experience"], "tools": ["Git"], "other_qualifications": [],
+        })
+
+    def test_empty_text_keeps_all_categories(self):
+        self.assertEqual(regex_extractor.extract_resume_info(""), {
+            "emails": [], "phones": [], "programming_languages": [], "frameworks": [],
+            "databases": [], "education": [], "experience": [], "tools": [],
+            "other_qualifications": [],
+        })
+
+    def test_mixed_text_keeps_categories_and_original_variants(self):
+        self.assertEqual(regex_extractor.extract_resume_info(
+            "python, sklearn, PostgreSQL, git, SQL, NoSQL, REST APIs, python. "
+            "PhD in Data Science; 2 years of experience."), {
+            "emails": [], "phones": [], "programming_languages": ["python", "python"],
+            "frameworks": ["sklearn"], "databases": ["PostgreSQL"],
+            "education": ["PhD in Data Science"], "experience": ["2 years of experience"],
+            "tools": ["git"], "other_qualifications": ["SQL", "NoSQL", "REST APIs"],
+        })
+
+
 if __name__ == "__main__":
     unittest.main()

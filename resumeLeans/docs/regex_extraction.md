@@ -7,7 +7,8 @@ Python's standard `re` module. This increment implements emails, Colombian-style
 phone numbers, programming languages, frameworks/libraries/runtimes, databases,
 tools, academic qualifications, and explicit experience durations below.
 It does not normalize text or evaluate candidate qualifications.
-Other qualifications and the combined extraction function remain future work.
+Additional qualifications and a combined dictionary interface are also implemented.
+Final coverage review against all four team profiles remains pending.
 
 ## Step 4: initial programming-language vocabulary
 
@@ -59,7 +60,7 @@ not prove that a mention represents a candidate's skill or proficiency.
 
 ## Functions and storage
 
-All eight functions are defined in `src/extraction/regex_extractor.py`:
+All functions are defined in `src/extraction/regex_extractor.py`:
 
 | Function | Input | Output |
 | --- | --- | --- |
@@ -71,6 +72,8 @@ All eight functions are defined in `src/extraction/regex_extractor.py`:
 | `extract_tools(text)` | Resume text as a `str` | `list[str]` of supported tool names |
 | `extract_education(text)` | Resume text as a `str` | `list[str]` of supported degree-and-field phrases |
 | `extract_experience(text)` | Resume text as a `str` | `list[str]` of explicit numeric experience phrases |
+| `extract_other_qualifications(text)` | Resume text as a `str` | `list[str]` of supported additional qualifications |
+| `extract_resume_info(text)` | Resume text as a `str` | `dict[str, list[str]]` containing all nine categories |
 
 Each returned list stores the extracted information in memory. Empty input or
 text without matches produces `[]`. Matches retain original capitalization,
@@ -342,6 +345,86 @@ durations or number/unit agreement errors can match. The function does not
 distinguish professional from academic experience when the text does not say,
 interpret negation, or decide whether experience is relevant to a profile.
 
+## Other relevant qualifications
+
+The assignment's Full Stack reference profile mentions REST APIs and SQL/NoSQL
+databases; its Machine Learning reference profile mentions SQL and
+machine-learning model development. These concepts supply the initial vocabulary
+for `extract_other_qualifications(text)`. This is not a list of new mandatory
+requirements for every candidate.
+
+| Concept from the assignment | Accepted textual forms |
+| --- | --- |
+| REST APIs | `REST API`, `REST APIs` |
+| SQL | `SQL` |
+| NoSQL | `NoSQL` |
+| Machine-learning model development | `machine-learning model development`, `machine learning model development` |
+
+Singular/plural API, spacing, hyphen and capitalization handling are extractor
+design choices. The output does not convert any variant to a canonical form.
+SQL is a query language and NoSQL a database category, not product names.
+They are placed here by an explicit interface decision, while named products
+remain in `databases`. A mention of `MySQL` does not imply an extra `SQL` match.
+
+```python
+OTHER_QUALIFICATIONS_PATTERN = (
+    r"(?<![\w.])"
+    r"(?:REST[ \t]+APIs?|NoSQL|SQL|"
+    r"machine(?:-|[ \t]+)learning[ \t]+model[ \t]+development)"
+    r"(?!\w|\.\w)"
+)
+```
+
+The boundary guards exclude longer words and dotted continuations, as in the
+database/tool patterns. `APIs?` accepts singular/plural; `[ \t]+` accepts spaces
+or tabs without joining lines. `(?:-|[ \t]+)` accepts a hyphen or horizontal
+whitespace between `machine` and `learning`. Noncapturing alternatives keep
+`re.findall` results as complete phrases. Matching uses `re.IGNORECASE`.
+
+For `I build REST APIs using sql and NoSQL.`, output is
+`["REST APIs", "sql", "NoSQL"]`. Order, spelling, spacing and repeats are retained.
+Limitations: this finite vocabulary does not recognize paraphrases such as
+`developing predictive models`, infer SQL from products, or infer model
+development from TensorFlow. It cannot interpret negation or prove proficiency.
+Line-wrapped phrases and unlisted qualifications require later coverage work.
+
+## Combined extraction interface
+
+`extract_resume_info(text)` calls each of the nine extraction functions once
+and returns a new dictionary with stable keys, including empty categories:
+
+```python
+{
+    "emails": ["Wednesday.Addams@example.com"],
+    "phones": ["+57 300 123 4567"],
+    "programming_languages": ["JS"],
+    "frameworks": ["React.js", "NodeJS"],
+    "databases": ["Postgres"],
+    "education": ["Bachelor's degree in Systems Engineering"],
+    "experience": ["3 years of experience"],
+    "tools": ["Git"],
+    "other_qualifications": [],
+}
+```
+
+This is the expected result for the existing sample file. The empty additional
+qualifications list is intentional: the sample does not explicitly mention
+any of that vocabulary. Empty input returns the same keys with empty lists.
+Order is preserved within each category; the dictionary does not encode a
+global ordering across categories or source positions.
+
+The input must be the resume's text, not a filename. The function does not
+read or write files, normalize aliases, remove duplicates, classify candidates,
+or invoke the team's other modules. Its returned dictionary provides in-memory
+storage and is JSON-serializable. Downstream modules can consume it; agreeing
+and connecting their interfaces is still a separate integration step.
+
+From `resumeLeans`, inspect the full sample result without writing an output file:
+
+```powershell
+python -B -c "import json; from pathlib import Path; from src.extraction.regex_extractor import extract_resume_info; text = Path('data/resume_example.txt').read_text(encoding='utf-8'); print(json.dumps(extract_resume_info(text), indent=2, ensure_ascii=False))"
+```
+
 ## Shared regex concepts
 
 Python concatenates adjacent string literals into one pattern. The `r` prefix
@@ -392,7 +475,7 @@ is installed in the team's environment.
 
 ## Test design
 
-Thirty-eight test methods in `tests/test_extraction.py` cover:
+Forty-four test methods in `tests/test_extraction.py` cover:
 
 - Common email syntax, subdomains, plus addressing and surrounding punctuation.
 - Original email case, order and repeated occurrences.
@@ -426,6 +509,12 @@ curly apostrophes, repetitions, prose boundaries, unsupported/incomplete phrases
 and the sample resume. Six experience tests cover numeric formats, units,
 modifiers, original case/spacing/order/repetitions, prose, date ranges without
 inferred durations, invalid or unsupported phrases, and the sample resume.
+
+Three additional-qualification tests cover the listed concepts and variants,
+preservation of case/spacing/repeats, absent matches and avoidance of inference
+from product names. Three combined-interface tests assert complete dictionaries
+for the sample resume, empty input, and mixed prose with repeated mentions.
+Expected dictionaries are hand-written independently of the extraction functions.
 
 ## Limitations
 
