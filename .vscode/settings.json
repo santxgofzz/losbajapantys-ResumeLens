@@ -1,0 +1,3 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/resumeLeans/.venv/Scripts/python.exe"
+}
