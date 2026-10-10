@@ -16,6 +16,7 @@ from src.automata.profile_definitions import (
 FULL_STACK_PROFILE = "FULL_STACK_DEVELOPER"
 MACHINE_LEARNING_PROFILE = "MACHINE_LEARNING_ENGINEER"
 DEVOPS_PROFILE = "DEVOPS_ENGINEER"
+DATA_ENGINEER_PROFILE = "DATA_ENGINEER"
 
 
 
@@ -417,5 +418,132 @@ def is_devops_engineer(
     )
 
     automaton = build_devops_automaton()
+
+    return automaton.accepts(prepared_qualifications)
+
+
+def build_data_engineer_automaton() -> DeterministicFiniteAutomaton:
+    """
+    Build the deterministic finite automaton for the Data Engineer profile.
+
+    Expected qualification categories, in canonical order:
+
+    Python
+        -> database technology
+        -> ETL
+        -> distributed data technology
+        -> workflow orchestration
+        -> data warehouse
+        -> version control
+    """
+
+    automaton = DeterministicFiniteAutomaton()
+
+    q0 = State("q0")
+    q1 = State("q1")
+    q2 = State("q2")
+    q3 = State("q3")
+    q4 = State("q4")
+    q5 = State("q5")
+    q6 = State("q6")
+    q7 = State("q7")
+
+    automaton.add_start_state(q0)
+    automaton.add_final_state(q7)
+
+    database_technologies = (
+        "SQL",
+        "POSTGRESQL",
+    )
+
+    distributed_data_technologies = (
+        "SPARK",
+        "KAFKA",
+    )
+
+    # Python is required.
+    automaton.add_transition(
+        q0,
+        Symbol("PYTHON"),
+        q1,
+    )
+
+    # q1 -> q2:
+    # At least one database technology is required.
+    for qualification in database_technologies:
+        automaton.add_transition(
+            q1,
+            Symbol(qualification),
+            q2,
+        )
+
+        # More than one database technology is allowed.
+        automaton.add_transition(
+            q2,
+            Symbol(qualification),
+            q2,
+        )
+
+    # ETL is required.
+    automaton.add_transition(
+        q2,
+        Symbol("ETL"),
+        q3,
+    )
+
+    # q3 -> q4:
+    # At least one distributed data technology is required.
+    for qualification in distributed_data_technologies:
+        automaton.add_transition(
+            q3,
+            Symbol(qualification),
+            q4,
+        )
+
+        # More than one distributed data technology is allowed.
+        automaton.add_transition(
+            q4,
+            Symbol(qualification),
+            q4,
+        )
+
+    # Airflow is required.
+    automaton.add_transition(
+        q4,
+        Symbol("AIRFLOW"),
+        q5,
+    )
+
+    # A data warehouse qualification is required.
+    automaton.add_transition(
+        q5,
+        Symbol("DATA_WAREHOUSE"),
+        q6,
+    )
+
+    # Git completes the accepted qualification pattern.
+    automaton.add_transition(
+        q6,
+        Symbol("GIT"),
+        q7,
+    )
+
+    return automaton
+
+
+def is_data_engineer(
+    qualifications: Iterable[str],
+) -> bool:
+    """
+    Return True if the normalized qualifications satisfy the
+    Data Engineer qualification pattern.
+    """
+
+    prepared_qualifications = prepare_qualifications_for_profile(
+        qualifications,
+        DATA_ENGINEER_PROFILE,
+    )
+
+    automaton = build_data_engineer_automaton()
 
     return automaton.accepts(prepared_qualifications)
