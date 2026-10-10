@@ -15,6 +15,8 @@ from src.automata.profile_definitions import (
 
 FULL_STACK_PROFILE = "FULL_STACK_DEVELOPER"
 MACHINE_LEARNING_PROFILE = "MACHINE_LEARNING_ENGINEER"
+DEVOPS_PROFILE = "DEVOPS_ENGINEER"
+
 
 
 def build_full_stack_automaton() -> DeterministicFiniteAutomaton:
@@ -286,5 +288,134 @@ def is_machine_learning_engineer(
     )
 
     automaton = build_machine_learning_automaton()
+
+    return automaton.accepts(prepared_qualifications)
+
+
+def build_devops_automaton() -> DeterministicFiniteAutomaton:
+    """
+    Build the deterministic finite automaton for the DevOps Engineer profile.
+
+    Expected qualification categories, in canonical order:
+
+    Linux
+        -> Docker
+        -> Kubernetes
+        -> CI/CD technology
+        -> cloud platform
+        -> Terraform
+        -> version control
+    """
+
+    automaton = DeterministicFiniteAutomaton()
+
+    q0 = State("q0")
+    q1 = State("q1")
+    q2 = State("q2")
+    q3 = State("q3")
+    q4 = State("q4")
+    q5 = State("q5")
+    q6 = State("q6")
+    q7 = State("q7")
+
+    automaton.add_start_state(q0)
+    automaton.add_final_state(q7)
+
+    ci_cd_technologies = (
+        "JENKINS",
+        "GITHUB_ACTIONS",
+        "GITLAB_CI",
+    )
+
+    cloud_platforms = (
+        "AWS",
+        "AZURE",
+        "GCP",
+    )
+
+    # Linux is required.
+    automaton.add_transition(
+        q0,
+        Symbol("LINUX"),
+        q1,
+    )
+
+    # Docker is required.
+    automaton.add_transition(
+        q1,
+        Symbol("DOCKER"),
+        q2,
+    )
+
+    # Kubernetes is required.
+    automaton.add_transition(
+        q2,
+        Symbol("KUBERNETES"),
+        q3,
+    )
+
+    # q3 -> q4:
+    # At least one CI/CD technology is required.
+    for qualification in ci_cd_technologies:
+        automaton.add_transition(
+            q3,
+            Symbol(qualification),
+            q4,
+        )
+
+        # More than one CI/CD technology is allowed.
+        automaton.add_transition(
+            q4,
+            Symbol(qualification),
+            q4,
+        )
+
+    # q4 -> q5:
+    # At least one cloud platform is required.
+    for qualification in cloud_platforms:
+        automaton.add_transition(
+            q4,
+            Symbol(qualification),
+            q5,
+        )
+
+        # More than one cloud platform is allowed.
+        automaton.add_transition(
+            q5,
+            Symbol(qualification),
+            q5,
+        )
+
+    # Terraform is required.
+    automaton.add_transition(
+        q5,
+        Symbol("TERRAFORM"),
+        q6,
+    )
+
+    # Git completes the accepted qualification pattern.
+    automaton.add_transition(
+        q6,
+        Symbol("GIT"),
+        q7,
+    )
+
+    return automaton
+
+
+def is_devops_engineer(
+    qualifications: Iterable[str],
+) -> bool:
+    """
+    Return True if the normalized qualifications satisfy the
+    DevOps Engineer qualification pattern.
+    """
+
+    prepared_qualifications = prepare_qualifications_for_profile(
+        qualifications,
+        DEVOPS_PROFILE,
+    )
+
+    automaton = build_devops_automaton()
 
     return automaton.accepts(prepared_qualifications)
