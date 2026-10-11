@@ -323,6 +323,7 @@ def build_devops_automaton() -> DeterministicFiniteAutomaton:
     automaton.add_final_state(q7)
 
     ci_cd_technologies = (
+        "CI_CD",
         "JENKINS",
         "GITHUB_ACTIONS",
         "GITLAB_CI",

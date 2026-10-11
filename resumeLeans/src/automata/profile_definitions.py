@@ -69,7 +69,7 @@ PROFILE_DEFINITIONS = {
         ),
         (
             "ci_cd",
-            ("JENKINS", "GITHUB_ACTIONS", "GITLAB_CI"),
+            ("CI_CD", "JENKINS", "GITHUB_ACTIONS", "GITLAB_CI"),
         ),
         (
             "cloud",
