@@ -334,5 +334,63 @@ class ResumeInfoExtractionTests(unittest.TestCase):
         })
 
 
+class AdditionalProfileExtractionTests(unittest.TestCase):
+    def test_devops_tool_variants(self):
+        self.assertEqual(regex_extractor.extract_tools(
+            "Linux, Kubernetes, K8s, Jenkins, GitHub Actions, GitLab CI, AWS, "
+            "Amazon Web Services, GCP, Google Cloud, Google Cloud Platform, "
+            "Azure, Microsoft Azure, Terraform"),
+            ["Linux", "Kubernetes", "K8s", "Jenkins", "GitHub Actions", "GitLab CI",
+             "AWS", "Amazon Web Services", "GCP", "Google Cloud", "Google Cloud Platform",
+             "Azure", "Microsoft Azure", "Terraform"])
+
+    def test_data_tool_variants(self):
+        self.assertEqual(regex_extractor.extract_tools(
+            "Apache Spark; Spark; PySpark; Airflow; Apache Airflow; Kafka; Apache Kafka"),
+            ["Apache Spark", "Spark", "PySpark", "Airflow", "Apache Airflow", "Kafka", "Apache Kafka"])
+
+    def test_process_and_architecture_variants(self):
+        self.assertEqual(regex_extractor.extract_other_qualifications(
+            "CI/CD CI-CD ETL Extract Transform Load Data Warehouse DW DWH"),
+            ["CI/CD", "CI-CD", "ETL", "Extract Transform Load", "Data Warehouse", "DW", "DWH"])
+
+    def test_preserves_original_case_spacing_and_repeats(self):
+        self.assertEqual(regex_extractor.extract_tools(
+            "I use apache  spark with k8s.\nI also use apache  spark and GitHub\tActions."),
+            ["apache  spark", "k8s", "apache  spark", "GitHub\tActions"])
+        self.assertEqual(regex_extractor.extract_other_qualifications(
+            "etl, data  warehouse, ci/cd, etl"), ["etl", "data  warehouse", "ci/cd", "etl"])
+
+    def test_avoids_embedded_names_and_partial_extended_names(self):
+        for text in ["LinuxMint KubernetesExtra K8sExtra Jenkinsfile PySparkSQL Kafkaesque",
+                     "my_Airflow AWSExtra Terraform2", "GitHub ActionsExtra GitLab CIExtra",
+                     "Google Cloud PlatformExtra Microsoft AzureExtra", "GitHub\nActions"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_tools(text), [])
+        for text in ["ETLExtra my_DW DWHExtra CI/CDExtra", "Data WarehouseExtra",
+                     "Extract Transform Loader", "CI\nCD", "Data\nWarehouse"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_other_qualifications(text), [])
+
+    def test_devops_resume_dictionary(self):
+        self.assertEqual(regex_extractor.extract_resume_info(
+            "I run Linux and Docker with Kubernetes. I use GitHub Actions, AWS, Terraform and Git."), {
+            "emails": [], "phones": [], "programming_languages": [], "frameworks": [],
+            "databases": [], "education": [], "experience": [],
+            "tools": ["Linux", "Docker", "Kubernetes", "GitHub Actions", "AWS", "Terraform", "Git"],
+            "other_qualifications": [],
+        })
+
+    def test_data_engineer_resume_dictionary(self):
+        self.assertEqual(regex_extractor.extract_resume_info(
+            "I use Python, SQL and ETL with Apache Spark, Apache Kafka and Airflow. "
+            "I work with a Data Warehouse and Git."), {
+            "emails": [], "phones": [], "programming_languages": ["Python"], "frameworks": [],
+            "databases": [], "education": [], "experience": [],
+            "tools": ["Apache Spark", "Apache Kafka", "Airflow", "Git"],
+            "other_qualifications": ["SQL", "ETL", "Data Warehouse"],
+        })
+
+
 if __name__ == "__main__":
     unittest.main()

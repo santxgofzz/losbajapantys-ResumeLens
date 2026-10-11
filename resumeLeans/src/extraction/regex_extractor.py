@@ -78,13 +78,22 @@ def extract_databases(text: str) -> list[str]:
     return re.findall(DATABASES_PATTERN, text, flags=re.IGNORECASE)
 
 
-TOOLS_PATTERN = r"(?<![\w.])(?:Git|Docker)(?!\w|\.\w)"
+TOOLS_PATTERN = (
+    r"(?<![\w.])"
+    r"(?:GitHub[ \t]+Actions|GitLab[ \t]+CI|Git|Docker|Linux|Kubernetes|K8s|Jenkins|"
+    r"AWS|Amazon[ \t]+Web[ \t]+Services|GCP|"
+    r"Google[ \t]+Cloud(?:[ \t]+Platform|(?![ \t]+Platform))|"
+    r"(?:Microsoft[ \t]+)?Azure|Terraform|"
+    r"(?:Apache[ \t]+)?(?:Spark|Airflow|Kafka)|PySpark)"
+    r"(?!\w|\.\w)"
+)
 
 
 def extract_tools(text: str) -> list[str]:
-    """Return Git and Docker mentions with original case, order and repeats.
+    """Return supported development, DevOps and data tools as originally written.
 
-    Search the entire text; do not infer Git from GitHub or GitLab mentions.
+    Include cloud platforms and data-processing technologies. Search the entire
+    text; preserve complete names such as GitHub Actions without inferring Git.
     """
     return re.findall(TOOLS_PATTERN, text, flags=re.IGNORECASE)
 
@@ -128,7 +137,8 @@ def extract_experience(text: str) -> list[str]:
 OTHER_QUALIFICATIONS_PATTERN = (
     r"(?<![\w.])"
     r"(?:REST[ \t]+APIs?|NoSQL|SQL|"
-    r"machine(?:-|[ \t]+)learning[ \t]+model[ \t]+development)"
+    r"machine(?:-|[ \t]+)learning[ \t]+model[ \t]+development|"
+    r"CI[/-]CD|ETL|Extract[ \t]+Transform[ \t]+Load|Data[ \t]+Warehouse|DWH|DW)"
     r"(?!\w|\.\w)"
 )
 
@@ -136,7 +146,8 @@ OTHER_QUALIFICATIONS_PATTERN = (
 def extract_other_qualifications(text: str) -> list[str]:
     """Return explicit mentions of the supported additional qualifications.
 
-    Recognize REST API(s), SQL, NoSQL and machine-learning model development.
+    Recognize REST API(s), SQL, NoSQL, machine-learning model development,
+    CI/CD, ETL and data warehouse mentions, including supported aliases.
     Preserve case, spacing, order and repeats; do not infer skills from products.
     """
     return re.findall(OTHER_QUALIFICATIONS_PATTERN, text, flags=re.IGNORECASE)
