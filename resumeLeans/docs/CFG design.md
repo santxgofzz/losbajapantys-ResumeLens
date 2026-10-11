@@ -97,7 +97,7 @@ an unquoted name, an unknown trailing field, an invalid skill identifier such as
 `123BAD`, or a status of `MAYBE`. A bare ACCEPTED/REJECTED status is required;
 these fixed labels are case-sensitive.
 
-## Python parser base
+## Python implementation
 
 `parse_candidate_profile(text)` in `src/dsl/candidate_parser.py` loads grammar.tx
 relative to its own module, then uses textX to parse the supplied string. It
@@ -105,6 +105,11 @@ returns the generated ResumeProfile model. It reloads the grammar on each call,
 so subsequent grammar edits are read automatically. Non-string input raises
 TypeError. Invalid DSL syntax raises TextXSyntaxError with line/column details.
 Grammar loading failures propagate rather than being mistaken for invalid CVs.
+Quoted strings are decoded with `ast.literal_eval` registered as the textX STRING
+processor, allowing escaped quotes, backslashes, tabs and newlines to round-trip.
+This parses literals only, never executes Python expressions. The generator uses
+JSON-style quoted strings with Unicode preserved; malformed escape literals may
+raise SyntaxError/ValueError during decoding in addition to textX syntax errors.
 
 From `resumeLeans`, using the local virtual environment:
 
@@ -117,20 +122,97 @@ The parser requires textX (the repository pins version 4.4.0). Tests use unittes
 and the real grammar/parser. They cover repeated fields, absent optional fields,
 empty lists, invalid syntax with error locations, and non-string input.
 
-## Semantic checks and subsequent work
+## Generation and semantic validation
 
-This base validates syntax only. Evaluated profile names are unrestricted STRING
-values; skill names are ID values and are not restricted to the normalization
-alphabet. Unknown or duplicate profile names, duplicate skills, invalid email
-contents, and zero evaluations can therefore parse successfully.
+| Function | Input | Output |
+| --- | --- | --- |
+| `parse_candidate_profile(text)` | DSL string | textX model; syntax and literal decoding only |
+| `validate_candidate_profile(text)` | DSL string | textX model after syntax and semantic checks |
+| `generate_candidate_profile(extracted, normalized_skills, evaluations, personal_info=None)` | Stage 1 dictionary, stage 2 list of strings, stage 3 dictionary of booleans, optional personal dictionary | Validated DSL string |
+| `candidate_profile_to_dict(text)` | DSL string | Plain dictionary for HTML, only after semantic validation |
 
-If the team requires exactly four unique supported evaluations, Python semantic
-validation must enforce that separately. ACCEPTED/REJECTED must come from the
-classification results, not be inferred by the grammar. The parser currently does
-not verify them. Missing personal fields need an agreed display policy rather
-than fabricated values.
+The semantic validator requires exactly one evaluation for each name in
+`SUPPORTED_PROFILES` from `src/automata/profile_definitions.py`. Unknown,
+duplicated or missing profiles are rejected with ValueError. This is a Python
+policy for complete pipeline output, stricter than the grammar's zero-or-more
+rule: the minimal example remains syntactically valid but is not ready for HTML.
 
-DSL generation from stages 1-3, semantic validation, conversion to an agreed HTML
-input dictionary, and HTML rendering remain subsequent tasks. When the grammar
-changes, update this specification, fixtures, model consumers and relevant tests
-together. Reloading the grammar alone does not update consumers' attribute names.
+Skills must be unique uppercase identifiers matching `[A-Z][A-Z0-9_]*`. This checks
+canonical *format*, not membership in the transducer's output vocabulary. New
+canonical tokens are therefore allowed without editing this parser. Neither the
+parser nor validator translates aliases or recomputes classification results.
+Contact, education and experience entries must be nonempty strings. Email/phone
+validity and the truth of the supplied qualifications are not checked here.
+
+The generator reads `emails`, `phones`, `education` and `experience` from the
+extractor dictionary; omitted keys become empty lists. It reads skills exclusively
+from the supplied normalization result, not from raw extraction categories.
+Each evaluation value must be an actual bool (`True`/`False`), not a string or
+number. Generation uses the four-profile order from `SUPPORTED_PROFILES` and
+converts booleans to ACCEPTED/REJECTED without changing the underlying result.
+
+Optional personal keys are `name`, `current_role`, `location`, `summary`.
+Absent/None values are omitted; supplied values must be nonempty strings.
+Unknown personal keys are rejected. Inputs are not mutated. No personal data
+is inferred from the resume, and no file is written by these functions.
+
+Example using results supplied by the preceding stages:
+
+```python
+from src.dsl.candidate_parser import generate_candidate_profile, candidate_profile_to_dict
+
+# extracted = extract_resume_info(resume_text)
+# normalized_skills = normalizar_skills(extracted)
+# evaluations must come from the four actual classifier calls:
+# {"FULL_STACK_DEVELOPER": bool, "MACHINE_LEARNING_ENGINEER": bool,
+#  "DEVOPS_ENGINEER": bool, "DATA_ENGINEER": bool}
+dsl_text = generate_candidate_profile(extracted, normalized_skills, evaluations)
+html_data = candidate_profile_to_dict(dsl_text)
+```
+
+## Contract for the HTML author
+
+The output keys and value types are:
+
+```python
+{
+    "name": None,          # string or None
+    "current_role": None,  # string or None
+    "location": None,      # string or None
+    "summary": None,       # string or None
+    "emails": [],          # list[str]
+    "phones": [],          # list[str]
+    "education": [],       # list[str]
+    "experience": [],      # list[str]
+    "skills": [],          # list[str], normalized identifiers
+    "evaluations": [
+        {"profile": "FULL_STACK_DEVELOPER", "status": "REJECTED"},
+        {"profile": "MACHINE_LEARNING_ENGINEER", "status": "REJECTED"},
+        {"profile": "DEVOPS_ENGINEER", "status": "REJECTED"},
+        {"profile": "DATA_ENGINEER", "status": "REJECTED"},
+    ],
+}
+```
+
+The displayed statuses above illustrate the schema, not a default imposed by
+the code. The actual statuses come from the validated DSL. Empty personal strings
+in handwritten DSL are exposed as None. All lists preserve their model order.
+The dictionary is JSON-serializable and does not contain textX parent references.
+
+The HTML author should omit missing personal fields or display an agreed missing
+data label. Values are raw text: HTML-escape them when rendering (for example,
+`html.escape` or a template engine with autoescaping). DSL validation does not
+make strings safe to insert as HTML. Never render an invalid DSL document.
+
+## Verification and remaining integration
+
+The DSL tests include complete generation/parse/dictionary round trips, repeated
+entries, absent data, quoted/Unicode/multiline strings, invalid input types,
+incorrect profile names, missing/duplicate evaluations, duplicate/lowercase skills,
+and syntax errors. No classifier or textX mocks are used in these tests.
+
+The application entry point and HTML rendering still need to call this API.
+Known normalization/classifier symbol mismatches remain upstream issues; this
+module preserves results and does not hide or repair them. When the grammar
+changes, update this specification, fixtures, model consumers and tests together.
+Reloading the grammar alone does not update consumers' attribute names.
