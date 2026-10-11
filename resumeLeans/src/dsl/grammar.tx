@@ -1,0 +1,30 @@
+ResumeProfile:
+    'CANDIDATE:' name=STRING
+    'ROLE:' current_role=STRING
+    'LOCATION:' location=STRING
+    
+    'CONTACT:'
+    'Email:' email=STRING
+    
+    'SUMMARY:'
+    summary=STRING
+    
+    'EXPERIENCE:'
+    experience_title=STRING
+    'Duration:' experience_duration=STRING
+    
+    'NORMALIZED_SKILLS:'
+    skills*=Skill
+    
+    'EVALUATION:'
+    'Profile evaluated:' evaluated_profile=STRING
+    'Qualification pattern:' status=Status
+;
+
+Skill:
+    '-' name=ID
+;
+
+Status:
+    'ACCEPTED' | 'REJECTED'
+;
