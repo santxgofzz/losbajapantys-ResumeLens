@@ -1,28 +1,30 @@
 ResumeProfile:
-    'CANDIDATE:' name=STRING
-    'ROLE:' current_role=STRING
-    'LOCATION:' location=STRING
-    
+    ('CANDIDATE:' name=STRING)?
+    ('ROLE:' current_role=STRING)?
+    ('LOCATION:' location=STRING)?
+    ('SUMMARY:' summary=STRING)?
     'CONTACT:'
-    'Email:' email=STRING
-    
-    'SUMMARY:'
-    summary=STRING
-    
+    emails*=Email
+    phones*=Phone
+    'EDUCATION:'
+    education*=Education
     'EXPERIENCE:'
-    experience_title=STRING
-    'Duration:' experience_duration=STRING
-    
+    experiences*=Experience
     'NORMALIZED_SKILLS:'
     skills*=Skill
-    
     'EVALUATION:'
-    'Profile evaluated:' evaluated_profile=STRING
-    'Qualification pattern:' status=Status
+    evaluations*=Evaluation
 ;
 
-Skill:
-    '-' name=ID
+Email: 'Email:' email=STRING;
+Phone: 'Phone:' phone=STRING;
+Education: '-' degree=STRING;
+Experience: '-' duration=STRING;
+Skill: '-' name=ID;
+
+Evaluation:
+    '- Profile evaluated:' evaluated_profile=STRING
+    'Qualification pattern:' status=Status
 ;
 
 Status:

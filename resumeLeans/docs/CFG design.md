@@ -1,20 +1,136 @@
-# Diseño del Lenguaje y Gramática Libre de Contexto (CFG)
+# Candidate Profile Language: Grammar Design
 
-## 1. Definición Formal de la Gramática (4-tupla)
+## Purpose and scope
 
-$G = (V, \Sigma, P, S)$ donde:
+This DSL represents candidate information, normalized skills and profile evaluation
+results produced by the preceding ResumeLens stages. It validates structure; it
+does not extract or normalize qualifications or decide whether a profile is accepted.
+The executable grammar is `src/dsl/grammar.tx`, based on the revised team grammar.
 
-**1. V (Variables / No Terminales):**
-$V = \{ ResumeProfile, ListaSkills, Skill, Status \}$
+## Formal definition and EBNF
 
-**2. Σ (Alfabeto / Terminales):**
-$\Sigma = \{ \text{'CANDIDATE:'}, \text{'ROLE:'}, \text{'LOCATION:'}, \text{'CONTACT:'}, \text{'Email:'}, \text{'SUMMARY:'}, \text{'EXPERIENCE:'}, \text{'Duration:'}, \text{'NORMALIZED\_SKILLS:'}, \text{'-'}, \text{'EVALUATION:'}, \text{'Profile evaluated:'}, \text{'Qualification pattern:'}, \text{'ACCEPTED'}, \text{'REJECTED'}, STRING, ID \}$
+Let G = (V, Sigma, P, S), with start symbol S = ResumeProfile.
+V contains ResumeProfile, Email, Phone, Education, Experience, Skill and Evaluation.
+Status is a named lexical choice between two fixed terminal values. It can also
+be represented as a nonterminal with the two productions below.
 
-**3. S (Símbolo Inicial):**
-$S = ResumeProfile$
+Sigma consists of the literal labels and punctuation quoted below, plus tokens
+recognized by textX's built-in STRING and ID lexical rules. STRING and ID are
+lexical categories, not literal words to be written in the input. STRING represents
+a quoted string (with supported escapes); ID represents an identifier such as
+JAVASCRIPT or NODE_JS. Whitespace is handled by textX between grammar elements.
 
-**4. P (Reglas de Producción):**
-$$ResumeProfile \rightarrow \text{ 'CANDIDATE:' } STRING \text{ 'ROLE:' } STRING \text{ 'LOCATION:' } STRING \text{ 'CONTACT:' } \text{ 'Email:' } STRING \text{ 'SUMMARY:' } STRING \text{ 'EXPERIENCE:' } STRING \text{ 'Duration:' } STRING \text{ 'NORMALIZED\_SKILLS:' } ListaSkills \text{ 'EVALUATION:' } \text{ 'Profile evaluated:' } STRING \text{ 'Qualification pattern:' } Status$$
-$$ListaSkills \rightarrow Skill \ ListaSkills \ \mid \ \epsilon$$
-$$Skill \rightarrow \text{'-' } ID$$
-$$Status \rightarrow \text{'ACCEPTED'} \ \mid \ \text{'REJECTED'}$$
+P is given in EBNF below. Square brackets mean zero or one occurrence; braces mean
+zero or more repetitions; `|` denotes alternatives. Each optional or repeated
+construct can be expanded into ordinary context-free productions: an optional
+X becomes O -> X | epsilon, and a repeated X becomes L -> X L | epsilon.
+
+```ebnf
+ResumeProfile = [ "CANDIDATE:", STRING ],
+                [ "ROLE:", STRING ],
+                [ "LOCATION:", STRING ],
+                [ "SUMMARY:", STRING ],
+                "CONTACT:", { Email }, { Phone },
+                "EDUCATION:", { Education },
+                "EXPERIENCE:", { Experience },
+                "NORMALIZED_SKILLS:", { Skill },
+                "EVALUATION:", { Evaluation } ;
+Email = "Email:", STRING ;
+Phone = "Phone:", STRING ;
+Education = "-", STRING ;
+Experience = "-", STRING ;
+Skill = "-", ID ;
+Evaluation = "- Profile evaluated:", STRING,
+             "Qualification pattern:", Status ;
+Status = "ACCEPTED" | "REJECTED" ;
+```
+
+## Structure and textX mapping
+
+The five section headers CONTACT, EDUCATION, EXPERIENCE, NORMALIZED_SKILLS and
+EVALUATION are mandatory and ordered. Their lists may be empty. The four initial
+personal fields are optional but must appear in their specified order when present.
+All emails precede all phones. No alternate section order is supported.
+
+In textX, `name=STRING` assigns a scalar attribute, `(...)?` makes a group optional,
+and `items*=Rule` creates a list with zero or more instances. The mapping is:
+
+| Model attribute | Element attributes |
+| --- | --- |
+| name, current_role, location, summary | Optional string fields |
+| emails | Email.email |
+| phones | Phone.phone |
+| education | Education.degree |
+| experiences | Experience.duration |
+| skills | Skill.name |
+| evaluations | Evaluation.evaluated_profile, Evaluation.status |
+
+Education and experience entries store quoted phrases rather than requiring
+institutions, dates, or job titles that extraction may not provide. Multiple
+entries are permitted without inventing absent information. Empty string values
+are syntactically possible; they are not proof of available candidate data.
+
+The EBNF describes the structure. textX implements parsing using Arpeggio's PEG
+machinery; assignment annotations construct the Python model. This implementation
+is not a conversion to Chomsky normal form or a proof that the language is
+non-regular. The document must not claim those properties.
+
+## Examples
+
+A minimal valid document is:
+
+```text
+CONTACT:
+EDUCATION:
+EXPERIENCE:
+NORMALIZED_SKILLS:
+EVALUATION:
+```
+
+A complete fictional example with two emails, phones, education entries and
+experiences, six skills and four evaluations is in
+[`candidate_example.dsl`](../data/candidate_example.dsl). Its personal data and
+statuses are test fixtures, not results generated by the integrated application.
+
+Invalid examples include a missing EDUCATION header, an unclosed quoted string,
+an unquoted name, an unknown trailing field, an invalid skill identifier such as
+`123BAD`, or a status of `MAYBE`. A bare ACCEPTED/REJECTED status is required;
+these fixed labels are case-sensitive.
+
+## Python parser base
+
+`parse_candidate_profile(text)` in `src/dsl/candidate_parser.py` loads grammar.tx
+relative to its own module, then uses textX to parse the supplied string. It
+returns the generated ResumeProfile model. It reloads the grammar on each call,
+so subsequent grammar edits are read automatically. Non-string input raises
+TypeError. Invalid DSL syntax raises TextXSyntaxError with line/column details.
+Grammar loading failures propagate rather than being mistaken for invalid CVs.
+
+From `resumeLeans`, using the local virtual environment:
+
+```powershell
+.venv/Scripts/python.exe -B -m unittest discover -s tests -p test_dsl.py -v
+.venv/Scripts/python.exe -B -c "from pathlib import Path; from src.dsl.candidate_parser import parse_candidate_profile; model = parse_candidate_profile(Path('data/candidate_example.dsl').read_text(encoding='utf-8')); print(model.name); print([e.status for e in model.evaluations])"
+```
+
+The parser requires textX (the repository pins version 4.4.0). Tests use unittest
+and the real grammar/parser. They cover repeated fields, absent optional fields,
+empty lists, invalid syntax with error locations, and non-string input.
+
+## Semantic checks and subsequent work
+
+This base validates syntax only. Evaluated profile names are unrestricted STRING
+values; skill names are ID values and are not restricted to the normalization
+alphabet. Unknown or duplicate profile names, duplicate skills, invalid email
+contents, and zero evaluations can therefore parse successfully.
+
+If the team requires exactly four unique supported evaluations, Python semantic
+validation must enforce that separately. ACCEPTED/REJECTED must come from the
+classification results, not be inferred by the grammar. The parser currently does
+not verify them. Missing personal fields need an agreed display policy rather
+than fabricated values.
+
+DSL generation from stages 1-3, semantic validation, conversion to an agreed HTML
+input dictionary, and HTML rendering remain subsequent tasks. When the grammar
+changes, update this specification, fixtures, model consumers and relevant tests
+together. Reloading the grammar alone does not update consumers' attribute names.
