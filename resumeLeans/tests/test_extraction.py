@@ -275,7 +275,7 @@ class ExperienceExtractionTests(unittest.TestCase):
 
     def test_no_matches_for_unsupported_or_incomplete_phrases(self):
         for text in ["", "3 years", "experience", "three years of experience",
-                     "-3 years of experience", "3-5 years of experience", "v3 years of experience",
+                     "-3 years of experience", "v3 years of experience",
                      "3 years of experienced", "3\nyears of experience"]:
             with self.subTest(text=text):
                 self.assertEqual(regex_extractor.extract_experience(text), [])
@@ -301,7 +301,7 @@ class OtherQualificationExtractionTests(unittest.TestCase):
 
     def test_does_not_infer_from_products_or_partial_words(self):
         for text in ["", "MySQL PostgreSQL TensorFlow Python Git", "NoSQLExtra REST APIservice",
-                     "SQLAlchemy my_SQL SQL.js", "machine learning", "REST\nAPIs"]:
+                     "SQLAlchemy my_SQL SQL.js", "machine learningExtra", "REST\nAPIs"]:
             with self.subTest(text=text):
                 self.assertEqual(regex_extractor.extract_other_qualifications(text), [])
 
@@ -390,6 +390,68 @@ class AdditionalProfileExtractionTests(unittest.TestCase):
             "tools": ["Apache Spark", "Apache Kafka", "Airflow", "Git"],
             "other_qualifications": ["SQL", "ETL", "Data Warehouse"],
         })
+
+
+class ExtractionCorrectionTests(unittest.TestCase):
+    def test_language_alias_does_not_split_pytorch(self):
+        self.assertEqual(regex_extractor.extract_programming_languages(
+            "py PY Python Py Torch PyTorch"), ["py", "PY", "Python"])
+
+    def test_framework_aliases_keep_longest_spelling(self):
+        self.assertEqual(regex_extractor.extract_frameworks(
+            "Angular.js AngularJS VueJS SpringBoot tf Node Spring Spring Boot Node.js"),
+            ["Angular.js", "AngularJS", "VueJS", "SpringBoot", "tf", "Node", "Spring", "Spring Boot", "Node.js"])
+
+    def test_no_sql_is_not_sql(self):
+        self.assertEqual(regex_extractor.extract_other_qualifications(
+            "No SQL; NoSQL; NO  SQL; SQL; RESTful API; RESTful APIs"),
+            ["No SQL", "NoSQL", "NO  SQL", "SQL", "RESTful API", "RESTful APIs"])
+
+    def test_ml_short_and_long_phrases_do_not_overlap(self):
+        self.assertEqual(regex_extractor.extract_other_qualifications(
+            "ML; Machine Learning; Machine-learning; machine learning model development; "
+            "Machine-learning model development"),
+            ["ML", "Machine Learning", "Machine-learning", "machine learning model development",
+             "Machine-learning model development"])
+
+    def test_new_aliases_respect_boundaries(self):
+        self.assertEqual(regex_extractor.extract_frameworks(
+            "AngularJSExtra VueJSExtra SpringBootExtra tf2 NodeJSExtra Spring BootExtra"), [])
+        self.assertEqual(regex_extractor.extract_programming_languages("py2 my_py PyTorch"), [])
+        self.assertEqual(regex_extractor.extract_other_qualifications(
+            "MLflow RESTful APIExtra Machine LearningExtra"), [])
+
+    def test_numeric_ranges_remain_complete(self):
+        for text in ["3-5 years of experience", "3 - 5 years of experience",
+                     "3–5 years of experience", "3 — 5 years of experience",
+                     "2 to 4 months experience", "1.5 to 2.5 years of work experience"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_experience(text + "."), [text])
+
+    def test_compound_durations_remain_complete(self):
+        for text in ["3 years and 6 months of experience", "1 year and 1 month experience",
+                     "2 YEARS  AND  4 MONTHS OF PROFESSIONAL EXPERIENCE"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_experience(text), [text])
+
+    def test_multiple_durations_are_not_merged(self):
+        self.assertEqual(regex_extractor.extract_experience(
+            "3 years of experience with Python and 6 months experience with Java."),
+            ["3 years of experience", "6 months experience"])
+
+    def test_engineering_degrees_and_compound_fields(self):
+        for text in ["Bachelor of Engineering in Systems Engineering",
+                     "Master of Engineering in Software Engineering",
+                     "PhD in Computer Science and Mathematics",
+                     "Master's degree in Data Science & Artificial Intelligence"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_education(text + ", Example University."), [text])
+
+    def test_unsupported_compound_field_is_not_truncated(self):
+        for text in ["PhD in Computer Science and History", "PhD in Computer Science/History",
+                     "PhD in Computer Science and Mathematics and History"]:
+            with self.subTest(text=text):
+                self.assertEqual(regex_extractor.extract_education(text), [])
 
 
 if __name__ == "__main__":

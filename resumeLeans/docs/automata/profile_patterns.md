@@ -253,6 +253,7 @@ Required symbol:
 
 Accepted symbols:
 
+- CI_CD
 - JENKINS
 - GITHUB_ACTIONS
 - GITLAB_CI
@@ -283,7 +284,7 @@ Required symbol:
 LINUX
 DOCKER
 KUBERNETES
-(JENKINS | GITHUB_ACTIONS | GITLAB_CI)
+(CI_CD | JENKINS | GITHUB_ACTIONS | GITLAB_CI)
 (AWS | AZURE | GCP)
 TERRAFORM
 GIT
@@ -394,4 +395,4 @@ The sequence is rejected because it does not contain ETL.
 | DevOps Engineer | Linux -> Docker -> Kubernetes -> CI/CD -> Cloud -> Terraform -> Git |
 | Data Engineer | Python -> Database -> ETL -> Distributed Data Technology -> Airflow -> Data Warehouse -> Git |
 
-These patterns will be formally represented and implemented as finite automata in the following development stages.
+These patterns are implemented in src/automata/classifiers.py and formally specified in finite_automata.md.

@@ -10,9 +10,8 @@ The executable grammar is `src/dsl/grammar.tx`, based on the revised team gramma
 ## Formal definition and EBNF
 
 Let G = (V, Sigma, P, S), with start symbol S = ResumeProfile.
-V contains ResumeProfile, Email, Phone, Education, Experience, Skill and Evaluation.
-Status is a named lexical choice between two fixed terminal values. It can also
-be represented as a nonterminal with the two productions below.
+V contains ResumeProfile, Email, Phone, Education, Experience, Skill, Evaluation
+and Status. Status has two alternatives: ACCEPTED and REJECTED.
 
 Sigma consists of the literal labels and punctuation quoted below, plus tokens
 recognized by textX's built-in STRING and ID lexical rules. STRING and ID are
@@ -68,12 +67,11 @@ and `items*=Rule` creates a list with zero or more instances. The mapping is:
 Education and experience entries store quoted phrases rather than requiring
 institutions, dates, or job titles that extraction may not provide. Multiple
 entries are permitted without inventing absent information. Empty string values
-are syntactically possible; they are not proof of available candidate data.
+are allowed by the grammar. The Python validator checks which fields must be nonempty.
 
-The EBNF describes the structure. textX implements parsing using Arpeggio's PEG
-machinery; assignment annotations construct the Python model. This implementation
-is not a conversion to Chomsky normal form or a proof that the language is
-non-regular. The document must not claim those properties.
+The EBNF describes the language structure. textX uses Arpeggio, a parser based
+on parsing expression grammars (PEGs), to read the input. The assignments in
+`grammar.tx` define the attributes of the resulting Python objects.
 
 ## Examples
 
@@ -170,7 +168,7 @@ dsl_text = generate_candidate_profile(extracted, normalized_skills, evaluations)
 html_data = candidate_profile_to_dict(dsl_text)
 ```
 
-## Contract for the HTML author
+## Data used by the HTML renderer
 
 The output keys and value types are:
 
@@ -204,15 +202,17 @@ data label. Values are raw text: HTML-escape them when rendering (for example,
 `html.escape` or a template engine with autoescaping). DSL validation does not
 make strings safe to insert as HTML. Never render an invalid DSL document.
 
-## Verification and remaining integration
+## Tests and integration
 
 The DSL tests include complete generation/parse/dictionary round trips, repeated
 entries, absent data, quoted/Unicode/multiline strings, invalid input types,
 incorrect profile names, missing/duplicate evaluations, duplicate/lowercase skills,
 and syntax errors. No classifier or textX mocks are used in these tests.
 
-The application entry point and HTML rendering still need to call this API.
-Known normalization/classifier symbol mismatches remain upstream issues; this
-module preserves results and does not hide or repair them. When the grammar
-changes, update this specification, fixtures, model consumers and tests together.
-Reloading the grammar alone does not update consumers' attribute names.
+`process_resume` in `src/main.py` passes the extracted information, normalized
+skills and four classification results to the DSL generator. The HTML renderer
+then reads the validated profile through `candidate_profile_to_dict`.
+`tests/test_integration.py` checks this flow for all four profiles.
+
+When changing the grammar, also update the examples, parser functions, renderer
+and tests that use the affected fields.

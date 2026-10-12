@@ -3,13 +3,13 @@
 ## Objective
 
 Extract explicitly written contact information and technical terms using
-Python's standard `re` module. This increment implements emails, Colombian-style
+Python's standard `re` module. The module implements emails, Colombian-style
 phone numbers, programming languages, frameworks/libraries/runtimes, databases,
 tools, academic qualifications, and explicit experience durations below.
 It does not normalize text or evaluate candidate qualifications.
 Additional qualifications and a combined dictionary interface are also implemented.
 The initial vocabulary now includes the team's DevOps and Data Engineer profiles.
-End-to-end validation with normalization and classification remains pending.
+End-to-end regression tests now exercise normalization, the four classifiers, DSL validation and HTML generation.
 
 ## Requirement sources and implementation decisions
 
@@ -25,7 +25,7 @@ Profile examples are illustrative, not mandatory requirements for every candidat
 | Full Stack reference profile and example, page 2 | JavaScript/JS, TypeScript, React/React.js, Angular, Vue, Node.js/NodeJS, Django, Spring Boot, SQL/NoSQL, REST APIs, Postgres, Git |
 | Machine Learning reference profile and example, page 2 | Python, Pandas, NumPy, Scikit-learn, TensorFlow, PyTorch, machine-learning model development, SQL, Git |
 | Normalization examples, page 4 | ReactJS, PostgreSQL, sklearn, scikit learn, Tensor Flow, Py Torch and case variants illustrate alternative spellings; extraction preserves them rather than performing the transformations. |
-| Additional vocabulary proposed during implementation | Java, MySQL and MongoDB are not explicitly named in those reference lists. They are optional extensions already implemented, not assignment requirements. Their relevance to the team's profiles still needs confirmation. |
+| Additional vocabulary proposed during implementation | Java, MySQL and MongoDB are not explicitly named in those reference lists. They are optional extensions already implemented, not assignment requirements. They are stored as separate skills and do not change the profile requirements. |
 | Team-selected profiles | DevOps Engineer and Data Engineer are defined in `src/automata/profile_definitions.py` and `docs/automata/profile_patterns.md`. Docker now has an explicit basis in the team's DevOps profile. Additional tool names and concepts below come from these files; aliases come from `TRANSFORMACIONES` in `src/normalization/transducers.py`. |
 | Additional spelling choices | TS, Vue.js, singular REST API, case-insensitive matching and whitespace handling are implementation choices, not an exhaustive spelling list specified by the assignment. |
 | Contact format choices | The practical ASCII email subset and Colombian-style phone formats are implementation choices. The assignment does not restrict contact extraction to those formats. |
@@ -33,8 +33,14 @@ Profile examples are illustrative, not mandatory requirements for every candidat
 | Category/interface choices | Node.js is grouped with frameworks/libraries as a runtime; SQL/NoSQL are in other qualifications. Nine dictionary keys represent eight assignment categories because contact information is split into emails and phones. |
 
 The fictional sample's email, phone and education were created for testing;
-they are not facts supplied by the assignment. The vocabulary is a bounded
-initial implementation, not proof of complete coverage of all four profiles.
+they are not facts supplied by the assignment. The supported vocabulary is listed below; words outside this list are not extracted.
+
+The alias-alignment update also accepts `py`, `Angular.js`, `AngularJS`, `VueJS`,
+`Node`, `Spring`, `SpringBoot`, `tf`, `No SQL`, `RESTful API`, `ML` and short
+machine-learning phrases because these appear in the team's normalization
+dictionary. Bare Node/Spring, short aliases and ML are lexically ambiguous;
+their presence is not evidence of proficiency. Longer supported phrases take
+precedence, and no canonical spelling is substituted by extraction.
 
 ## Initial programming-language vocabulary
 
@@ -46,7 +52,7 @@ the function does not read this Markdown file.
 | --- | --- | --- |
 | JavaScript | `JavaScript`, `JS` | `Javascript`, `javascript`, `js`, `JS` |
 | TypeScript | `TypeScript`, `TS` | `Typescript`, `typescript`, `ts`, `TS` |
-| Python | `Python` | `python`, `PYTHON` |
+| Python | `Python`, `py` | `python`, `PYTHON`, `PY` |
 | Java | `Java` | `java`, `JAVA` |
 
 Matching is case-insensitive; the case variants above are examples, not
@@ -80,7 +86,7 @@ Expected examples:
 | Empty text | `[]` |
 
 This is an initial vocabulary, not complete coverage of all four professional
-profiles. Additional languages can be added in later increments. Abbreviations
+profiles. Additional languages can be added as needed. Abbreviations
 such as `JS` and `TS` can be ambiguous in prose; lexical extraction alone does
 not prove that a mention represents a candidate's skill or proficiency.
 
@@ -161,19 +167,21 @@ chosen extraction heuristic, not a complete telephone numbering validator.
 ## Programming-language expression
 
 ```python
-PROGRAMMING_LANGUAGES_PATTERN = r"(?<![\w.])(?:JavaScript|JS|TypeScript|TS|Python|Java)\b"
+PROGRAMMING_LANGUAGES_PATTERN = (
+    r"(?<![\w.])(?:JavaScript|JS|TypeScript|TS|Python|py(?![ \t]+Torch\b)|Java)\b"
+)
 ```
 
 - `(?<![\w.])` prevents a match immediately after a word character or a dot.
   The dot check prevents extracting `js` from `React.js` or `Node.js`.
-- `(?:JavaScript|JS|TypeScript|TS|Python|Java)` lists the supported alternatives
-  without capturing subgroups.
+- The alternatives list the supported names without capturing subgroups.
+  `py(?![ \t]+Torch\b)` avoids treating `py` inside `Py Torch` as Python.
 - `\b` requires a word boundary at the end, excluding suffixes such as
   `Python3`, `Pythonista`, and `JavaScriptCore`.
 - `re.findall(..., flags=re.IGNORECASE)` accepts case variants while returning
   the original matched strings, with no normalization.
 
-The language recognized consists of the six listed spellings in any letter
+The language recognized consists of the seven listed spellings in any letter
 case, subject to these surrounding-character checks. The vocabulary is finite;
 the function does not infer languages that are missing from the list.
 
@@ -195,33 +203,36 @@ their original representation in the output.
 | Technology | Supported spellings |
 | --- | --- |
 | React | `React`, `React.js`, `ReactJS` |
-| Angular | `Angular` |
-| Vue | `Vue`, `Vue.js` |
-| Node.js | `NodeJS`, `Node.js` |
+| Angular | `Angular`, `Angular.js`, `AngularJS` |
+| Vue | `Vue`, `Vue.js`, `VueJS` |
+| Node.js | `NodeJS`, `Node.js`, `Node` |
 | Django | `Django` |
-| Spring Boot | `Spring Boot` |
+| Spring Boot | `Spring Boot`, `SpringBoot`, `Spring` |
 | Pandas | `Pandas` |
 | NumPy | `NumPy` |
 | Scikit-learn | `Scikit-learn`, `scikit learn`, `sklearn` |
-| TensorFlow | `TensorFlow`, `Tensor Flow` |
+| TensorFlow | `TensorFlow`, `Tensor Flow`, `tf` |
 | PyTorch | `PyTorch`, `Py Torch` |
 
 ```python
 FRAMEWORKS_PATTERN = (
     r"(?<![\w.])"
-    r"(?:React(?:\.js|JS)?|Angular|Vue(?:\.js)?|Node(?:JS|\.js)|"
-    r"Django|Spring Boot|Pandas|NumPy|Scikit[- ]learn|sklearn|"
-    r"Tensor ?Flow|Py ?Torch)"
+    r"(?:React(?:\.js|JS)?|Angular(?:\.js|JS)?|Vue(?:\.js|JS)?|Node(?:JS|\.js)?|"
+    r"Django|Spring(?:[ \t]*Boot|(?!\s+Boot))|Pandas|NumPy|Scikit[- ]learn|sklearn|"
+    r"Tensor ?Flow|tf|Py ?Torch)"
     r"(?!\w|\.\w)"
 )
 ```
 
 - `React(?:\.js|JS)?` accepts the full dotted or joined suffix, or bare `React`.
-  `Vue(?:\.js)?` accepts `Vue.js` and `Vue`.
-- `Node(?:JS|\.js)` requires a suffix, avoiding a match for the generic word `Node`.
+  Angular and Vue likewise accept bare, dotted-js and joined-JS variants.
+- `Node(?:JS|\.js)?` accepts Node with or without its suffix, as the team
+  normalization dictionary does. Bare Node is ambiguous in nontechnical prose.
 - `Scikit[- ]learn` accepts a single hyphen or space; `sklearn` is another alternative.
 - `Tensor ?Flow` and `Py ?Torch` accept zero or one literal space.
-- `Spring Boot` requires one literal space. Multiword matches cannot span lines.
+- Spring accepts joined or horizontally separated Boot, or the bare name.
+  Its guard prevents falling back to bare Spring before an unsupported Boot
+  continuation or a line break followed by Boot. These terms remain ambiguous.
 - `(?<![\w.])` prevents starting inside a word or after a dot.
 - `(?!\w|\.\w)` prevents ending inside a word or immediately before a dotted
   continuation. This avoids partial matches such as `React` from `React.jsx`.
@@ -233,8 +244,9 @@ The function searches the whole input and preserves order and duplicates.
 For `I use React.js, NodeJS and sklearn.`, the result is
 `["React.js", "NodeJS", "sklearn"]`. Empty input or no supported terms produces `[]`.
 
-This is a finite initial vocabulary. Unlisted spellings, multiple internal
-spaces, and line-wrapped names are unsupported. Word matching cannot distinguish
+This is a finite initial vocabulary. Unlisted spellings and line-wrapped names
+are unsupported. Framework names other than Spring Boot retain their documented
+single-space forms. Word matching cannot distinguish
 ordinary prose such as `react` or `pandas` from technology mentions, prove skill,
 or interpret negation. Dotted boundary guards can miss names immediately after
 a sentence-ending dot without whitespace. Names in URLs can still match.
@@ -300,7 +312,7 @@ recognized. The dot guard excludes a name immediately after a sentence-ending
 dot without a space. A hyphen is a separator, so a supported name within a
 hyphenated expression may match. Matching names alone cannot establish
 proficiency, interpret negation, or rule out mentions in unrelated contexts.
-This initial list still needs review against the team's four profiles.
+The list covers the database names supported by the extractor. Profile requirements are defined separately in `src/automata/profile_definitions.py`.
 
 The `tools` category includes platforms and data-processing technologies, not
 only command-line utilities. This keeps Spark/PySpark, Kafka and Airflow in one
@@ -313,7 +325,8 @@ documented category; no additional framework or database match is inferred.
 returns original phrases, without requiring an Education heading.
 
 Supported degrees: `Bachelor's degree`, `Master's degree` (straight or curly
-apostrophe), `Bachelor of Science`, `Master of Science`, `PhD`, `Ph.D.`,
+apostrophe), `Bachelor of Science`, `Master of Science`, `Bachelor of Engineering`,
+`Master of Engineering`, `PhD`, `Ph.D.`,
 `BSc`, `B.Sc.`, `MSc`, and `M.Sc.`. Matching ignores letter case.
 
 Supported fields: Systems Engineering, Computer Science, Software Engineering,
@@ -322,14 +335,21 @@ and Information Technology. A finite field list avoids greedily swallowing
 institutions or arbitrary prose after the qualification.
 
 ```python
+EDUCATION_FIELD_PATTERN = (
+    r"(?:Systems[ \t]+Engineering|Computer[ \t]+Science|Software[ \t]+Engineering|"
+    r"Computer[ \t]+Engineering|Data[ \t]+Science|Artificial[ \t]+Intelligence|"
+    r"Machine[ \t]+Learning|Information[ \t]+Technology)"
+)
+
 EDUCATION_PATTERN = (
     r"(?<![\w.])"
     r"(?:(?:Bachelor|Master)['’]s[ \t]+degree|"
-    r"(?:Bachelor|Master)[ \t]+of[ \t]+Science|PhD|Ph\.D\.|[BM]Sc|[BM]\.Sc\.)"
+    r"(?:Bachelor|Master)[ \t]+of[ \t]+(?:Science|Engineering)|PhD|Ph\.D\.|[BM]Sc|[BM]\.Sc\.)"
     r"[ \t]+in[ \t]+"
-    r"(?:Systems[ \t]+Engineering|Computer[ \t]+Science|Software[ \t]+Engineering|"
-    r"Computer[ \t]+Engineering|Data[ \t]+Science|Artificial[ \t]+Intelligence|"
-    r"Machine[ \t]+Learning|Information[ \t]+Technology)\b"
+    + EDUCATION_FIELD_PATTERN
+    + r"(?:[ \t]*(?:\band\b|&|/)[ \t]*(?:"
+    + EDUCATION_FIELD_PATTERN + r"|Mathematics))*\b"
+    r"(?![ \t]*(?:\band\b|&|/))"
 )
 ```
 
@@ -341,6 +361,11 @@ EDUCATION_PATTERN = (
   it does not cross line breaks.
 - Literal `in` connects the degree and required field. The final `\b`
   prevents a field match ending inside a longer word.
+- `EDUCATION_FIELD_PATTERN` is a reusable regex fragment, not a second extraction
+  pass. It is concatenated into the main expression. Additional listed fields or
+  Mathematics may follow `and`, `&`, or `/`. The final negative lookahead rejects
+  a remaining connector so an unsupported compound field is not silently cut off.
+  Mathematics is currently supported as an additional field, not a standalone one.
 
 For `PhD in Computer Science at Example University.`, the result is
 `["PhD in Computer Science"]`. The institution and sentence period are not
@@ -348,31 +373,41 @@ included. `Bachelor's degree in Systems Engineering` is extracted intact
 from the example resume.
 
 Limitations: other fields, languages, standalone titles, certifications,
-unlisted abbreviations and line-wrapped phrases are not covered yet. A listed
-field may be extracted as the prefix of a longer compound field, such as
-`Computer Science and Mathematics`. The function cannot establish whether a
+unlisted abbreviations and line-wrapped phrases are not covered yet. The phrase
+`PhD in Computer Science and Mathematics` is preserved completely, while
+`PhD in Computer Science and History` yields no match. Unsupported connectors
+such as `with` or comma-separated fields may still produce a shorter phrase.
+Even unrelated prose starting with `and` after a degree may cause rejection;
+the guard is conservative. The function cannot establish whether a
 degree was completed: a phrase in `pursuing a PhD in Computer Science` still
 matches. It does not normalize degrees or infer institutions or dates.
 
 ## Professional experience
 
 `extract_experience(text)` recognizes numeric durations explicitly attached to
-the word `experience`, anywhere in the text. This increment extracts duration
+the word `experience`, anywhere in the text. The function extracts duration
 phrases, not complete employment histories, employers, dates or responsibilities.
 
 ```python
 EXPERIENCE_PATTERN = (
-    r"(?<![\w.+-])[0-9]+(?:\.[0-9]+)?\+?"
-    r"[ \t]+(?:years?|months?)[ \t]+(?:of[ \t]+)?"
+    r"(?<![\w.+−–—-])[0-9]+(?:\.[0-9]+)?\+?"
+    r"(?:[ \t]*(?:[-–—]|\bto\b)[ \t]*[0-9]+(?:\.[0-9]+)?)?"
+    r"[ \t]+(?:years?|months?)"
+    r"(?:[ \t]+and[ \t]+[0-9]+(?:\.[0-9]+)?[ \t]+(?:years?|months?))*"
+    r"[ \t]+(?:of[ \t]+)?"
     r"(?:(?:professional|work)[ \t]+)?experience\b"
 )
 ```
 
 - The initial lookbehind prevents starting immediately after a word character,
-  dot, ASCII plus or hyphen. It blocks examples such as `-3` and `3-5`, but
-  does not validate arbitrary numeric expressions or Unicode range separators.
+  dot, plus, minus, hyphen, en dash or em dash. The numeric range branch consumes
+  both endpoints instead of searching for a suffix after a range separator.
 - `[0-9]+(?:\.[0-9]+)?` recognizes integers or dot-decimal numbers.
 - `\+?` accepts an optional plus sign, as in `5+`.
+- The optional range branch accepts hyphen, en dash, em dash or the word `to`,
+  with optional horizontal whitespace. For example, `3-5` and `3 - 5` remain intact.
+- The repeated `and` branch preserves multiple numeric year/month components,
+  such as `3 years and 6 months`, without summing or converting them.
 - `years?` and `months?` accept singular and plural units.
 - `of` is optional, as is one modifier: `professional` or `work`.
 - `experience\b` requires the complete final word, not `experienced`.
@@ -386,10 +421,10 @@ For `3 years of experience developing web applications.`, only
 duration; the function does not calculate, add, convert or validate durations.
 
 Limitations: spelled-out numbers, possessive forms (`3 years' experience`),
-other languages, compound durations, and numeric ranges are unsupported.
-A spaced range such as `3 - 5 years of experience` can still yield its final
-duration fragment; the guard blocks the tested ASCII compact range `3-5`,
-not every possible range format. Qualifiers
+other languages and unlisted constructions such as `between 3 and 5 years`
+remain unsupported and can produce suffix matches. The supported range has one
+unit after the endpoints; the supported compound uses `and` between number/unit
+pairs. This is not a general numeric-expression parser. Qualifiers
 such as `at least` are not captured. Numeric grammar is lexical, so implausible
 durations or number/unit agreement errors can match. The function does not
 distinguish professional from academic experience when the text does not say,
@@ -405,10 +440,10 @@ requirements for every candidate.
 
 | Concept from the assignment | Accepted textual forms |
 | --- | --- |
-| REST APIs | `REST API`, `REST APIs` |
+| REST APIs | `REST API`, `REST APIs`, `RESTful API`, `RESTful APIs` |
 | SQL | `SQL` |
-| NoSQL | `NoSQL` |
-| Machine-learning model development | `machine-learning model development`, `machine learning model development` |
+| NoSQL | `NoSQL`, `No SQL` (horizontal whitespace preserved) |
+| Machine learning mentions | `ML`, `Machine Learning`, `Machine-learning`, `machine-learning model development`, `machine learning model development` |
 
 The team-selected profiles and their normalization dictionary additionally supply:
 
@@ -430,8 +465,8 @@ remain in `databases`. A mention of `MySQL` does not imply an extra `SQL` match.
 ```python
 OTHER_QUALIFICATIONS_PATTERN = (
     r"(?<![\w.])"
-    r"(?:REST[ \t]+APIs?|NoSQL|SQL|"
-    r"machine(?:-|[ \t]+)learning[ \t]+model[ \t]+development|"
+    r"(?:REST(?:ful)?[ \t]+APIs?|No[ \t]*SQL|SQL|ML|"
+    r"machine(?:-|[ \t]+)learning(?:[ \t]+model[ \t]+development|(?![ \t]+model\b))|"
     r"CI[/-]CD|ETL|Extract[ \t]+Transform[ \t]+Load|Data[ \t]+Warehouse|DWH|DW)"
     r"(?!\w|\.\w)"
 )
@@ -442,6 +477,10 @@ database/tool patterns. `APIs?` accepts singular/plural; `[ \t]+` accepts spaces
 or tabs without joining lines. `(?:-|[ \t]+)` accepts a hyphen or horizontal
 whitespace between `machine` and `learning`. Noncapturing alternatives keep
 `re.findall` results as complete phrases. Matching uses `re.IGNORECASE`.
+`REST(?:ful)?` accepts RESTful as well as REST. `No[ \t]*SQL` is evaluated
+before SQL so `No SQL` is returned intact, not reinterpreted as SQL. The long
+machine-learning phrase is tried before the short one; the fallback guard avoids
+cutting off an unsupported `model...` continuation. `ML` is a separate alias.
 `CI[/-]CD` accepts slash or hyphen. ETL and warehouse alternatives preserve
 abbreviations and full names instead of converting them. `DW` and `DWH` are
 potentially ambiguous outside technical context; this remains lexical extraction.
@@ -452,16 +491,9 @@ For `Python SQL ETL Spark Airflow Data Warehouse Git`, the technical outputs are
 `Linux Docker Kubernetes GitHub Actions AWS Terraform Git`, the full seven
 mentions are returned in `tools`, in the original order.
 
-### Normalization handoff still requires agreement
+### Input to normalization
 
-These additions close the missing extraction vocabulary identified for the two
-team-selected profiles. They do not repair the other modules' interface mismatch:
-the current transducer emits `CI_CD`, `AMAZON_WEB_SERVICES`, and `GOOGLE_CLOUD`,
-while the DevOps automaton expects named CI tools and `AWS`/`GCP`. `Jenkins` is
-present in the profile definition but absent from the normalization dictionary.
-Original case and spacing variations can also exceed that dictionary's exact
-inputs. Extraction must preserve those strings; it must not silently normalize
-them to work around the mismatch. No normalization/classifier code is changed.
+The normalizer accepts case variants and repeated horizontal spaces/tabs using FST transitions. DevOps shares CI_CD, JENKINS, GITHUB_ACTIONS, GITLAB_CI, AWS, GCP and AZURE with the classifiers. Java, MySQL and MongoDB are retained as separate canonical skills without changing profile requirements. Extraction still returns original strings. See [normalization formalization](formalization.md) and `tests/test_integration.py` for the current cross-stage contract.
 
 For `I build REST APIs using sql and NoSQL.`, output is
 `["REST APIs", "sql", "NoSQL"]`. Order, spelling, spacing and repeats are retained.
@@ -526,7 +558,7 @@ digit groups across line breaks.
 
 `data/resume_example.txt` contains a fictional candidate with contact,
 experience, education, and technical skills. Contact information and supported technical terms are
-extracted in this increment. Expected results:
+extracted by this module. Expected results:
 
 ```python
 emails = ['Wednesday.Addams@example.com']
@@ -555,13 +587,12 @@ python -B -c "from pathlib import Path; from src.extraction.regex_extractor impo
 Python 3.9 or newer is sufficient. No third-party package is required for
 this component or its `unittest` tests. The rest of the repository may require
 additional dependencies (for example, automata tests import pytest). This
-command deliberately selects extraction tests; passing it is not a claim that
-the entire integrated application passes. Extraction tests can also be collected
+command runs only the extraction tests; use `python -m pytest` to run the full suite. Extraction tests can also be collected
 with pytest when it is installed in the team's environment.
 
 ## Test design
 
-Fifty-one test methods in `tests/test_extraction.py` cover:
+Sixty-one test methods in `tests/test_extraction.py` cover:
 
 - Common email syntax, subdomains, plus addressing and surrounding punctuation.
 - Original email case, order and repeated occurrences.
@@ -607,32 +638,35 @@ CI/CD/ETL/warehouse forms, original case and spacing, repetitions, longer-word
 false positives, and complete extraction dictionaries for DevOps and Data
 Engineer prose. These are extraction tests, not assertions of profile acceptance.
 
-## Documentation review: observed limitations
+Ten regression tests cover alias alignment, nonoverlapping short/long phrases,
+No SQL preservation, py versus Py Torch, numeric ranges, compound durations,
+engineering degrees, and rejection of unsupported compound academic fields.
+
+## Documentation review and corrected cases
 
 The following outputs were checked against the implementation during the
-2026-10-11 documentation review. They describe existing behavior, not new
-acceptance requirements or corrections. They are manual probes in addition
-to the automated test suite, not claims of exhaustive testing.
+2026-10-11 review and subsequent correction. The first four rows now have
+automated regression coverage. The remaining rows describe known limitations;
+this is not a claim of exhaustive testing.
 
 | Function and input | Actual output | Implication |
 | --- | --- | --- |
-| Education: `Bachelor of Engineering in Systems Engineering` | `[]` | A plausible degree is missed because its title is not listed. |
-| Education: `PhD in Computer Science and Mathematics` | `["PhD in Computer Science"]` | A compound field is truncated to a listed prefix. |
-| Experience: `3 - 5 years of experience` | `["5 years of experience"]` | A range can lose its lower bound; downstream code must not treat this as an exact total. |
-| Experience: `3 years and 6 months of experience` | `["6 months of experience"]` | A compound duration can lose its first part; no aggregation is performed. |
+| Education: `Bachelor of Engineering in Systems Engineering` | `["Bachelor of Engineering in Systems Engineering"]` | Engineering degrees now match. |
+| Education: `PhD in Computer Science and Mathematics` | `["PhD in Computer Science and Mathematics"]` | The supported compound field is preserved. |
+| Experience: `3 - 5 years of experience` | `["3 - 5 years of experience"]` | Both endpoints are preserved; no exact total is inferred. |
+| Experience: `3 years and 6 months of experience` | `["3 years and 6 months of experience"]` | Both components are preserved without aggregation. |
 | Languages: `No Python experience. Python.js` | `["Python", "Python"]` | Negation and filenames are not distinguished from affirmative skill mentions. |
-| Other qualifications: `2 years of experience developing predictive models and data-processing pipelines.` | `[]` | This wording from the ML example does not match the exact model-development phrase; broader semantic coverage is pending. |
+| Other qualifications: `2 years of experience developing predictive models and data-processing pipelines.` | `[]` | This wording from the ML example does not match the exact model-development phrase; interpreting equivalent descriptions in prose is outside the current scope. |
 
-The 44 extraction test methods passed during this review. General unittest
-discovery also encountered an import error in `test_automata`: the interpreter
-used for this review did not have `pytest` installed. This is a separate
-environment limitation, not a passing verification of the other components.
+The extraction suite contains 61 test methods. Run `python -m pytest` from
+`resumeLeans/` to check all modules, including their integration. See
+[test cases](test-cases.md) for the latest recorded results.
 
 Documentation completeness: all nine extraction patterns have explanations,
 input/output contracts, examples and automated test coverage. The combined
 dictionary has integration tests for the extraction functions. This establishes
-documented behavior only; coverage of all four profiles, additional complete
-CV fixtures and integration with teammates' modules remain separate checks.
+documented behavior only. Cross-stage fixtures for all four profiles are in
+`tests/test_integration.py`; a real-world CV benchmark remains outside this test suite.
 
 ## General limitations
 
@@ -654,5 +688,5 @@ CV fixtures and integration with teammates' modules remain separate checks.
   to the documented formats/vocabulary. An empty list means no supported match,
   not proof that the candidate lacks the qualification.
 - PDF reading, OCR correction, normalization and classification are outside
-  this component. Wider format coverage and downstream integration are pending
-  separate review; no claim of full assignment completion is made here.
+  this component. Downstream integration is tested. Wider format coverage remains
+  a possible extension; no claim of full assignment completion is made here.

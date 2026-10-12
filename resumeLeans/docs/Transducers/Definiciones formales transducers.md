@@ -1,1833 +1,2872 @@
-# Definiciones formales de transductores por rol
+# Executable finite-state transducer specification
 
-Documento que reúne las **33 definiciones formales de transductores** asociadas al diccionario `transformaciones`, organizadas según sus cuatro roles profesionales.
+Generated with `python -m scripts.document_transducers`. Do not edit the generated tables.
 
-> Las definiciones, incluidos los alfabetos, estados y las funciones de transición (δ) y salida (ω), se conservan tal como aparecen en los archivos `.txt` originales. No se modifican ni se validan sus transiciones.
+The program uses one nondeterministic FST. Each alias contributes a separate character route, sharing only the start state and accepting state. Multiple routes may accept the same input but produce the same canonical token. There are no epsilon-input transitions.
 
-## Resumen
+Each section below shows the part of the FST that produces one output token. To combine these parts into the complete FST, rename every internal state with its token prefix, then merge the shared q0 and q_aceptacion states. State numbers within each section are local. No transitions between internal states of different sections exist.
 
-| Rol | Cantidad de transductores |
-| --- | ---: |
-| Full Stack Developer | 13 |
-| Machine Learning Engineer | 7 |
-| DevOps Engineer | 8 |
-| Data Engineer | 5 |
-| **Total** | **33** |
+For each section M = (Q, Sigma, Gamma, delta, omega, q0, F). The table defines delta and omega jointly: a row (p, a, q, w) means an edge p --a/w--> q. Absent edges reject. Output epsilon means the empty word, not an input transition. Letters accept both ASCII cases. An alias space accepts one or more spaces/tabs through a consuming self-loop. Only the last character emits the complete canonical token.
 
-## Índice
+Unknown terms have no accepting path. The wrapper removes duplicate output tokens and sorts them; profile-specific ordering happens later. JAVA, MYSQL and MONGODB are retained as skills but do not change any profile's acceptance requirements.
 
-- [Full Stack Developer](#full-stack-developer) (13 transductores): [JAVASCRIPT](#javascript), [TYPESCRIPT](#typescript), [REACT](#react), [ANGULAR](#angular), [VUE](#vue), [NODE_JS](#node_js), [DJANGO](#django), [SPRING_BOOT](#spring_boot), [SQL](#sql), [NOSQL](#nosql), [POSTGRESQL](#postgresql), [REST_API](#rest_api), [GIT](#git)
-- [Machine Learning Engineer](#machine-learning-engineer) (7 transductores): [PYTHON](#python), [PANDAS](#pandas), [NUMPY](#numpy), [SCIKIT_LEARN](#scikit_learn), [TENSORFLOW](#tensorflow), [PYTORCH](#pytorch), [MACHINE_LEARNING](#machine_learning)
-- [DevOps Engineer](#devops-engineer) (8 transductores): [DOCKER](#docker), [KUBERNETES](#kubernetes), [LINUX](#linux), [CI_CD](#ci_cd), [AMAZON_WEB_SERVICES](#amazon_web_services), [GOOGLE_CLOUD](#google_cloud), [AZURE](#azure), [TERRAFORM](#terraform)
-- [Data Engineer](#data-engineer) (5 transductores): [SPARK](#spark), [AIRFLOW](#airflow), [ETL](#etl), [KAFKA](#kafka), [DATA_WAREHOUSE](#data_warehouse)
+The PNGs under GRAPHICS show an earlier version. Use the Mermaid diagrams below for the current model.
 
-## Full Stack Developer
+## AIRFLOW
 
-### JAVASCRIPT
+Aliases: `Airflow`, `airflow`, `Apache Airflow`
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: JAVASCRIPT ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+- Q = {q0, q1, q10, q11, q12, q13, q15, q16, q17, q18, q19, q2, q20, q21, q22, q23, q24, q25, q26, q27, q3, q4, q5, q6, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'C', 'E', 'F', 'H', 'I', 'L', 'O', 'P', 'R', 'W', 'a', 'c', 'e', 'f', 'h', 'i', 'l', 'o', 'p', 'r', 'w'}
+- Gamma = {A, F, I, L, O, R, W}
+- Initial state: q0
+- F = {q_aceptacion}
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `A, a` | q1 | epsilon |
+| q0 | `A, a` | q15 | epsilon |
+| q0 | `A, a` | q8 | epsilon |
+| q1 | `I, i` | q2 | epsilon |
+| q10 | `F, f` | q11 | epsilon |
+| q11 | `L, l` | q12 | epsilon |
+| q12 | `O, o` | q13 | epsilon |
+| q13 | `W, w` | q_aceptacion | AIRFLOW |
+| q15 | `P, p` | q16 | epsilon |
+| q16 | `A, a` | q17 | epsilon |
+| q17 | `C, c` | q18 | epsilon |
+| q18 | `H, h` | q19 | epsilon |
+| q19 | `E, e` | q20 | epsilon |
+| q2 | `R, r` | q3 | epsilon |
+| q20 | `TAB, SPACE` | q21 | epsilon |
+| q21 | `TAB, SPACE` | q21 | epsilon |
+| q21 | `A, a` | q22 | epsilon |
+| q22 | `I, i` | q23 | epsilon |
+| q23 | `R, r` | q24 | epsilon |
+| q24 | `F, f` | q25 | epsilon |
+| q25 | `L, l` | q26 | epsilon |
+| q26 | `O, o` | q27 | epsilon |
+| q27 | `W, w` | q_aceptacion | AIRFLOW |
+| q3 | `F, f` | q4 | epsilon |
+| q4 | `L, l` | q5 | epsilon |
+| q5 | `O, o` | q6 | epsilon |
+| q6 | `W, w` | q_aceptacion | AIRFLOW |
+| q8 | `I, i` | q9 | epsilon |
+| q9 | `R, r` | q10 | epsilon |
 
-2. Alfabeto de entrada (Σ):
-   Σ = {A, C, I, J, P, R, S, T, V, a, c, i, j, p, r, s, t, v}
-
-3. Alfabeto de salida (Γ):
-   Γ = {A, C, I, J, P, R, S, T, V}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, j) = q2,  ω(q0, j) = J
-  δ(q0, J) = q2,  ω(q0, J) = J
-  δ(q2, s) = q3,  ω(q2, s) = A
-  δ(q2, S) = q3,  ω(q2, S) = A
-  δ(q2, a) = q11,  ω(q2, a) = A
-  δ(q2, A) = q11,  ω(q2, A) = A
-  δ(q3, ε) = q4,  ω(q3, ε) = V
-  δ(q4, ε) = q5,  ω(q4, ε) = A
-  δ(q5, ε) = q6,  ω(q5, ε) = S
-  δ(q6, ε) = q7,  ω(q6, ε) = C
-  δ(q7, ε) = q8,  ω(q7, ε) = R
-  δ(q8, ε) = q9,  ω(q8, ε) = I
-  δ(q9, ε) = q10,  ω(q9, ε) = P
-  δ(q10, ε) = q1,  ω(q10, ε) = T
-  δ(q11, v) = q12,  ω(q11, v) = V
-  δ(q11, V) = q12,  ω(q11, V) = V
-  δ(q12, a) = q13,  ω(q12, a) = A
-  δ(q12, A) = q13,  ω(q12, A) = A
-  δ(q13, s) = q14,  ω(q13, s) = S
-  δ(q13, S) = q14,  ω(q13, S) = S
-  δ(q14, c) = q15,  ω(q14, c) = C
-  δ(q14, C) = q15,  ω(q14, C) = C
-  δ(q15, r) = q16,  ω(q15, r) = R
-  δ(q15, R) = q16,  ω(q15, R) = R
-  δ(q16, i) = q17,  ω(q16, i) = I
-  δ(q16, I) = q17,  ω(q16, I) = I
-  δ(q17, p) = q18,  ω(q17, p) = P
-  δ(q17, P) = q18,  ω(q17, P) = P
-  δ(q18, t) = q1,  ω(q18, t) = T
-  δ(q18, T) = q1,  ω(q18, T) = T
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: A, a / epsilon
+    q0 --> q15: A, a / epsilon
+    q0 --> q8: A, a / epsilon
+    q1 --> q2: I, i / epsilon
+    q10 --> q11: F, f / epsilon
+    q11 --> q12: L, l / epsilon
+    q12 --> q13: O, o / epsilon
+    q13 --> q_aceptacion: W, w / AIRFLOW
+    q15 --> q16: P, p / epsilon
+    q16 --> q17: A, a / epsilon
+    q17 --> q18: C, c / epsilon
+    q18 --> q19: H, h / epsilon
+    q19 --> q20: E, e / epsilon
+    q2 --> q3: R, r / epsilon
+    q20 --> q21: TAB, SPACE / epsilon
+    q21 --> q21: TAB, SPACE / epsilon
+    q21 --> q22: A, a / epsilon
+    q22 --> q23: I, i / epsilon
+    q23 --> q24: R, r / epsilon
+    q24 --> q25: F, f / epsilon
+    q25 --> q26: L, l / epsilon
+    q26 --> q27: O, o / epsilon
+    q27 --> q_aceptacion: W, w / AIRFLOW
+    q3 --> q4: F, f / epsilon
+    q4 --> q5: L, l / epsilon
+    q5 --> q6: O, o / epsilon
+    q6 --> q_aceptacion: W, w / AIRFLOW
+    q8 --> q9: I, i / epsilon
+    q9 --> q10: R, r / epsilon
 ```
 
-### TYPESCRIPT
+## ANGULAR
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: TYPESCRIPT ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Angular.js`, `AngularJS`, `angular`, `Angular`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18}
+- Q = {q0, q1, q11, q12, q13, q14, q15, q16, q17, q18, q2, q20, q21, q22, q23, q24, q25, q27, q28, q29, q3, q30, q31, q32, q4, q5, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'.', 'A', 'G', 'J', 'L', 'N', 'R', 'S', 'U', 'a', 'g', 'j', 'l', 'n', 'r', 's', 'u'}
+- Gamma = {A, G, L, N, R, U}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {C, E, I, P, R, S, T, Y, c, e, i, p, r, s, t, y}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `A, a` | q1 | epsilon |
+| q0 | `A, a` | q11 | epsilon |
+| q0 | `A, a` | q20 | epsilon |
+| q0 | `A, a` | q27 | epsilon |
+| q1 | `N, n` | q2 | epsilon |
+| q11 | `N, n` | q12 | epsilon |
+| q12 | `G, g` | q13 | epsilon |
+| q13 | `U, u` | q14 | epsilon |
+| q14 | `L, l` | q15 | epsilon |
+| q15 | `A, a` | q16 | epsilon |
+| q16 | `R, r` | q17 | epsilon |
+| q17 | `J, j` | q18 | epsilon |
+| q18 | `S, s` | q_aceptacion | ANGULAR |
+| q2 | `G, g` | q3 | epsilon |
+| q20 | `N, n` | q21 | epsilon |
+| q21 | `G, g` | q22 | epsilon |
+| q22 | `U, u` | q23 | epsilon |
+| q23 | `L, l` | q24 | epsilon |
+| q24 | `A, a` | q25 | epsilon |
+| q25 | `R, r` | q_aceptacion | ANGULAR |
+| q27 | `N, n` | q28 | epsilon |
+| q28 | `G, g` | q29 | epsilon |
+| q29 | `U, u` | q30 | epsilon |
+| q3 | `U, u` | q4 | epsilon |
+| q30 | `L, l` | q31 | epsilon |
+| q31 | `A, a` | q32 | epsilon |
+| q32 | `R, r` | q_aceptacion | ANGULAR |
+| q4 | `L, l` | q5 | epsilon |
+| q5 | `A, a` | q6 | epsilon |
+| q6 | `R, r` | q7 | epsilon |
+| q7 | `.` | q8 | epsilon |
+| q8 | `J, j` | q9 | epsilon |
+| q9 | `S, s` | q_aceptacion | ANGULAR |
 
-3. Alfabeto de salida (Γ):
-   Γ = {C, E, I, P, R, S, T, Y}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, t) = q2,  ω(q0, t) = T
-  δ(q0, T) = q2,  ω(q0, T) = T
-  δ(q2, s) = q3,  ω(q2, s) = Y
-  δ(q2, S) = q3,  ω(q2, S) = Y
-  δ(q2, y) = q11,  ω(q2, y) = Y
-  δ(q2, Y) = q11,  ω(q2, Y) = Y
-  δ(q3, ε) = q4,  ω(q3, ε) = P
-  δ(q4, ε) = q5,  ω(q4, ε) = E
-  δ(q5, ε) = q6,  ω(q5, ε) = S
-  δ(q6, ε) = q7,  ω(q6, ε) = C
-  δ(q7, ε) = q8,  ω(q7, ε) = R
-  δ(q8, ε) = q9,  ω(q8, ε) = I
-  δ(q9, ε) = q10,  ω(q9, ε) = P
-  δ(q10, ε) = q1,  ω(q10, ε) = T
-  δ(q11, p) = q12,  ω(q11, p) = P
-  δ(q11, P) = q12,  ω(q11, P) = P
-  δ(q12, e) = q13,  ω(q12, e) = E
-  δ(q12, E) = q13,  ω(q12, E) = E
-  δ(q13, s) = q14,  ω(q13, s) = S
-  δ(q13, S) = q14,  ω(q13, S) = S
-  δ(q14, c) = q15,  ω(q14, c) = C
-  δ(q14, C) = q15,  ω(q14, C) = C
-  δ(q15, r) = q16,  ω(q15, r) = R
-  δ(q15, R) = q16,  ω(q15, R) = R
-  δ(q16, i) = q17,  ω(q16, i) = I
-  δ(q16, I) = q17,  ω(q16, I) = I
-  δ(q17, p) = q18,  ω(q17, p) = P
-  δ(q17, P) = q18,  ω(q17, P) = P
-  δ(q18, t) = q1,  ω(q18, t) = T
-  δ(q18, T) = q1,  ω(q18, T) = T
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: A, a / epsilon
+    q0 --> q11: A, a / epsilon
+    q0 --> q20: A, a / epsilon
+    q0 --> q27: A, a / epsilon
+    q1 --> q2: N, n / epsilon
+    q11 --> q12: N, n / epsilon
+    q12 --> q13: G, g / epsilon
+    q13 --> q14: U, u / epsilon
+    q14 --> q15: L, l / epsilon
+    q15 --> q16: A, a / epsilon
+    q16 --> q17: R, r / epsilon
+    q17 --> q18: J, j / epsilon
+    q18 --> q_aceptacion: S, s / ANGULAR
+    q2 --> q3: G, g / epsilon
+    q20 --> q21: N, n / epsilon
+    q21 --> q22: G, g / epsilon
+    q22 --> q23: U, u / epsilon
+    q23 --> q24: L, l / epsilon
+    q24 --> q25: A, a / epsilon
+    q25 --> q_aceptacion: R, r / ANGULAR
+    q27 --> q28: N, n / epsilon
+    q28 --> q29: G, g / epsilon
+    q29 --> q30: U, u / epsilon
+    q3 --> q4: U, u / epsilon
+    q30 --> q31: L, l / epsilon
+    q31 --> q32: A, a / epsilon
+    q32 --> q_aceptacion: R, r / ANGULAR
+    q4 --> q5: L, l / epsilon
+    q5 --> q6: A, a / epsilon
+    q6 --> q7: R, r / epsilon
+    q7 --> q8: . / epsilon
+    q8 --> q9: J, j / epsilon
+    q9 --> q_aceptacion: S, s / ANGULAR
 ```
 
-### REACT
+## AWS
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: REACT ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `AWS`, `aws`, `Amazon Web Services`, `amazon web services`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9}
+- Q = {q0, q1, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q2, q20, q21, q22, q23, q24, q26, q27, q28, q29, q30, q31, q32, q33, q34, q35, q36, q37, q38, q39, q4, q40, q41, q42, q43, q5, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'B', 'C', 'E', 'I', 'M', 'N', 'O', 'R', 'S', 'V', 'W', 'Z', 'a', 'b', 'c', 'e', 'i', 'm', 'n', 'o', 'r', 's', 'v', 'w', 'z'}
+- Gamma = {A, S, W}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {., A, C, E, J, R, S, T, a, c, e, j, r, s, t}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `A, a` | q1 | epsilon |
+| q0 | `A, a` | q26 | epsilon |
+| q0 | `A, a` | q4 | epsilon |
+| q0 | `A, a` | q7 | epsilon |
+| q1 | `W, w` | q2 | epsilon |
+| q10 | `O, o` | q11 | epsilon |
+| q11 | `N, n` | q12 | epsilon |
+| q12 | `TAB, SPACE` | q13 | epsilon |
+| q13 | `TAB, SPACE` | q13 | epsilon |
+| q13 | `W, w` | q14 | epsilon |
+| q14 | `E, e` | q15 | epsilon |
+| q15 | `B, b` | q16 | epsilon |
+| q16 | `TAB, SPACE` | q17 | epsilon |
+| q17 | `TAB, SPACE` | q17 | epsilon |
+| q17 | `S, s` | q18 | epsilon |
+| q18 | `E, e` | q19 | epsilon |
+| q19 | `R, r` | q20 | epsilon |
+| q2 | `S, s` | q_aceptacion | AWS |
+| q20 | `V, v` | q21 | epsilon |
+| q21 | `I, i` | q22 | epsilon |
+| q22 | `C, c` | q23 | epsilon |
+| q23 | `E, e` | q24 | epsilon |
+| q24 | `S, s` | q_aceptacion | AWS |
+| q26 | `M, m` | q27 | epsilon |
+| q27 | `A, a` | q28 | epsilon |
+| q28 | `Z, z` | q29 | epsilon |
+| q29 | `O, o` | q30 | epsilon |
+| q30 | `N, n` | q31 | epsilon |
+| q31 | `TAB, SPACE` | q32 | epsilon |
+| q32 | `TAB, SPACE` | q32 | epsilon |
+| q32 | `W, w` | q33 | epsilon |
+| q33 | `E, e` | q34 | epsilon |
+| q34 | `B, b` | q35 | epsilon |
+| q35 | `TAB, SPACE` | q36 | epsilon |
+| q36 | `TAB, SPACE` | q36 | epsilon |
+| q36 | `S, s` | q37 | epsilon |
+| q37 | `E, e` | q38 | epsilon |
+| q38 | `R, r` | q39 | epsilon |
+| q39 | `V, v` | q40 | epsilon |
+| q4 | `W, w` | q5 | epsilon |
+| q40 | `I, i` | q41 | epsilon |
+| q41 | `C, c` | q42 | epsilon |
+| q42 | `E, e` | q43 | epsilon |
+| q43 | `S, s` | q_aceptacion | AWS |
+| q5 | `S, s` | q_aceptacion | AWS |
+| q7 | `M, m` | q8 | epsilon |
+| q8 | `A, a` | q9 | epsilon |
+| q9 | `Z, z` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, C, E, R, T}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, r) = q2,  ω(q0, r) = R
-  δ(q0, R) = q2,  ω(q0, R) = R
-  δ(q2, e) = q3,  ω(q2, e) = E
-  δ(q2, E) = q3,  ω(q2, E) = E
-  δ(q3, a) = q4,  ω(q3, a) = A
-  δ(q3, A) = q4,  ω(q3, A) = A
-  δ(q4, c) = q5,  ω(q4, c) = C
-  δ(q4, C) = q5,  ω(q4, C) = C
-  δ(q5, t) = q6,  ω(q5, t) = T
-  δ(q5, T) = q6,  ω(q5, T) = T
-  δ(q5, t) = q1,  ω(q5, t) = T
-  δ(q5, T) = q1,  ω(q5, T) = T
-  δ(q6, .) = q7,  ω(q6, .) = ε
-  δ(q6, j) = q9,  ω(q6, j) = ε
-  δ(q6, J) = q9,  ω(q6, J) = ε
-  δ(q7, j) = q8,  ω(q7, j) = ε
-  δ(q7, J) = q8,  ω(q7, J) = ε
-  δ(q8, s) = q1,  ω(q8, s) = ε
-  δ(q8, S) = q1,  ω(q8, S) = ε
-  δ(q9, s) = q1,  ω(q9, s) = ε
-  δ(q9, S) = q1,  ω(q9, S) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: A, a / epsilon
+    q0 --> q26: A, a / epsilon
+    q0 --> q4: A, a / epsilon
+    q0 --> q7: A, a / epsilon
+    q1 --> q2: W, w / epsilon
+    q10 --> q11: O, o / epsilon
+    q11 --> q12: N, n / epsilon
+    q12 --> q13: TAB, SPACE / epsilon
+    q13 --> q13: TAB, SPACE / epsilon
+    q13 --> q14: W, w / epsilon
+    q14 --> q15: E, e / epsilon
+    q15 --> q16: B, b / epsilon
+    q16 --> q17: TAB, SPACE / epsilon
+    q17 --> q17: TAB, SPACE / epsilon
+    q17 --> q18: S, s / epsilon
+    q18 --> q19: E, e / epsilon
+    q19 --> q20: R, r / epsilon
+    q2 --> q_aceptacion: S, s / AWS
+    q20 --> q21: V, v / epsilon
+    q21 --> q22: I, i / epsilon
+    q22 --> q23: C, c / epsilon
+    q23 --> q24: E, e / epsilon
+    q24 --> q_aceptacion: S, s / AWS
+    q26 --> q27: M, m / epsilon
+    q27 --> q28: A, a / epsilon
+    q28 --> q29: Z, z / epsilon
+    q29 --> q30: O, o / epsilon
+    q30 --> q31: N, n / epsilon
+    q31 --> q32: TAB, SPACE / epsilon
+    q32 --> q32: TAB, SPACE / epsilon
+    q32 --> q33: W, w / epsilon
+    q33 --> q34: E, e / epsilon
+    q34 --> q35: B, b / epsilon
+    q35 --> q36: TAB, SPACE / epsilon
+    q36 --> q36: TAB, SPACE / epsilon
+    q36 --> q37: S, s / epsilon
+    q37 --> q38: E, e / epsilon
+    q38 --> q39: R, r / epsilon
+    q39 --> q40: V, v / epsilon
+    q4 --> q5: W, w / epsilon
+    q40 --> q41: I, i / epsilon
+    q41 --> q42: C, c / epsilon
+    q42 --> q43: E, e / epsilon
+    q43 --> q_aceptacion: S, s / AWS
+    q5 --> q_aceptacion: S, s / AWS
+    q7 --> q8: M, m / epsilon
+    q8 --> q9: A, a / epsilon
+    q9 --> q10: Z, z / epsilon
 ```
 
-### ANGULAR
+## AZURE
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: ANGULAR ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Azure`, `Microsoft Azure`, `azure`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11}
+- Q = {q0, q1, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q2, q21, q22, q23, q24, q3, q4, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'C', 'E', 'F', 'I', 'M', 'O', 'R', 'S', 'T', 'U', 'Z', 'a', 'c', 'e', 'f', 'i', 'm', 'o', 'r', 's', 't', 'u', 'z'}
+- Gamma = {A, E, R, U, Z}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {., A, G, J, L, N, R, S, U, a, g, j, l, n, r, s, u}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `A, a` | q1 | epsilon |
+| q0 | `A, a` | q21 | epsilon |
+| q0 | `M, m` | q6 | epsilon |
+| q1 | `Z, z` | q2 | epsilon |
+| q10 | `S, s` | q11 | epsilon |
+| q11 | `O, o` | q12 | epsilon |
+| q12 | `F, f` | q13 | epsilon |
+| q13 | `T, t` | q14 | epsilon |
+| q14 | `TAB, SPACE` | q15 | epsilon |
+| q15 | `TAB, SPACE` | q15 | epsilon |
+| q15 | `A, a` | q16 | epsilon |
+| q16 | `Z, z` | q17 | epsilon |
+| q17 | `U, u` | q18 | epsilon |
+| q18 | `R, r` | q19 | epsilon |
+| q19 | `E, e` | q_aceptacion | AZURE |
+| q2 | `U, u` | q3 | epsilon |
+| q21 | `Z, z` | q22 | epsilon |
+| q22 | `U, u` | q23 | epsilon |
+| q23 | `R, r` | q24 | epsilon |
+| q24 | `E, e` | q_aceptacion | AZURE |
+| q3 | `R, r` | q4 | epsilon |
+| q4 | `E, e` | q_aceptacion | AZURE |
+| q6 | `I, i` | q7 | epsilon |
+| q7 | `C, c` | q8 | epsilon |
+| q8 | `R, r` | q9 | epsilon |
+| q9 | `O, o` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, G, L, N, R, U}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, a) = q2,  ω(q0, a) = A
-  δ(q0, A) = q2,  ω(q0, A) = A
-  δ(q2, n) = q3,  ω(q2, n) = N
-  δ(q2, N) = q3,  ω(q2, N) = N
-  δ(q3, g) = q4,  ω(q3, g) = G
-  δ(q3, G) = q4,  ω(q3, G) = G
-  δ(q4, u) = q5,  ω(q4, u) = U
-  δ(q4, U) = q5,  ω(q4, U) = U
-  δ(q5, l) = q6,  ω(q5, l) = L
-  δ(q5, L) = q6,  ω(q5, L) = L
-  δ(q6, a) = q7,  ω(q6, a) = A
-  δ(q6, A) = q7,  ω(q6, A) = A
-  δ(q7, r) = q1,  ω(q7, r) = R
-  δ(q7, R) = q1,  ω(q7, R) = R
-  δ(q7, r) = q8,  ω(q7, r) = R
-  δ(q7, R) = q8,  ω(q7, R) = R
-  δ(q8, .) = q9,  ω(q8, .) = ε
-  δ(q8, j) = q11,  ω(q8, j) = ε
-  δ(q8, J) = q11,  ω(q8, J) = ε
-  δ(q9, j) = q10,  ω(q9, j) = ε
-  δ(q9, J) = q10,  ω(q9, J) = ε
-  δ(q10, s) = q1,  ω(q10, s) = ε
-  δ(q10, S) = q1,  ω(q10, S) = ε
-  δ(q11, s) = q1,  ω(q11, s) = ε
-  δ(q11, S) = q1,  ω(q11, S) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: A, a / epsilon
+    q0 --> q21: A, a / epsilon
+    q0 --> q6: M, m / epsilon
+    q1 --> q2: Z, z / epsilon
+    q10 --> q11: S, s / epsilon
+    q11 --> q12: O, o / epsilon
+    q12 --> q13: F, f / epsilon
+    q13 --> q14: T, t / epsilon
+    q14 --> q15: TAB, SPACE / epsilon
+    q15 --> q15: TAB, SPACE / epsilon
+    q15 --> q16: A, a / epsilon
+    q16 --> q17: Z, z / epsilon
+    q17 --> q18: U, u / epsilon
+    q18 --> q19: R, r / epsilon
+    q19 --> q_aceptacion: E, e / AZURE
+    q2 --> q3: U, u / epsilon
+    q21 --> q22: Z, z / epsilon
+    q22 --> q23: U, u / epsilon
+    q23 --> q24: R, r / epsilon
+    q24 --> q_aceptacion: E, e / AZURE
+    q3 --> q4: R, r / epsilon
+    q4 --> q_aceptacion: E, e / AZURE
+    q6 --> q7: I, i / epsilon
+    q7 --> q8: C, c / epsilon
+    q8 --> q9: R, r / epsilon
+    q9 --> q10: O, o / epsilon
 ```
 
-### VUE
+## CI_CD
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: VUE ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `CI/CD`, `ci/cd`, `CI-CD`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7}
+- Q = {q0, q1, q11, q12, q13, q14, q2, q3, q4, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'-', '/', 'C', 'D', 'I', 'c', 'd', 'i'}
+- Gamma = {C, D, I, _}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {., E, J, S, U, V, e, j, s, u, v}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `C, c` | q1 | epsilon |
+| q0 | `C, c` | q11 | epsilon |
+| q0 | `C, c` | q6 | epsilon |
+| q1 | `I, i` | q2 | epsilon |
+| q11 | `I, i` | q12 | epsilon |
+| q12 | `-` | q13 | epsilon |
+| q13 | `C, c` | q14 | epsilon |
+| q14 | `D, d` | q_aceptacion | CI_CD |
+| q2 | `/` | q3 | epsilon |
+| q3 | `C, c` | q4 | epsilon |
+| q4 | `D, d` | q_aceptacion | CI_CD |
+| q6 | `I, i` | q7 | epsilon |
+| q7 | `/` | q8 | epsilon |
+| q8 | `C, c` | q9 | epsilon |
+| q9 | `D, d` | q_aceptacion | CI_CD |
 
-3. Alfabeto de salida (Γ):
-   Γ = {E, U, V}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, v) = q2,  ω(q0, v) = V
-  δ(q0, V) = q2,  ω(q0, V) = V
-  δ(q2, u) = q3,  ω(q2, u) = U
-  δ(q2, U) = q3,  ω(q2, U) = U
-  δ(q3, e) = q4,  ω(q3, e) = E
-  δ(q3, E) = q4,  ω(q3, E) = E
-  δ(q3, e) = q1,  ω(q3, e) = E
-  δ(q3, E) = q1,  ω(q3, E) = E
-  δ(q4, .) = q5,  ω(q4, .) = ε
-  δ(q4, j) = q7,  ω(q4, j) = ε
-  δ(q4, J) = q7,  ω(q4, J) = ε
-  δ(q5, j) = q6,  ω(q5, j) = ε
-  δ(q5, J) = q6,  ω(q5, J) = ε
-  δ(q6, s) = q1,  ω(q6, s) = ε
-  δ(q6, S) = q1,  ω(q6, S) = ε
-  δ(q7, s) = q1,  ω(q7, s) = ε
-  δ(q7, S) = q1,  ω(q7, S) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: C, c / epsilon
+    q0 --> q11: C, c / epsilon
+    q0 --> q6: C, c / epsilon
+    q1 --> q2: I, i / epsilon
+    q11 --> q12: I, i / epsilon
+    q12 --> q13: - / epsilon
+    q13 --> q14: C, c / epsilon
+    q14 --> q_aceptacion: D, d / CI_CD
+    q2 --> q3: / / epsilon
+    q3 --> q4: C, c / epsilon
+    q4 --> q_aceptacion: D, d / CI_CD
+    q6 --> q7: I, i / epsilon
+    q7 --> q8: / / epsilon
+    q8 --> q9: C, c / epsilon
+    q9 --> q_aceptacion: D, d / CI_CD
 ```
 
-### NODE_JS
+## DATA_WAREHOUSE
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: NODE_JS ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Data Warehouse`, `data warehouse`, `DW`, `DWH`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11}
+- Q = {q0, q1, q10, q11, q12, q13, q15, q16, q17, q18, q19, q2, q20, q21, q22, q23, q24, q25, q26, q27, q29, q3, q31, q32, q4, q5, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'D', 'E', 'H', 'O', 'R', 'S', 'T', 'U', 'W', 'a', 'd', 'e', 'h', 'o', 'r', 's', 't', 'u', 'w'}
+- Gamma = {A, D, E, H, O, R, S, T, U, W, _}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {., D, E, J, N, O, S, d, e, j, n, o, s}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `D, d` | q1 | epsilon |
+| q0 | `D, d` | q15 | epsilon |
+| q0 | `D, d` | q29 | epsilon |
+| q0 | `D, d` | q31 | epsilon |
+| q1 | `A, a` | q2 | epsilon |
+| q10 | `O, o` | q11 | epsilon |
+| q11 | `U, u` | q12 | epsilon |
+| q12 | `S, s` | q13 | epsilon |
+| q13 | `E, e` | q_aceptacion | DATA_WAREHOUSE |
+| q15 | `A, a` | q16 | epsilon |
+| q16 | `T, t` | q17 | epsilon |
+| q17 | `A, a` | q18 | epsilon |
+| q18 | `TAB, SPACE` | q19 | epsilon |
+| q19 | `TAB, SPACE` | q19 | epsilon |
+| q19 | `W, w` | q20 | epsilon |
+| q2 | `T, t` | q3 | epsilon |
+| q20 | `A, a` | q21 | epsilon |
+| q21 | `R, r` | q22 | epsilon |
+| q22 | `E, e` | q23 | epsilon |
+| q23 | `H, h` | q24 | epsilon |
+| q24 | `O, o` | q25 | epsilon |
+| q25 | `U, u` | q26 | epsilon |
+| q26 | `S, s` | q27 | epsilon |
+| q27 | `E, e` | q_aceptacion | DATA_WAREHOUSE |
+| q29 | `W, w` | q_aceptacion | DATA_WAREHOUSE |
+| q3 | `A, a` | q4 | epsilon |
+| q31 | `W, w` | q32 | epsilon |
+| q32 | `H, h` | q_aceptacion | DATA_WAREHOUSE |
+| q4 | `TAB, SPACE` | q5 | epsilon |
+| q5 | `TAB, SPACE` | q5 | epsilon |
+| q5 | `W, w` | q6 | epsilon |
+| q6 | `A, a` | q7 | epsilon |
+| q7 | `R, r` | q8 | epsilon |
+| q8 | `E, e` | q9 | epsilon |
+| q9 | `H, h` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {D, E, J, N, O, S, _}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, n) = q2,  ω(q0, n) = N
-  δ(q0, N) = q2,  ω(q0, N) = N
-  δ(q2, o) = q3,  ω(q2, o) = O
-  δ(q2, O) = q3,  ω(q2, O) = O
-  δ(q3, d) = q4,  ω(q3, d) = D
-  δ(q3, D) = q4,  ω(q3, D) = D
-  δ(q4, e) = q5,  ω(q4, e) = E
-  δ(q4, E) = q5,  ω(q4, E) = E
-  δ(q5, j) = q6,  ω(q5, j) = _
-  δ(q5, J) = q6,  ω(q5, J) = _
-  δ(q5, .) = q8,  ω(q5, .) = _
-  δ(q5, ε) = q10,  ω(q5, ε) = _
-  δ(q6, s) = q7,  ω(q6, s) = J
-  δ(q6, S) = q7,  ω(q6, S) = J
-  δ(q7, ε) = q1,  ω(q7, ε) = S
-  δ(q8, j) = q9,  ω(q8, j) = J
-  δ(q8, J) = q9,  ω(q8, J) = J
-  δ(q9, s) = q1,  ω(q9, s) = S
-  δ(q9, S) = q1,  ω(q9, S) = S
-  δ(q10, ε) = q11,  ω(q10, ε) = J
-  δ(q11, ε) = q1,  ω(q11, ε) = S
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: D, d / epsilon
+    q0 --> q15: D, d / epsilon
+    q0 --> q29: D, d / epsilon
+    q0 --> q31: D, d / epsilon
+    q1 --> q2: A, a / epsilon
+    q10 --> q11: O, o / epsilon
+    q11 --> q12: U, u / epsilon
+    q12 --> q13: S, s / epsilon
+    q13 --> q_aceptacion: E, e / DATA_WAREHOUSE
+    q15 --> q16: A, a / epsilon
+    q16 --> q17: T, t / epsilon
+    q17 --> q18: A, a / epsilon
+    q18 --> q19: TAB, SPACE / epsilon
+    q19 --> q19: TAB, SPACE / epsilon
+    q19 --> q20: W, w / epsilon
+    q2 --> q3: T, t / epsilon
+    q20 --> q21: A, a / epsilon
+    q21 --> q22: R, r / epsilon
+    q22 --> q23: E, e / epsilon
+    q23 --> q24: H, h / epsilon
+    q24 --> q25: O, o / epsilon
+    q25 --> q26: U, u / epsilon
+    q26 --> q27: S, s / epsilon
+    q27 --> q_aceptacion: E, e / DATA_WAREHOUSE
+    q29 --> q_aceptacion: W, w / DATA_WAREHOUSE
+    q3 --> q4: A, a / epsilon
+    q31 --> q32: W, w / epsilon
+    q32 --> q_aceptacion: H, h / DATA_WAREHOUSE
+    q4 --> q5: TAB, SPACE / epsilon
+    q5 --> q5: TAB, SPACE / epsilon
+    q5 --> q6: W, w / epsilon
+    q6 --> q7: A, a / epsilon
+    q7 --> q8: R, r / epsilon
+    q8 --> q9: E, e / epsilon
+    q9 --> q10: H, h / epsilon
 ```
 
-### DJANGO
+## DJANGO
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: DJANGO ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `django`, `Django`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6}
+- Q = {q0, q1, q10, q11, q2, q3, q4, q5, q7, q8, q9, q_aceptacion}
+- Sigma = {'A', 'D', 'G', 'J', 'N', 'O', 'a', 'd', 'g', 'j', 'n', 'o'}
+- Gamma = {A, D, G, J, N, O}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {A, D, G, J, N, O, a, d, g, j, n, o}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `D, d` | q1 | epsilon |
+| q0 | `D, d` | q7 | epsilon |
+| q1 | `J, j` | q2 | epsilon |
+| q10 | `G, g` | q11 | epsilon |
+| q11 | `O, o` | q_aceptacion | DJANGO |
+| q2 | `A, a` | q3 | epsilon |
+| q3 | `N, n` | q4 | epsilon |
+| q4 | `G, g` | q5 | epsilon |
+| q5 | `O, o` | q_aceptacion | DJANGO |
+| q7 | `J, j` | q8 | epsilon |
+| q8 | `A, a` | q9 | epsilon |
+| q9 | `N, n` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, D, G, J, N, O}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, d) = q2,  ω(q0, d) = D
-  δ(q0, D) = q2,  ω(q0, D) = D
-  δ(q2, j) = q3,  ω(q2, j) = J
-  δ(q2, J) = q3,  ω(q2, J) = J
-  δ(q3, a) = q4,  ω(q3, a) = A
-  δ(q3, A) = q4,  ω(q3, A) = A
-  δ(q4, n) = q5,  ω(q4, n) = N
-  δ(q4, N) = q5,  ω(q4, N) = N
-  δ(q5, g) = q6,  ω(q5, g) = G
-  δ(q5, G) = q6,  ω(q5, G) = G
-  δ(q6, o) = q1,  ω(q6, o) = O
-  δ(q6, O) = q1,  ω(q6, O) = O
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: D, d / epsilon
+    q0 --> q7: D, d / epsilon
+    q1 --> q2: J, j / epsilon
+    q10 --> q11: G, g / epsilon
+    q11 --> q_aceptacion: O, o / DJANGO
+    q2 --> q3: A, a / epsilon
+    q3 --> q4: N, n / epsilon
+    q4 --> q5: G, g / epsilon
+    q5 --> q_aceptacion: O, o / DJANGO
+    q7 --> q8: J, j / epsilon
+    q8 --> q9: A, a / epsilon
+    q9 --> q10: N, n / epsilon
 ```
 
-### SPRING_BOOT
+## DOCKER
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: SPRING_BOOT ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Docker`, `docker`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19}
+- Q = {q0, q1, q10, q11, q2, q3, q4, q5, q7, q8, q9, q_aceptacion}
+- Sigma = {'C', 'D', 'E', 'K', 'O', 'R', 'c', 'd', 'e', 'k', 'o', 'r'}
+- Gamma = {C, D, E, K, O, R}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , B, G, I, N, O, P, R, S, T, b, g, i, n, o, p, r, s, t}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `D, d` | q1 | epsilon |
+| q0 | `D, d` | q7 | epsilon |
+| q1 | `O, o` | q2 | epsilon |
+| q10 | `E, e` | q11 | epsilon |
+| q11 | `R, r` | q_aceptacion | DOCKER |
+| q2 | `C, c` | q3 | epsilon |
+| q3 | `K, k` | q4 | epsilon |
+| q4 | `E, e` | q5 | epsilon |
+| q5 | `R, r` | q_aceptacion | DOCKER |
+| q7 | `O, o` | q8 | epsilon |
+| q8 | `C, c` | q9 | epsilon |
+| q9 | `K, k` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {B, G, I, N, O, P, R, S, T, _}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, s) = q2,  ω(q0, s) = S
-  δ(q0, S) = q2,  ω(q0, S) = S
-  δ(q2, p) = q3,  ω(q2, p) = P
-  δ(q2, P) = q3,  ω(q2, P) = P
-  δ(q3, r) = q4,  ω(q3, r) = R
-  δ(q3, R) = q4,  ω(q3, R) = R
-  δ(q4, i) = q5,  ω(q4, i) = I
-  δ(q4, I) = q5,  ω(q4, I) = I
-  δ(q5, n) = q6,  ω(q5, n) = N
-  δ(q5, N) = q6,  ω(q5, N) = N
-  δ(q6, g) = q7,  ω(q6, g) = G
-  δ(q6, G) = q7,  ω(q6, G) = G
-  δ(q7,  ) = q8,  ω(q7,  ) = _
-  δ(q7, b) = q12,  ω(q7, b) = _
-  δ(q7, B) = q12,  ω(q7, B) = _
-  δ(q7, ε) = q16,  ω(q7, ε) = _
-  δ(q8, b) = q9,  ω(q8, b) = B
-  δ(q8, B) = q9,  ω(q8, B) = B
-  δ(q9, o) = q10,  ω(q9, o) = O
-  δ(q9, O) = q10,  ω(q9, O) = O
-  δ(q10, o) = q11,  ω(q10, o) = O
-  δ(q10, O) = q11,  ω(q10, O) = O
-  δ(q11, t) = q1,  ω(q11, t) = T
-  δ(q11, T) = q1,  ω(q11, T) = T
-  δ(q12, o) = q13,  ω(q12, o) = B
-  δ(q12, O) = q13,  ω(q12, O) = B
-  δ(q13, o) = q14,  ω(q13, o) = O
-  δ(q13, O) = q14,  ω(q13, O) = O
-  δ(q14, t) = q15,  ω(q14, t) = O
-  δ(q14, T) = q15,  ω(q14, T) = O
-  δ(q15, ε) = q1,  ω(q15, ε) = T
-  δ(q16, ε) = q17,  ω(q16, ε) = B
-  δ(q17, ε) = q18,  ω(q17, ε) = O
-  δ(q18, ε) = q19,  ω(q18, ε) = O
-  δ(q19, ε) = q1,  ω(q19, ε) = T
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: D, d / epsilon
+    q0 --> q7: D, d / epsilon
+    q1 --> q2: O, o / epsilon
+    q10 --> q11: E, e / epsilon
+    q11 --> q_aceptacion: R, r / DOCKER
+    q2 --> q3: C, c / epsilon
+    q3 --> q4: K, k / epsilon
+    q4 --> q5: E, e / epsilon
+    q5 --> q_aceptacion: R, r / DOCKER
+    q7 --> q8: O, o / epsilon
+    q8 --> q9: C, c / epsilon
+    q9 --> q10: K, k / epsilon
 ```
 
-### SQL
+## ETL
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: SQL ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `ETL`, `etl`, `Extract Transform Load`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3}
+- Q = {q0, q1, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q2, q20, q21, q22, q23, q24, q25, q26, q27, q4, q5, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'C', 'D', 'E', 'F', 'L', 'M', 'N', 'O', 'R', 'S', 'T', 'X', 'a', 'c', 'd', 'e', 'f', 'l', 'm', 'n', 'o', 'r', 's', 't', 'x'}
+- Gamma = {E, L, T}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {L, Q, S, l, q, s}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `E, e` | q1 | epsilon |
+| q0 | `E, e` | q4 | epsilon |
+| q0 | `E, e` | q7 | epsilon |
+| q1 | `T, t` | q2 | epsilon |
+| q10 | `A, a` | q11 | epsilon |
+| q11 | `C, c` | q12 | epsilon |
+| q12 | `T, t` | q13 | epsilon |
+| q13 | `TAB, SPACE` | q14 | epsilon |
+| q14 | `TAB, SPACE` | q14 | epsilon |
+| q14 | `T, t` | q15 | epsilon |
+| q15 | `R, r` | q16 | epsilon |
+| q16 | `A, a` | q17 | epsilon |
+| q17 | `N, n` | q18 | epsilon |
+| q18 | `S, s` | q19 | epsilon |
+| q19 | `F, f` | q20 | epsilon |
+| q2 | `L, l` | q_aceptacion | ETL |
+| q20 | `O, o` | q21 | epsilon |
+| q21 | `R, r` | q22 | epsilon |
+| q22 | `M, m` | q23 | epsilon |
+| q23 | `TAB, SPACE` | q24 | epsilon |
+| q24 | `TAB, SPACE` | q24 | epsilon |
+| q24 | `L, l` | q25 | epsilon |
+| q25 | `O, o` | q26 | epsilon |
+| q26 | `A, a` | q27 | epsilon |
+| q27 | `D, d` | q_aceptacion | ETL |
+| q4 | `T, t` | q5 | epsilon |
+| q5 | `L, l` | q_aceptacion | ETL |
+| q7 | `X, x` | q8 | epsilon |
+| q8 | `T, t` | q9 | epsilon |
+| q9 | `R, r` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {L, Q, S}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, s) = q2,  ω(q0, s) = S
-  δ(q0, S) = q2,  ω(q0, S) = S
-  δ(q2, q) = q3,  ω(q2, q) = Q
-  δ(q2, Q) = q3,  ω(q2, Q) = Q
-  δ(q3, l) = q1,  ω(q3, l) = L
-  δ(q3, L) = q1,  ω(q3, L) = L
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: E, e / epsilon
+    q0 --> q4: E, e / epsilon
+    q0 --> q7: E, e / epsilon
+    q1 --> q2: T, t / epsilon
+    q10 --> q11: A, a / epsilon
+    q11 --> q12: C, c / epsilon
+    q12 --> q13: T, t / epsilon
+    q13 --> q14: TAB, SPACE / epsilon
+    q14 --> q14: TAB, SPACE / epsilon
+    q14 --> q15: T, t / epsilon
+    q15 --> q16: R, r / epsilon
+    q16 --> q17: A, a / epsilon
+    q17 --> q18: N, n / epsilon
+    q18 --> q19: S, s / epsilon
+    q19 --> q20: F, f / epsilon
+    q2 --> q_aceptacion: L, l / ETL
+    q20 --> q21: O, o / epsilon
+    q21 --> q22: R, r / epsilon
+    q22 --> q23: M, m / epsilon
+    q23 --> q24: TAB, SPACE / epsilon
+    q24 --> q24: TAB, SPACE / epsilon
+    q24 --> q25: L, l / epsilon
+    q25 --> q26: O, o / epsilon
+    q26 --> q27: A, a / epsilon
+    q27 --> q_aceptacion: D, d / ETL
+    q4 --> q5: T, t / epsilon
+    q5 --> q_aceptacion: L, l / ETL
+    q7 --> q8: X, x / epsilon
+    q8 --> q9: T, t / epsilon
+    q9 --> q10: R, r / epsilon
 ```
 
-### NOSQL
+## GCP
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: NOSQL ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `GCP`, `gcp`, `Google Cloud`, `google cloud`, `Google Cloud Platform`, `google cloud platform`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8}
+- Q = {q0, q1, q10, q11, q12, q13, q14, q15, q16, q17, q19, q2, q20, q21, q22, q23, q24, q25, q26, q27, q28, q29, q31, q32, q33, q34, q35, q36, q37, q38, q39, q4, q40, q41, q42, q43, q44, q45, q46, q47, q48, q49, q5, q50, q52, q53, q54, q55, q56, q57, q58, q59, q60, q61, q62, q63, q64, q65, q66, q67, q68, q69, q7, q70, q71, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'C', 'D', 'E', 'F', 'G', 'L', 'M', 'O', 'P', 'R', 'T', 'U', 'a', 'c', 'd', 'e', 'f', 'g', 'l', 'm', 'o', 'p', 'r', 't', 'u'}
+- Gamma = {C, G, P}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , L, N, O, Q, S, l, n, o, q, s}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `G, g` | q1 | epsilon |
+| q0 | `G, g` | q19 | epsilon |
+| q0 | `G, g` | q31 | epsilon |
+| q0 | `G, g` | q4 | epsilon |
+| q0 | `G, g` | q52 | epsilon |
+| q0 | `G, g` | q7 | epsilon |
+| q1 | `C, c` | q2 | epsilon |
+| q10 | `L, l` | q11 | epsilon |
+| q11 | `E, e` | q12 | epsilon |
+| q12 | `TAB, SPACE` | q13 | epsilon |
+| q13 | `TAB, SPACE` | q13 | epsilon |
+| q13 | `C, c` | q14 | epsilon |
+| q14 | `L, l` | q15 | epsilon |
+| q15 | `O, o` | q16 | epsilon |
+| q16 | `U, u` | q17 | epsilon |
+| q17 | `D, d` | q_aceptacion | GCP |
+| q19 | `O, o` | q20 | epsilon |
+| q2 | `P, p` | q_aceptacion | GCP |
+| q20 | `O, o` | q21 | epsilon |
+| q21 | `G, g` | q22 | epsilon |
+| q22 | `L, l` | q23 | epsilon |
+| q23 | `E, e` | q24 | epsilon |
+| q24 | `TAB, SPACE` | q25 | epsilon |
+| q25 | `TAB, SPACE` | q25 | epsilon |
+| q25 | `C, c` | q26 | epsilon |
+| q26 | `L, l` | q27 | epsilon |
+| q27 | `O, o` | q28 | epsilon |
+| q28 | `U, u` | q29 | epsilon |
+| q29 | `D, d` | q_aceptacion | GCP |
+| q31 | `O, o` | q32 | epsilon |
+| q32 | `O, o` | q33 | epsilon |
+| q33 | `G, g` | q34 | epsilon |
+| q34 | `L, l` | q35 | epsilon |
+| q35 | `E, e` | q36 | epsilon |
+| q36 | `TAB, SPACE` | q37 | epsilon |
+| q37 | `TAB, SPACE` | q37 | epsilon |
+| q37 | `C, c` | q38 | epsilon |
+| q38 | `L, l` | q39 | epsilon |
+| q39 | `O, o` | q40 | epsilon |
+| q4 | `C, c` | q5 | epsilon |
+| q40 | `U, u` | q41 | epsilon |
+| q41 | `D, d` | q42 | epsilon |
+| q42 | `TAB, SPACE` | q43 | epsilon |
+| q43 | `TAB, SPACE` | q43 | epsilon |
+| q43 | `P, p` | q44 | epsilon |
+| q44 | `L, l` | q45 | epsilon |
+| q45 | `A, a` | q46 | epsilon |
+| q46 | `T, t` | q47 | epsilon |
+| q47 | `F, f` | q48 | epsilon |
+| q48 | `O, o` | q49 | epsilon |
+| q49 | `R, r` | q50 | epsilon |
+| q5 | `P, p` | q_aceptacion | GCP |
+| q50 | `M, m` | q_aceptacion | GCP |
+| q52 | `O, o` | q53 | epsilon |
+| q53 | `O, o` | q54 | epsilon |
+| q54 | `G, g` | q55 | epsilon |
+| q55 | `L, l` | q56 | epsilon |
+| q56 | `E, e` | q57 | epsilon |
+| q57 | `TAB, SPACE` | q58 | epsilon |
+| q58 | `TAB, SPACE` | q58 | epsilon |
+| q58 | `C, c` | q59 | epsilon |
+| q59 | `L, l` | q60 | epsilon |
+| q60 | `O, o` | q61 | epsilon |
+| q61 | `U, u` | q62 | epsilon |
+| q62 | `D, d` | q63 | epsilon |
+| q63 | `TAB, SPACE` | q64 | epsilon |
+| q64 | `TAB, SPACE` | q64 | epsilon |
+| q64 | `P, p` | q65 | epsilon |
+| q65 | `L, l` | q66 | epsilon |
+| q66 | `A, a` | q67 | epsilon |
+| q67 | `T, t` | q68 | epsilon |
+| q68 | `F, f` | q69 | epsilon |
+| q69 | `O, o` | q70 | epsilon |
+| q7 | `O, o` | q8 | epsilon |
+| q70 | `R, r` | q71 | epsilon |
+| q71 | `M, m` | q_aceptacion | GCP |
+| q8 | `O, o` | q9 | epsilon |
+| q9 | `G, g` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {L, N, O, Q, S}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, n) = q2,  ω(q0, n) = N
-  δ(q0, N) = q2,  ω(q0, N) = N
-  δ(q2, o) = q3,  ω(q2, o) = O
-  δ(q2, O) = q3,  ω(q2, O) = O
-  δ(q3, s) = q4,  ω(q3, s) = S
-  δ(q3, S) = q4,  ω(q3, S) = S
-  δ(q3,  ) = q6,  ω(q3,  ) = S
-  δ(q4, q) = q5,  ω(q4, q) = Q
-  δ(q4, Q) = q5,  ω(q4, Q) = Q
-  δ(q5, l) = q1,  ω(q5, l) = L
-  δ(q5, L) = q1,  ω(q5, L) = L
-  δ(q6, s) = q7,  ω(q6, s) = Q
-  δ(q6, S) = q7,  ω(q6, S) = Q
-  δ(q7, q) = q8,  ω(q7, q) = L
-  δ(q7, Q) = q8,  ω(q7, Q) = L
-  δ(q8, l) = q1,  ω(q8, l) = ε
-  δ(q8, L) = q1,  ω(q8, L) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: G, g / epsilon
+    q0 --> q19: G, g / epsilon
+    q0 --> q31: G, g / epsilon
+    q0 --> q4: G, g / epsilon
+    q0 --> q52: G, g / epsilon
+    q0 --> q7: G, g / epsilon
+    q1 --> q2: C, c / epsilon
+    q10 --> q11: L, l / epsilon
+    q11 --> q12: E, e / epsilon
+    q12 --> q13: TAB, SPACE / epsilon
+    q13 --> q13: TAB, SPACE / epsilon
+    q13 --> q14: C, c / epsilon
+    q14 --> q15: L, l / epsilon
+    q15 --> q16: O, o / epsilon
+    q16 --> q17: U, u / epsilon
+    q17 --> q_aceptacion: D, d / GCP
+    q19 --> q20: O, o / epsilon
+    q2 --> q_aceptacion: P, p / GCP
+    q20 --> q21: O, o / epsilon
+    q21 --> q22: G, g / epsilon
+    q22 --> q23: L, l / epsilon
+    q23 --> q24: E, e / epsilon
+    q24 --> q25: TAB, SPACE / epsilon
+    q25 --> q25: TAB, SPACE / epsilon
+    q25 --> q26: C, c / epsilon
+    q26 --> q27: L, l / epsilon
+    q27 --> q28: O, o / epsilon
+    q28 --> q29: U, u / epsilon
+    q29 --> q_aceptacion: D, d / GCP
+    q31 --> q32: O, o / epsilon
+    q32 --> q33: O, o / epsilon
+    q33 --> q34: G, g / epsilon
+    q34 --> q35: L, l / epsilon
+    q35 --> q36: E, e / epsilon
+    q36 --> q37: TAB, SPACE / epsilon
+    q37 --> q37: TAB, SPACE / epsilon
+    q37 --> q38: C, c / epsilon
+    q38 --> q39: L, l / epsilon
+    q39 --> q40: O, o / epsilon
+    q4 --> q5: C, c / epsilon
+    q40 --> q41: U, u / epsilon
+    q41 --> q42: D, d / epsilon
+    q42 --> q43: TAB, SPACE / epsilon
+    q43 --> q43: TAB, SPACE / epsilon
+    q43 --> q44: P, p / epsilon
+    q44 --> q45: L, l / epsilon
+    q45 --> q46: A, a / epsilon
+    q46 --> q47: T, t / epsilon
+    q47 --> q48: F, f / epsilon
+    q48 --> q49: O, o / epsilon
+    q49 --> q50: R, r / epsilon
+    q5 --> q_aceptacion: P, p / GCP
+    q50 --> q_aceptacion: M, m / GCP
+    q52 --> q53: O, o / epsilon
+    q53 --> q54: O, o / epsilon
+    q54 --> q55: G, g / epsilon
+    q55 --> q56: L, l / epsilon
+    q56 --> q57: E, e / epsilon
+    q57 --> q58: TAB, SPACE / epsilon
+    q58 --> q58: TAB, SPACE / epsilon
+    q58 --> q59: C, c / epsilon
+    q59 --> q60: L, l / epsilon
+    q60 --> q61: O, o / epsilon
+    q61 --> q62: U, u / epsilon
+    q62 --> q63: D, d / epsilon
+    q63 --> q64: TAB, SPACE / epsilon
+    q64 --> q64: TAB, SPACE / epsilon
+    q64 --> q65: P, p / epsilon
+    q65 --> q66: L, l / epsilon
+    q66 --> q67: A, a / epsilon
+    q67 --> q68: T, t / epsilon
+    q68 --> q69: F, f / epsilon
+    q69 --> q70: O, o / epsilon
+    q7 --> q8: O, o / epsilon
+    q70 --> q71: R, r / epsilon
+    q71 --> q_aceptacion: M, m / GCP
+    q8 --> q9: O, o / epsilon
+    q9 --> q10: G, g / epsilon
 ```
 
-### POSTGRESQL
+## GIT
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: POSTGRESQL ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Git`, `git`, `GIT`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11}
+- Q = {q0, q1, q2, q4, q5, q7, q8, q_aceptacion}
+- Sigma = {'G', 'I', 'T', 'g', 'i', 't'}
+- Gamma = {G, I, T}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {E, G, L, O, P, Q, R, S, T, e, g, l, o, p, q, r, s, t}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `G, g` | q1 | epsilon |
+| q0 | `G, g` | q4 | epsilon |
+| q0 | `G, g` | q7 | epsilon |
+| q1 | `I, i` | q2 | epsilon |
+| q2 | `T, t` | q_aceptacion | GIT |
+| q4 | `I, i` | q5 | epsilon |
+| q5 | `T, t` | q_aceptacion | GIT |
+| q7 | `I, i` | q8 | epsilon |
+| q8 | `T, t` | q_aceptacion | GIT |
 
-3. Alfabeto de salida (Γ):
-   Γ = {E, G, L, O, P, Q, R, S, T}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, p) = q2,  ω(q0, p) = P
-  δ(q0, P) = q2,  ω(q0, P) = P
-  δ(q2, o) = q3,  ω(q2, o) = O
-  δ(q2, O) = q3,  ω(q2, O) = O
-  δ(q3, s) = q4,  ω(q3, s) = S
-  δ(q3, S) = q4,  ω(q3, S) = S
-  δ(q4, t) = q5,  ω(q4, t) = T
-  δ(q4, T) = q5,  ω(q4, T) = T
-  δ(q5, g) = q6,  ω(q5, g) = G
-  δ(q5, G) = q6,  ω(q5, G) = G
-  δ(q6, r) = q7,  ω(q6, r) = R
-  δ(q6, R) = q7,  ω(q6, R) = R
-  δ(q7, e) = q8,  ω(q7, e) = E
-  δ(q7, E) = q8,  ω(q7, E) = E
-  δ(q8, s) = q9,  ω(q8, s) = S
-  δ(q8, S) = q9,  ω(q8, S) = S
-  δ(q9, ε) = q10,  ω(q9, ε) = Q
-  δ(q9, q) = q11,  ω(q9, q) = Q
-  δ(q9, Q) = q11,  ω(q9, Q) = Q
-  δ(q10, ε) = q1,  ω(q10, ε) = L
-  δ(q11, l) = q1,  ω(q11, l) = L
-  δ(q11, L) = q1,  ω(q11, L) = L
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: G, g / epsilon
+    q0 --> q4: G, g / epsilon
+    q0 --> q7: G, g / epsilon
+    q1 --> q2: I, i / epsilon
+    q2 --> q_aceptacion: T, t / GIT
+    q4 --> q5: I, i / epsilon
+    q5 --> q_aceptacion: T, t / GIT
+    q7 --> q8: I, i / epsilon
+    q8 --> q_aceptacion: T, t / GIT
 ```
 
-### REST_API
+## GITHUB_ACTIONS
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: REST_API ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `GitHub Actions`, `Github Actions`, `github actions`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14}
+- Q = {q0, q1, q10, q11, q12, q13, q15, q16, q17, q18, q19, q2, q20, q21, q22, q23, q24, q25, q26, q27, q29, q3, q30, q31, q32, q33, q34, q35, q36, q37, q38, q39, q4, q40, q41, q5, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'B', 'C', 'G', 'H', 'I', 'N', 'O', 'S', 'T', 'U', 'a', 'b', 'c', 'g', 'h', 'i', 'n', 'o', 's', 't', 'u'}
+- Gamma = {A, B, C, G, H, I, N, O, S, T, U, _}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , A, E, F, I, L, P, R, S, T, U, a, e, f, i, l, p, r, s, t, u}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `G, g` | q1 | epsilon |
+| q0 | `G, g` | q15 | epsilon |
+| q0 | `G, g` | q29 | epsilon |
+| q1 | `I, i` | q2 | epsilon |
+| q10 | `I, i` | q11 | epsilon |
+| q11 | `O, o` | q12 | epsilon |
+| q12 | `N, n` | q13 | epsilon |
+| q13 | `S, s` | q_aceptacion | GITHUB_ACTIONS |
+| q15 | `I, i` | q16 | epsilon |
+| q16 | `T, t` | q17 | epsilon |
+| q17 | `H, h` | q18 | epsilon |
+| q18 | `U, u` | q19 | epsilon |
+| q19 | `B, b` | q20 | epsilon |
+| q2 | `T, t` | q3 | epsilon |
+| q20 | `TAB, SPACE` | q21 | epsilon |
+| q21 | `TAB, SPACE` | q21 | epsilon |
+| q21 | `A, a` | q22 | epsilon |
+| q22 | `C, c` | q23 | epsilon |
+| q23 | `T, t` | q24 | epsilon |
+| q24 | `I, i` | q25 | epsilon |
+| q25 | `O, o` | q26 | epsilon |
+| q26 | `N, n` | q27 | epsilon |
+| q27 | `S, s` | q_aceptacion | GITHUB_ACTIONS |
+| q29 | `I, i` | q30 | epsilon |
+| q3 | `H, h` | q4 | epsilon |
+| q30 | `T, t` | q31 | epsilon |
+| q31 | `H, h` | q32 | epsilon |
+| q32 | `U, u` | q33 | epsilon |
+| q33 | `B, b` | q34 | epsilon |
+| q34 | `TAB, SPACE` | q35 | epsilon |
+| q35 | `TAB, SPACE` | q35 | epsilon |
+| q35 | `A, a` | q36 | epsilon |
+| q36 | `C, c` | q37 | epsilon |
+| q37 | `T, t` | q38 | epsilon |
+| q38 | `I, i` | q39 | epsilon |
+| q39 | `O, o` | q40 | epsilon |
+| q4 | `U, u` | q5 | epsilon |
+| q40 | `N, n` | q41 | epsilon |
+| q41 | `S, s` | q_aceptacion | GITHUB_ACTIONS |
+| q5 | `B, b` | q6 | epsilon |
+| q6 | `TAB, SPACE` | q7 | epsilon |
+| q7 | `TAB, SPACE` | q7 | epsilon |
+| q7 | `A, a` | q8 | epsilon |
+| q8 | `C, c` | q9 | epsilon |
+| q9 | `T, t` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, E, I, P, R, S, T, _}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, r) = q2,  ω(q0, r) = R
-  δ(q0, R) = q2,  ω(q0, R) = R
-  δ(q1, s) = q1,  ω(q1, s) = ε
-  δ(q1, S) = q1,  ω(q1, S) = ε
-  δ(q2, e) = q3,  ω(q2, e) = E
-  δ(q2, E) = q3,  ω(q2, E) = E
-  δ(q3, s) = q4,  ω(q3, s) = S
-  δ(q3, S) = q4,  ω(q3, S) = S
-  δ(q4, t) = q5,  ω(q4, t) = T
-  δ(q4, T) = q5,  ω(q4, T) = T
-  δ(q5,  ) = q6,  ω(q5,  ) = _
-  δ(q5, f) = q9,  ω(q5, f) = _
-  δ(q5, F) = q9,  ω(q5, F) = _
-  δ(q6, a) = q7,  ω(q6, a) = A
-  δ(q6, A) = q7,  ω(q6, A) = A
-  δ(q7, p) = q8,  ω(q7, p) = P
-  δ(q7, P) = q8,  ω(q7, P) = P
-  δ(q8, i) = q1,  ω(q8, i) = I
-  δ(q8, I) = q1,  ω(q8, I) = I
-  δ(q9, u) = q10,  ω(q9, u) = A
-  δ(q9, U) = q10,  ω(q9, U) = A
-  δ(q10, l) = q11,  ω(q10, l) = P
-  δ(q10, L) = q11,  ω(q10, L) = P
-  δ(q11,  ) = q12,  ω(q11,  ) = I
-  δ(q12, a) = q13,  ω(q12, a) = ε
-  δ(q12, A) = q13,  ω(q12, A) = ε
-  δ(q13, p) = q14,  ω(q13, p) = ε
-  δ(q13, P) = q14,  ω(q13, P) = ε
-  δ(q14, i) = q1,  ω(q14, i) = ε
-  δ(q14, I) = q1,  ω(q14, I) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: G, g / epsilon
+    q0 --> q15: G, g / epsilon
+    q0 --> q29: G, g / epsilon
+    q1 --> q2: I, i / epsilon
+    q10 --> q11: I, i / epsilon
+    q11 --> q12: O, o / epsilon
+    q12 --> q13: N, n / epsilon
+    q13 --> q_aceptacion: S, s / GITHUB_ACTIONS
+    q15 --> q16: I, i / epsilon
+    q16 --> q17: T, t / epsilon
+    q17 --> q18: H, h / epsilon
+    q18 --> q19: U, u / epsilon
+    q19 --> q20: B, b / epsilon
+    q2 --> q3: T, t / epsilon
+    q20 --> q21: TAB, SPACE / epsilon
+    q21 --> q21: TAB, SPACE / epsilon
+    q21 --> q22: A, a / epsilon
+    q22 --> q23: C, c / epsilon
+    q23 --> q24: T, t / epsilon
+    q24 --> q25: I, i / epsilon
+    q25 --> q26: O, o / epsilon
+    q26 --> q27: N, n / epsilon
+    q27 --> q_aceptacion: S, s / GITHUB_ACTIONS
+    q29 --> q30: I, i / epsilon
+    q3 --> q4: H, h / epsilon
+    q30 --> q31: T, t / epsilon
+    q31 --> q32: H, h / epsilon
+    q32 --> q33: U, u / epsilon
+    q33 --> q34: B, b / epsilon
+    q34 --> q35: TAB, SPACE / epsilon
+    q35 --> q35: TAB, SPACE / epsilon
+    q35 --> q36: A, a / epsilon
+    q36 --> q37: C, c / epsilon
+    q37 --> q38: T, t / epsilon
+    q38 --> q39: I, i / epsilon
+    q39 --> q40: O, o / epsilon
+    q4 --> q5: U, u / epsilon
+    q40 --> q41: N, n / epsilon
+    q41 --> q_aceptacion: S, s / GITHUB_ACTIONS
+    q5 --> q6: B, b / epsilon
+    q6 --> q7: TAB, SPACE / epsilon
+    q7 --> q7: TAB, SPACE / epsilon
+    q7 --> q8: A, a / epsilon
+    q8 --> q9: C, c / epsilon
+    q9 --> q10: T, t / epsilon
 ```
 
-### GIT
+## GITLAB_CI
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: GIT ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `GitLab CI`, `Gitlab CI`, `gitlab ci`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3}
+- Q = {q0, q1, q10, q11, q12, q13, q14, q15, q16, q17, q19, q2, q20, q21, q22, q23, q24, q25, q26, q3, q4, q5, q6, q7, q8, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'B', 'C', 'G', 'I', 'L', 'T', 'a', 'b', 'c', 'g', 'i', 'l', 't'}
+- Gamma = {A, B, C, G, I, L, T, _}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {G, I, T, g, i, t}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `G, g` | q1 | epsilon |
+| q0 | `G, g` | q10 | epsilon |
+| q0 | `G, g` | q19 | epsilon |
+| q1 | `I, i` | q2 | epsilon |
+| q10 | `I, i` | q11 | epsilon |
+| q11 | `T, t` | q12 | epsilon |
+| q12 | `L, l` | q13 | epsilon |
+| q13 | `A, a` | q14 | epsilon |
+| q14 | `B, b` | q15 | epsilon |
+| q15 | `TAB, SPACE` | q16 | epsilon |
+| q16 | `TAB, SPACE` | q16 | epsilon |
+| q16 | `C, c` | q17 | epsilon |
+| q17 | `I, i` | q_aceptacion | GITLAB_CI |
+| q19 | `I, i` | q20 | epsilon |
+| q2 | `T, t` | q3 | epsilon |
+| q20 | `T, t` | q21 | epsilon |
+| q21 | `L, l` | q22 | epsilon |
+| q22 | `A, a` | q23 | epsilon |
+| q23 | `B, b` | q24 | epsilon |
+| q24 | `TAB, SPACE` | q25 | epsilon |
+| q25 | `TAB, SPACE` | q25 | epsilon |
+| q25 | `C, c` | q26 | epsilon |
+| q26 | `I, i` | q_aceptacion | GITLAB_CI |
+| q3 | `L, l` | q4 | epsilon |
+| q4 | `A, a` | q5 | epsilon |
+| q5 | `B, b` | q6 | epsilon |
+| q6 | `TAB, SPACE` | q7 | epsilon |
+| q7 | `TAB, SPACE` | q7 | epsilon |
+| q7 | `C, c` | q8 | epsilon |
+| q8 | `I, i` | q_aceptacion | GITLAB_CI |
 
-3. Alfabeto de salida (Γ):
-   Γ = {G, I, T}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, g) = q2,  ω(q0, g) = G
-  δ(q0, G) = q2,  ω(q0, G) = G
-  δ(q2, i) = q3,  ω(q2, i) = I
-  δ(q2, I) = q3,  ω(q2, I) = I
-  δ(q3, t) = q1,  ω(q3, t) = T
-  δ(q3, T) = q1,  ω(q3, T) = T
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: G, g / epsilon
+    q0 --> q10: G, g / epsilon
+    q0 --> q19: G, g / epsilon
+    q1 --> q2: I, i / epsilon
+    q10 --> q11: I, i / epsilon
+    q11 --> q12: T, t / epsilon
+    q12 --> q13: L, l / epsilon
+    q13 --> q14: A, a / epsilon
+    q14 --> q15: B, b / epsilon
+    q15 --> q16: TAB, SPACE / epsilon
+    q16 --> q16: TAB, SPACE / epsilon
+    q16 --> q17: C, c / epsilon
+    q17 --> q_aceptacion: I, i / GITLAB_CI
+    q19 --> q20: I, i / epsilon
+    q2 --> q3: T, t / epsilon
+    q20 --> q21: T, t / epsilon
+    q21 --> q22: L, l / epsilon
+    q22 --> q23: A, a / epsilon
+    q23 --> q24: B, b / epsilon
+    q24 --> q25: TAB, SPACE / epsilon
+    q25 --> q25: TAB, SPACE / epsilon
+    q25 --> q26: C, c / epsilon
+    q26 --> q_aceptacion: I, i / GITLAB_CI
+    q3 --> q4: L, l / epsilon
+    q4 --> q5: A, a / epsilon
+    q5 --> q6: B, b / epsilon
+    q6 --> q7: TAB, SPACE / epsilon
+    q7 --> q7: TAB, SPACE / epsilon
+    q7 --> q8: C, c / epsilon
+    q8 --> q_aceptacion: I, i / GITLAB_CI
 ```
 
-## Machine Learning Engineer
+## JAVA
 
-### PYTHON
+Aliases: `Java`
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: PYTHON ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+- Q = {q0, q1, q2, q3, q_aceptacion}
+- Sigma = {'A', 'J', 'V', 'a', 'j', 'v'}
+- Gamma = {A, J, V}
+- Initial state: q0
+- F = {q_aceptacion}
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `J, j` | q1 | epsilon |
+| q1 | `A, a` | q2 | epsilon |
+| q2 | `V, v` | q3 | epsilon |
+| q3 | `A, a` | q_aceptacion | JAVA |
 
-2. Alfabeto de entrada (Σ):
-   Σ = {H, N, O, P, T, Y, h, n, o, p, t, y}
-
-3. Alfabeto de salida (Γ):
-   Γ = {H, N, O, P, T, Y}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, p) = q2,  ω(q0, p) = P
-  δ(q0, P) = q2,  ω(q0, P) = P
-  δ(q2, y) = q3,  ω(q2, y) = Y
-  δ(q2, Y) = q3,  ω(q2, Y) = Y
-  δ(q3, t) = q4,  ω(q3, t) = T
-  δ(q3, T) = q4,  ω(q3, T) = T
-  δ(q3, ε) = q7,  ω(q3, ε) = T
-  δ(q4, h) = q5,  ω(q4, h) = H
-  δ(q4, H) = q5,  ω(q4, H) = H
-  δ(q5, o) = q6,  ω(q5, o) = O
-  δ(q5, O) = q6,  ω(q5, O) = O
-  δ(q6, n) = q1,  ω(q6, n) = N
-  δ(q6, N) = q1,  ω(q6, N) = N
-  δ(q7, ε) = q8,  ω(q7, ε) = H
-  δ(q8, ε) = q9,  ω(q8, ε) = O
-  δ(q9, ε) = q1,  ω(q9, ε) = N
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: J, j / epsilon
+    q1 --> q2: A, a / epsilon
+    q2 --> q3: V, v / epsilon
+    q3 --> q_aceptacion: A, a / JAVA
 ```
 
-### PANDAS
+## JAVASCRIPT
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: PANDAS ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `JS`, `Javascript`, `JavaScript`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6}
+- Q = {q0, q1, q10, q11, q13, q14, q15, q16, q17, q18, q19, q20, q21, q3, q4, q5, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'A', 'C', 'I', 'J', 'P', 'R', 'S', 'T', 'V', 'a', 'c', 'i', 'j', 'p', 'r', 's', 't', 'v'}
+- Gamma = {A, C, I, J, P, R, S, T, V}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {A, D, N, P, S, a, d, n, p, s}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `J, j` | q1 | epsilon |
+| q0 | `J, j` | q13 | epsilon |
+| q0 | `J, j` | q3 | epsilon |
+| q1 | `S, s` | q_aceptacion | JAVASCRIPT |
+| q10 | `P, p` | q11 | epsilon |
+| q11 | `T, t` | q_aceptacion | JAVASCRIPT |
+| q13 | `A, a` | q14 | epsilon |
+| q14 | `V, v` | q15 | epsilon |
+| q15 | `A, a` | q16 | epsilon |
+| q16 | `S, s` | q17 | epsilon |
+| q17 | `C, c` | q18 | epsilon |
+| q18 | `R, r` | q19 | epsilon |
+| q19 | `I, i` | q20 | epsilon |
+| q20 | `P, p` | q21 | epsilon |
+| q21 | `T, t` | q_aceptacion | JAVASCRIPT |
+| q3 | `A, a` | q4 | epsilon |
+| q4 | `V, v` | q5 | epsilon |
+| q5 | `A, a` | q6 | epsilon |
+| q6 | `S, s` | q7 | epsilon |
+| q7 | `C, c` | q8 | epsilon |
+| q8 | `R, r` | q9 | epsilon |
+| q9 | `I, i` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, D, N, P, S}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, p) = q2,  ω(q0, p) = P
-  δ(q0, P) = q2,  ω(q0, P) = P
-  δ(q2, a) = q3,  ω(q2, a) = A
-  δ(q2, A) = q3,  ω(q2, A) = A
-  δ(q3, n) = q4,  ω(q3, n) = N
-  δ(q3, N) = q4,  ω(q3, N) = N
-  δ(q4, d) = q5,  ω(q4, d) = D
-  δ(q4, D) = q5,  ω(q4, D) = D
-  δ(q5, a) = q6,  ω(q5, a) = A
-  δ(q5, A) = q6,  ω(q5, A) = A
-  δ(q6, s) = q1,  ω(q6, s) = S
-  δ(q6, S) = q1,  ω(q6, S) = S
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: J, j / epsilon
+    q0 --> q13: J, j / epsilon
+    q0 --> q3: J, j / epsilon
+    q1 --> q_aceptacion: S, s / JAVASCRIPT
+    q10 --> q11: P, p / epsilon
+    q11 --> q_aceptacion: T, t / JAVASCRIPT
+    q13 --> q14: A, a / epsilon
+    q14 --> q15: V, v / epsilon
+    q15 --> q16: A, a / epsilon
+    q16 --> q17: S, s / epsilon
+    q17 --> q18: C, c / epsilon
+    q18 --> q19: R, r / epsilon
+    q19 --> q20: I, i / epsilon
+    q20 --> q21: P, p / epsilon
+    q21 --> q_aceptacion: T, t / JAVASCRIPT
+    q3 --> q4: A, a / epsilon
+    q4 --> q5: V, v / epsilon
+    q5 --> q6: A, a / epsilon
+    q6 --> q7: S, s / epsilon
+    q7 --> q8: C, c / epsilon
+    q8 --> q9: R, r / epsilon
+    q9 --> q10: I, i / epsilon
 ```
 
-### NUMPY
+## JENKINS
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: NUMPY ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Jenkins`, `jenkins`, `JENKINS`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5}
+- Q = {q0, q1, q10, q11, q12, q13, q15, q16, q17, q18, q19, q2, q20, q3, q4, q5, q6, q8, q9, q_aceptacion}
+- Sigma = {'E', 'I', 'J', 'K', 'N', 'S', 'e', 'i', 'j', 'k', 'n', 's'}
+- Gamma = {E, I, J, K, N, S}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {M, N, P, U, Y, m, n, p, u, y}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `J, j` | q1 | epsilon |
+| q0 | `J, j` | q15 | epsilon |
+| q0 | `J, j` | q8 | epsilon |
+| q1 | `E, e` | q2 | epsilon |
+| q10 | `K, k` | q11 | epsilon |
+| q11 | `I, i` | q12 | epsilon |
+| q12 | `N, n` | q13 | epsilon |
+| q13 | `S, s` | q_aceptacion | JENKINS |
+| q15 | `E, e` | q16 | epsilon |
+| q16 | `N, n` | q17 | epsilon |
+| q17 | `K, k` | q18 | epsilon |
+| q18 | `I, i` | q19 | epsilon |
+| q19 | `N, n` | q20 | epsilon |
+| q2 | `N, n` | q3 | epsilon |
+| q20 | `S, s` | q_aceptacion | JENKINS |
+| q3 | `K, k` | q4 | epsilon |
+| q4 | `I, i` | q5 | epsilon |
+| q5 | `N, n` | q6 | epsilon |
+| q6 | `S, s` | q_aceptacion | JENKINS |
+| q8 | `E, e` | q9 | epsilon |
+| q9 | `N, n` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {M, N, P, U, Y}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, n) = q2,  ω(q0, n) = N
-  δ(q0, N) = q2,  ω(q0, N) = N
-  δ(q2, u) = q3,  ω(q2, u) = U
-  δ(q2, U) = q3,  ω(q2, U) = U
-  δ(q3, m) = q4,  ω(q3, m) = M
-  δ(q3, M) = q4,  ω(q3, M) = M
-  δ(q4, p) = q5,  ω(q4, p) = P
-  δ(q4, P) = q5,  ω(q4, P) = P
-  δ(q5, y) = q1,  ω(q5, y) = Y
-  δ(q5, Y) = q1,  ω(q5, Y) = Y
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: J, j / epsilon
+    q0 --> q15: J, j / epsilon
+    q0 --> q8: J, j / epsilon
+    q1 --> q2: E, e / epsilon
+    q10 --> q11: K, k / epsilon
+    q11 --> q12: I, i / epsilon
+    q12 --> q13: N, n / epsilon
+    q13 --> q_aceptacion: S, s / JENKINS
+    q15 --> q16: E, e / epsilon
+    q16 --> q17: N, n / epsilon
+    q17 --> q18: K, k / epsilon
+    q18 --> q19: I, i / epsilon
+    q19 --> q20: N, n / epsilon
+    q2 --> q3: N, n / epsilon
+    q20 --> q_aceptacion: S, s / JENKINS
+    q3 --> q4: K, k / epsilon
+    q4 --> q5: I, i / epsilon
+    q5 --> q6: N, n / epsilon
+    q6 --> q_aceptacion: S, s / JENKINS
+    q8 --> q9: E, e / epsilon
+    q9 --> q10: N, n / epsilon
 ```
 
-### SCIKIT_LEARN
+## KAFKA
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: SCIKIT_LEARN ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Kafka`, `kafka`, `Apache Kafka`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23, q24, q25, q26, q27}
+- Q = {q0, q1, q11, q12, q13, q14, q15, q16, q17, q18, q19, q2, q20, q21, q3, q4, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'C', 'E', 'F', 'H', 'K', 'P', 'a', 'c', 'e', 'f', 'h', 'k', 'p'}
+- Gamma = {A, F, K}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , -, A, C, E, I, K, L, N, R, S, T, a, c, e, i, k, l, n, r, s, t}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `K, k` | q1 | epsilon |
+| q0 | `A, a` | q11 | epsilon |
+| q0 | `K, k` | q6 | epsilon |
+| q1 | `A, a` | q2 | epsilon |
+| q11 | `P, p` | q12 | epsilon |
+| q12 | `A, a` | q13 | epsilon |
+| q13 | `C, c` | q14 | epsilon |
+| q14 | `H, h` | q15 | epsilon |
+| q15 | `E, e` | q16 | epsilon |
+| q16 | `TAB, SPACE` | q17 | epsilon |
+| q17 | `TAB, SPACE` | q17 | epsilon |
+| q17 | `K, k` | q18 | epsilon |
+| q18 | `A, a` | q19 | epsilon |
+| q19 | `F, f` | q20 | epsilon |
+| q2 | `F, f` | q3 | epsilon |
+| q20 | `K, k` | q21 | epsilon |
+| q21 | `A, a` | q_aceptacion | KAFKA |
+| q3 | `K, k` | q4 | epsilon |
+| q4 | `A, a` | q_aceptacion | KAFKA |
+| q6 | `A, a` | q7 | epsilon |
+| q7 | `F, f` | q8 | epsilon |
+| q8 | `K, k` | q9 | epsilon |
+| q9 | `A, a` | q_aceptacion | KAFKA |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, C, E, I, K, L, N, R, S, T, _}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, s) = q2,  ω(q0, s) = S
-  δ(q0, S) = q2,  ω(q0, S) = S
-  δ(q2, k) = q3,  ω(q2, k) = C
-  δ(q2, K) = q3,  ω(q2, K) = C
-  δ(q2, c) = q13,  ω(q2, c) = C
-  δ(q2, C) = q13,  ω(q2, C) = C
-  δ(q3, l) = q4,  ω(q3, l) = I
-  δ(q3, L) = q4,  ω(q3, L) = I
-  δ(q4, e) = q5,  ω(q4, e) = K
-  δ(q4, E) = q5,  ω(q4, E) = K
-  δ(q5, a) = q6,  ω(q5, a) = I
-  δ(q5, A) = q6,  ω(q5, A) = I
-  δ(q6, r) = q7,  ω(q6, r) = T
-  δ(q6, R) = q7,  ω(q6, R) = T
-  δ(q7, n) = q8,  ω(q7, n) = _
-  δ(q7, N) = q8,  ω(q7, N) = _
-  δ(q8, ε) = q9,  ω(q8, ε) = L
-  δ(q9, ε) = q10,  ω(q9, ε) = E
-  δ(q10, ε) = q11,  ω(q10, ε) = A
-  δ(q11, ε) = q12,  ω(q11, ε) = R
-  δ(q12, ε) = q1,  ω(q12, ε) = N
-  δ(q13, i) = q14,  ω(q13, i) = I
-  δ(q13, I) = q14,  ω(q13, I) = I
-  δ(q14, k) = q15,  ω(q14, k) = K
-  δ(q14, K) = q15,  ω(q14, K) = K
-  δ(q15, i) = q16,  ω(q15, i) = I
-  δ(q15, I) = q16,  ω(q15, I) = I
-  δ(q16, t) = q17,  ω(q16, t) = T
-  δ(q16, T) = q17,  ω(q16, T) = T
-  δ(q17,  ) = q18,  ω(q17,  ) = _
-  δ(q17, -) = q23,  ω(q17, -) = _
-  δ(q18, l) = q19,  ω(q18, l) = L
-  δ(q18, L) = q19,  ω(q18, L) = L
-  δ(q19, e) = q20,  ω(q19, e) = E
-  δ(q19, E) = q20,  ω(q19, E) = E
-  δ(q20, a) = q21,  ω(q20, a) = A
-  δ(q20, A) = q21,  ω(q20, A) = A
-  δ(q21, r) = q22,  ω(q21, r) = R
-  δ(q21, R) = q22,  ω(q21, R) = R
-  δ(q22, n) = q1,  ω(q22, n) = N
-  δ(q22, N) = q1,  ω(q22, N) = N
-  δ(q23, l) = q24,  ω(q23, l) = L
-  δ(q23, L) = q24,  ω(q23, L) = L
-  δ(q24, e) = q25,  ω(q24, e) = E
-  δ(q24, E) = q25,  ω(q24, E) = E
-  δ(q25, a) = q26,  ω(q25, a) = A
-  δ(q25, A) = q26,  ω(q25, A) = A
-  δ(q26, r) = q27,  ω(q26, r) = R
-  δ(q26, R) = q27,  ω(q26, R) = R
-  δ(q27, n) = q1,  ω(q27, n) = N
-  δ(q27, N) = q1,  ω(q27, N) = N
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: K, k / epsilon
+    q0 --> q11: A, a / epsilon
+    q0 --> q6: K, k / epsilon
+    q1 --> q2: A, a / epsilon
+    q11 --> q12: P, p / epsilon
+    q12 --> q13: A, a / epsilon
+    q13 --> q14: C, c / epsilon
+    q14 --> q15: H, h / epsilon
+    q15 --> q16: E, e / epsilon
+    q16 --> q17: TAB, SPACE / epsilon
+    q17 --> q17: TAB, SPACE / epsilon
+    q17 --> q18: K, k / epsilon
+    q18 --> q19: A, a / epsilon
+    q19 --> q20: F, f / epsilon
+    q2 --> q3: F, f / epsilon
+    q20 --> q21: K, k / epsilon
+    q21 --> q_aceptacion: A, a / KAFKA
+    q3 --> q4: K, k / epsilon
+    q4 --> q_aceptacion: A, a / KAFKA
+    q6 --> q7: A, a / epsilon
+    q7 --> q8: F, f / epsilon
+    q8 --> q9: K, k / epsilon
+    q9 --> q_aceptacion: A, a / KAFKA
 ```
 
-### TENSORFLOW
+## KUBERNETES
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: TENSORFLOW ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Kubernetes`, `kubernetes`, `K8s`, `k8s`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22}
+- Q = {q0, q1, q11, q12, q13, q14, q15, q16, q17, q18, q19, q2, q21, q22, q24, q25, q3, q4, q5, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'8', 'B', 'E', 'K', 'N', 'R', 'S', 'T', 'U', 'b', 'e', 'k', 'n', 'r', 's', 't', 'u'}
+- Gamma = {B, E, K, N, R, S, T, U}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , E, F, L, N, O, R, S, T, W, e, f, l, n, o, r, s, t, w}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `K, k` | q1 | epsilon |
+| q0 | `K, k` | q11 | epsilon |
+| q0 | `K, k` | q21 | epsilon |
+| q0 | `K, k` | q24 | epsilon |
+| q1 | `U, u` | q2 | epsilon |
+| q11 | `U, u` | q12 | epsilon |
+| q12 | `B, b` | q13 | epsilon |
+| q13 | `E, e` | q14 | epsilon |
+| q14 | `R, r` | q15 | epsilon |
+| q15 | `N, n` | q16 | epsilon |
+| q16 | `E, e` | q17 | epsilon |
+| q17 | `T, t` | q18 | epsilon |
+| q18 | `E, e` | q19 | epsilon |
+| q19 | `S, s` | q_aceptacion | KUBERNETES |
+| q2 | `B, b` | q3 | epsilon |
+| q21 | `8` | q22 | epsilon |
+| q22 | `S, s` | q_aceptacion | KUBERNETES |
+| q24 | `8` | q25 | epsilon |
+| q25 | `S, s` | q_aceptacion | KUBERNETES |
+| q3 | `E, e` | q4 | epsilon |
+| q4 | `R, r` | q5 | epsilon |
+| q5 | `N, n` | q6 | epsilon |
+| q6 | `E, e` | q7 | epsilon |
+| q7 | `T, t` | q8 | epsilon |
+| q8 | `E, e` | q9 | epsilon |
+| q9 | `S, s` | q_aceptacion | KUBERNETES |
 
-3. Alfabeto de salida (Γ):
-   Γ = {E, F, L, N, O, R, S, T, W}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, t) = q2,  ω(q0, t) = T
-  δ(q0, T) = q2,  ω(q0, T) = T
-  δ(q2, e) = q3,  ω(q2, e) = E
-  δ(q2, E) = q3,  ω(q2, E) = E
-  δ(q2, f) = q15,  ω(q2, f) = E
-  δ(q2, F) = q15,  ω(q2, F) = E
-  δ(q3, n) = q4,  ω(q3, n) = N
-  δ(q3, N) = q4,  ω(q3, N) = N
-  δ(q4, s) = q5,  ω(q4, s) = S
-  δ(q4, S) = q5,  ω(q4, S) = S
-  δ(q5, o) = q6,  ω(q5, o) = O
-  δ(q5, O) = q6,  ω(q5, O) = O
-  δ(q6, r) = q7,  ω(q6, r) = R
-  δ(q6, R) = q7,  ω(q6, R) = R
-  δ(q7,  ) = q8,  ω(q7,  ) = F
-  δ(q7, f) = q12,  ω(q7, f) = F
-  δ(q7, F) = q12,  ω(q7, F) = F
-  δ(q8, f) = q9,  ω(q8, f) = L
-  δ(q8, F) = q9,  ω(q8, F) = L
-  δ(q9, l) = q10,  ω(q9, l) = O
-  δ(q9, L) = q10,  ω(q9, L) = O
-  δ(q10, o) = q11,  ω(q10, o) = W
-  δ(q10, O) = q11,  ω(q10, O) = W
-  δ(q11, w) = q1,  ω(q11, w) = ε
-  δ(q11, W) = q1,  ω(q11, W) = ε
-  δ(q12, l) = q13,  ω(q12, l) = L
-  δ(q12, L) = q13,  ω(q12, L) = L
-  δ(q13, o) = q14,  ω(q13, o) = O
-  δ(q13, O) = q14,  ω(q13, O) = O
-  δ(q14, w) = q1,  ω(q14, w) = W
-  δ(q14, W) = q1,  ω(q14, W) = W
-  δ(q15, ε) = q16,  ω(q15, ε) = N
-  δ(q16, ε) = q17,  ω(q16, ε) = S
-  δ(q17, ε) = q18,  ω(q17, ε) = O
-  δ(q18, ε) = q19,  ω(q18, ε) = R
-  δ(q19, ε) = q20,  ω(q19, ε) = F
-  δ(q20, ε) = q21,  ω(q20, ε) = L
-  δ(q21, ε) = q22,  ω(q21, ε) = O
-  δ(q22, ε) = q1,  ω(q22, ε) = W
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: K, k / epsilon
+    q0 --> q11: K, k / epsilon
+    q0 --> q21: K, k / epsilon
+    q0 --> q24: K, k / epsilon
+    q1 --> q2: U, u / epsilon
+    q11 --> q12: U, u / epsilon
+    q12 --> q13: B, b / epsilon
+    q13 --> q14: E, e / epsilon
+    q14 --> q15: R, r / epsilon
+    q15 --> q16: N, n / epsilon
+    q16 --> q17: E, e / epsilon
+    q17 --> q18: T, t / epsilon
+    q18 --> q19: E, e / epsilon
+    q19 --> q_aceptacion: S, s / KUBERNETES
+    q2 --> q3: B, b / epsilon
+    q21 --> q22: 8 / epsilon
+    q22 --> q_aceptacion: S, s / KUBERNETES
+    q24 --> q25: 8 / epsilon
+    q25 --> q_aceptacion: S, s / KUBERNETES
+    q3 --> q4: E, e / epsilon
+    q4 --> q5: R, r / epsilon
+    q5 --> q6: N, n / epsilon
+    q6 --> q7: E, e / epsilon
+    q7 --> q8: T, t / epsilon
+    q8 --> q9: E, e / epsilon
+    q9 --> q_aceptacion: S, s / KUBERNETES
 ```
 
-### PYTORCH
+## LINUX
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: PYTORCH ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Linux`, `linux`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12}
+- Q = {q0, q1, q2, q3, q4, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'I', 'L', 'N', 'U', 'X', 'i', 'l', 'n', 'u', 'x'}
+- Gamma = {I, L, N, U, X}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , C, H, O, P, R, T, Y, c, h, o, p, r, t, y}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `L, l` | q1 | epsilon |
+| q0 | `L, l` | q6 | epsilon |
+| q1 | `I, i` | q2 | epsilon |
+| q2 | `N, n` | q3 | epsilon |
+| q3 | `U, u` | q4 | epsilon |
+| q4 | `X, x` | q_aceptacion | LINUX |
+| q6 | `I, i` | q7 | epsilon |
+| q7 | `N, n` | q8 | epsilon |
+| q8 | `U, u` | q9 | epsilon |
+| q9 | `X, x` | q_aceptacion | LINUX |
 
-3. Alfabeto de salida (Γ):
-   Γ = {C, H, O, P, R, T, Y}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, p) = q2,  ω(q0, p) = P
-  δ(q0, P) = q2,  ω(q0, P) = P
-  δ(q2, y) = q3,  ω(q2, y) = Y
-  δ(q2, Y) = q3,  ω(q2, Y) = Y
-  δ(q3,  ) = q4,  ω(q3,  ) = T
-  δ(q3, t) = q9,  ω(q3, t) = T
-  δ(q3, T) = q9,  ω(q3, T) = T
-  δ(q4, t) = q5,  ω(q4, t) = O
-  δ(q4, T) = q5,  ω(q4, T) = O
-  δ(q5, o) = q6,  ω(q5, o) = R
-  δ(q5, O) = q6,  ω(q5, O) = R
-  δ(q6, r) = q7,  ω(q6, r) = C
-  δ(q6, R) = q7,  ω(q6, R) = C
-  δ(q7, c) = q8,  ω(q7, c) = H
-  δ(q7, C) = q8,  ω(q7, C) = H
-  δ(q8, h) = q1,  ω(q8, h) = ε
-  δ(q8, H) = q1,  ω(q8, H) = ε
-  δ(q9, o) = q10,  ω(q9, o) = O
-  δ(q9, O) = q10,  ω(q9, O) = O
-  δ(q10, r) = q11,  ω(q10, r) = R
-  δ(q10, R) = q11,  ω(q10, R) = R
-  δ(q11, c) = q12,  ω(q11, c) = C
-  δ(q11, C) = q12,  ω(q11, C) = C
-  δ(q12, h) = q1,  ω(q12, h) = H
-  δ(q12, H) = q1,  ω(q12, H) = H
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: L, l / epsilon
+    q0 --> q6: L, l / epsilon
+    q1 --> q2: I, i / epsilon
+    q2 --> q3: N, n / epsilon
+    q3 --> q4: U, u / epsilon
+    q4 --> q_aceptacion: X, x / LINUX
+    q6 --> q7: I, i / epsilon
+    q7 --> q8: N, n / epsilon
+    q8 --> q9: U, u / epsilon
+    q9 --> q_aceptacion: X, x / LINUX
 ```
 
-### MACHINE_LEARNING
+## MACHINE_LEARNING
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: MACHINE_LEARNING ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `machine learning model development`, `machine-learning model development`, `ML`, `Machine Learning`, `Machine-learning`, `machine learning`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23, q24, q25, q26, q27, q28, q29, q30, q31, q32, q33, q34, q35, q36, q37, q38}
+- Q = {q0, q1, q10, q100, q101, q103, q104, q105, q106, q107, q108, q109, q11, q110, q111, q112, q113, q114, q115, q116, q117, q12, q13, q14, q15, q16, q17, q18, q19, q2, q20, q21, q22, q23, q24, q25, q26, q27, q28, q29, q3, q30, q31, q32, q33, q35, q36, q37, q38, q39, q4, q40, q41, q42, q43, q44, q45, q46, q47, q48, q49, q5, q50, q51, q52, q53, q54, q55, q56, q57, q58, q59, q6, q60, q61, q62, q63, q64, q65, q66, q67, q69, q7, q71, q72, q73, q74, q75, q76, q77, q78, q79, q8, q80, q81, q82, q83, q84, q85, q87, q88, q89, q9, q90, q91, q92, q93, q94, q95, q96, q97, q98, q99, q_aceptacion}
+- Sigma = {'\t', ' ', '-', 'A', 'C', 'D', 'E', 'G', 'H', 'I', 'L', 'M', 'N', 'O', 'P', 'R', 'T', 'V', 'a', 'c', 'd', 'e', 'g', 'h', 'i', 'l', 'm', 'n', 'o', 'p', 'r', 't', 'v'}
+- Gamma = {A, C, E, G, H, I, L, M, N, R, _}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , -, A, C, E, G, H, I, L, M, N, R, a, c, e, g, h, i, l, m, n, r}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `M, m` | q1 | epsilon |
+| q0 | `M, m` | q103 | epsilon |
+| q0 | `M, m` | q35 | epsilon |
+| q0 | `M, m` | q69 | epsilon |
+| q0 | `M, m` | q71 | epsilon |
+| q0 | `M, m` | q87 | epsilon |
+| q1 | `A, a` | q2 | epsilon |
+| q10 | `A, a` | q11 | epsilon |
+| q100 | `N, n` | q101 | epsilon |
+| q101 | `G, g` | q_aceptacion | MACHINE_LEARNING |
+| q103 | `A, a` | q104 | epsilon |
+| q104 | `C, c` | q105 | epsilon |
+| q105 | `H, h` | q106 | epsilon |
+| q106 | `I, i` | q107 | epsilon |
+| q107 | `N, n` | q108 | epsilon |
+| q108 | `E, e` | q109 | epsilon |
+| q109 | `TAB, SPACE` | q110 | epsilon |
+| q11 | `R, r` | q12 | epsilon |
+| q110 | `TAB, SPACE` | q110 | epsilon |
+| q110 | `L, l` | q111 | epsilon |
+| q111 | `E, e` | q112 | epsilon |
+| q112 | `A, a` | q113 | epsilon |
+| q113 | `R, r` | q114 | epsilon |
+| q114 | `N, n` | q115 | epsilon |
+| q115 | `I, i` | q116 | epsilon |
+| q116 | `N, n` | q117 | epsilon |
+| q117 | `G, g` | q_aceptacion | MACHINE_LEARNING |
+| q12 | `N, n` | q13 | epsilon |
+| q13 | `I, i` | q14 | epsilon |
+| q14 | `N, n` | q15 | epsilon |
+| q15 | `G, g` | q16 | epsilon |
+| q16 | `TAB, SPACE` | q17 | epsilon |
+| q17 | `TAB, SPACE` | q17 | epsilon |
+| q17 | `M, m` | q18 | epsilon |
+| q18 | `O, o` | q19 | epsilon |
+| q19 | `D, d` | q20 | epsilon |
+| q2 | `C, c` | q3 | epsilon |
+| q20 | `E, e` | q21 | epsilon |
+| q21 | `L, l` | q22 | epsilon |
+| q22 | `TAB, SPACE` | q23 | epsilon |
+| q23 | `TAB, SPACE` | q23 | epsilon |
+| q23 | `D, d` | q24 | epsilon |
+| q24 | `E, e` | q25 | epsilon |
+| q25 | `V, v` | q26 | epsilon |
+| q26 | `E, e` | q27 | epsilon |
+| q27 | `L, l` | q28 | epsilon |
+| q28 | `O, o` | q29 | epsilon |
+| q29 | `P, p` | q30 | epsilon |
+| q3 | `H, h` | q4 | epsilon |
+| q30 | `M, m` | q31 | epsilon |
+| q31 | `E, e` | q32 | epsilon |
+| q32 | `N, n` | q33 | epsilon |
+| q33 | `T, t` | q_aceptacion | MACHINE_LEARNING |
+| q35 | `A, a` | q36 | epsilon |
+| q36 | `C, c` | q37 | epsilon |
+| q37 | `H, h` | q38 | epsilon |
+| q38 | `I, i` | q39 | epsilon |
+| q39 | `N, n` | q40 | epsilon |
+| q4 | `I, i` | q5 | epsilon |
+| q40 | `E, e` | q41 | epsilon |
+| q41 | `-` | q42 | epsilon |
+| q42 | `L, l` | q43 | epsilon |
+| q43 | `E, e` | q44 | epsilon |
+| q44 | `A, a` | q45 | epsilon |
+| q45 | `R, r` | q46 | epsilon |
+| q46 | `N, n` | q47 | epsilon |
+| q47 | `I, i` | q48 | epsilon |
+| q48 | `N, n` | q49 | epsilon |
+| q49 | `G, g` | q50 | epsilon |
+| q5 | `N, n` | q6 | epsilon |
+| q50 | `TAB, SPACE` | q51 | epsilon |
+| q51 | `TAB, SPACE` | q51 | epsilon |
+| q51 | `M, m` | q52 | epsilon |
+| q52 | `O, o` | q53 | epsilon |
+| q53 | `D, d` | q54 | epsilon |
+| q54 | `E, e` | q55 | epsilon |
+| q55 | `L, l` | q56 | epsilon |
+| q56 | `TAB, SPACE` | q57 | epsilon |
+| q57 | `TAB, SPACE` | q57 | epsilon |
+| q57 | `D, d` | q58 | epsilon |
+| q58 | `E, e` | q59 | epsilon |
+| q59 | `V, v` | q60 | epsilon |
+| q6 | `E, e` | q7 | epsilon |
+| q60 | `E, e` | q61 | epsilon |
+| q61 | `L, l` | q62 | epsilon |
+| q62 | `O, o` | q63 | epsilon |
+| q63 | `P, p` | q64 | epsilon |
+| q64 | `M, m` | q65 | epsilon |
+| q65 | `E, e` | q66 | epsilon |
+| q66 | `N, n` | q67 | epsilon |
+| q67 | `T, t` | q_aceptacion | MACHINE_LEARNING |
+| q69 | `L, l` | q_aceptacion | MACHINE_LEARNING |
+| q7 | `TAB, SPACE` | q8 | epsilon |
+| q71 | `A, a` | q72 | epsilon |
+| q72 | `C, c` | q73 | epsilon |
+| q73 | `H, h` | q74 | epsilon |
+| q74 | `I, i` | q75 | epsilon |
+| q75 | `N, n` | q76 | epsilon |
+| q76 | `E, e` | q77 | epsilon |
+| q77 | `TAB, SPACE` | q78 | epsilon |
+| q78 | `TAB, SPACE` | q78 | epsilon |
+| q78 | `L, l` | q79 | epsilon |
+| q79 | `E, e` | q80 | epsilon |
+| q8 | `TAB, SPACE` | q8 | epsilon |
+| q8 | `L, l` | q9 | epsilon |
+| q80 | `A, a` | q81 | epsilon |
+| q81 | `R, r` | q82 | epsilon |
+| q82 | `N, n` | q83 | epsilon |
+| q83 | `I, i` | q84 | epsilon |
+| q84 | `N, n` | q85 | epsilon |
+| q85 | `G, g` | q_aceptacion | MACHINE_LEARNING |
+| q87 | `A, a` | q88 | epsilon |
+| q88 | `C, c` | q89 | epsilon |
+| q89 | `H, h` | q90 | epsilon |
+| q9 | `E, e` | q10 | epsilon |
+| q90 | `I, i` | q91 | epsilon |
+| q91 | `N, n` | q92 | epsilon |
+| q92 | `E, e` | q93 | epsilon |
+| q93 | `-` | q94 | epsilon |
+| q94 | `L, l` | q95 | epsilon |
+| q95 | `E, e` | q96 | epsilon |
+| q96 | `A, a` | q97 | epsilon |
+| q97 | `R, r` | q98 | epsilon |
+| q98 | `N, n` | q99 | epsilon |
+| q99 | `I, i` | q100 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, C, E, G, H, I, L, M, N, R, _}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, m) = q2,  ω(q0, m) = M
-  δ(q0, M) = q2,  ω(q0, M) = M
-  δ(q2, l) = q3,  ω(q2, l) = A
-  δ(q2, L) = q3,  ω(q2, L) = A
-  δ(q2, a) = q17,  ω(q2, a) = A
-  δ(q2, A) = q17,  ω(q2, A) = A
-  δ(q3, ε) = q4,  ω(q3, ε) = C
-  δ(q4, ε) = q5,  ω(q4, ε) = H
-  δ(q5, ε) = q6,  ω(q5, ε) = I
-  δ(q6, ε) = q7,  ω(q6, ε) = N
-  δ(q7, ε) = q8,  ω(q7, ε) = E
-  δ(q8, ε) = q9,  ω(q8, ε) = _
-  δ(q9, ε) = q10,  ω(q9, ε) = L
-  δ(q10, ε) = q11,  ω(q10, ε) = E
-  δ(q11, ε) = q12,  ω(q11, ε) = A
-  δ(q12, ε) = q13,  ω(q12, ε) = R
-  δ(q13, ε) = q14,  ω(q13, ε) = N
-  δ(q14, ε) = q15,  ω(q14, ε) = I
-  δ(q15, ε) = q16,  ω(q15, ε) = N
-  δ(q16, ε) = q1,  ω(q16, ε) = G
-  δ(q17, c) = q18,  ω(q17, c) = C
-  δ(q17, C) = q18,  ω(q17, C) = C
-  δ(q18, h) = q19,  ω(q18, h) = H
-  δ(q18, H) = q19,  ω(q18, H) = H
-  δ(q19, i) = q20,  ω(q19, i) = I
-  δ(q19, I) = q20,  ω(q19, I) = I
-  δ(q20, n) = q21,  ω(q20, n) = N
-  δ(q20, N) = q21,  ω(q20, N) = N
-  δ(q21, e) = q22,  ω(q21, e) = E
-  δ(q21, E) = q22,  ω(q21, E) = E
-  δ(q22,  ) = q23,  ω(q22,  ) = _
-  δ(q22, -) = q31,  ω(q22, -) = _
-  δ(q23, l) = q24,  ω(q23, l) = L
-  δ(q23, L) = q24,  ω(q23, L) = L
-  δ(q24, e) = q25,  ω(q24, e) = E
-  δ(q24, E) = q25,  ω(q24, E) = E
-  δ(q25, a) = q26,  ω(q25, a) = A
-  δ(q25, A) = q26,  ω(q25, A) = A
-  δ(q26, r) = q27,  ω(q26, r) = R
-  δ(q26, R) = q27,  ω(q26, R) = R
-  δ(q27, n) = q28,  ω(q27, n) = N
-  δ(q27, N) = q28,  ω(q27, N) = N
-  δ(q28, i) = q29,  ω(q28, i) = I
-  δ(q28, I) = q29,  ω(q28, I) = I
-  δ(q29, n) = q30,  ω(q29, n) = N
-  δ(q29, N) = q30,  ω(q29, N) = N
-  δ(q30, g) = q1,  ω(q30, g) = G
-  δ(q30, G) = q1,  ω(q30, G) = G
-  δ(q31, l) = q32,  ω(q31, l) = L
-  δ(q31, L) = q32,  ω(q31, L) = L
-  δ(q32, e) = q33,  ω(q32, e) = E
-  δ(q32, E) = q33,  ω(q32, E) = E
-  δ(q33, a) = q34,  ω(q33, a) = A
-  δ(q33, A) = q34,  ω(q33, A) = A
-  δ(q34, r) = q35,  ω(q34, r) = R
-  δ(q34, R) = q35,  ω(q34, R) = R
-  δ(q35, n) = q36,  ω(q35, n) = N
-  δ(q35, N) = q36,  ω(q35, N) = N
-  δ(q36, i) = q37,  ω(q36, i) = I
-  δ(q36, I) = q37,  ω(q36, I) = I
-  δ(q37, n) = q38,  ω(q37, n) = N
-  δ(q37, N) = q38,  ω(q37, N) = N
-  δ(q38, g) = q1,  ω(q38, g) = G
-  δ(q38, G) = q1,  ω(q38, G) = G
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: M, m / epsilon
+    q0 --> q103: M, m / epsilon
+    q0 --> q35: M, m / epsilon
+    q0 --> q69: M, m / epsilon
+    q0 --> q71: M, m / epsilon
+    q0 --> q87: M, m / epsilon
+    q1 --> q2: A, a / epsilon
+    q10 --> q11: A, a / epsilon
+    q100 --> q101: N, n / epsilon
+    q101 --> q_aceptacion: G, g / MACHINE_LEARNING
+    q103 --> q104: A, a / epsilon
+    q104 --> q105: C, c / epsilon
+    q105 --> q106: H, h / epsilon
+    q106 --> q107: I, i / epsilon
+    q107 --> q108: N, n / epsilon
+    q108 --> q109: E, e / epsilon
+    q109 --> q110: TAB, SPACE / epsilon
+    q11 --> q12: R, r / epsilon
+    q110 --> q110: TAB, SPACE / epsilon
+    q110 --> q111: L, l / epsilon
+    q111 --> q112: E, e / epsilon
+    q112 --> q113: A, a / epsilon
+    q113 --> q114: R, r / epsilon
+    q114 --> q115: N, n / epsilon
+    q115 --> q116: I, i / epsilon
+    q116 --> q117: N, n / epsilon
+    q117 --> q_aceptacion: G, g / MACHINE_LEARNING
+    q12 --> q13: N, n / epsilon
+    q13 --> q14: I, i / epsilon
+    q14 --> q15: N, n / epsilon
+    q15 --> q16: G, g / epsilon
+    q16 --> q17: TAB, SPACE / epsilon
+    q17 --> q17: TAB, SPACE / epsilon
+    q17 --> q18: M, m / epsilon
+    q18 --> q19: O, o / epsilon
+    q19 --> q20: D, d / epsilon
+    q2 --> q3: C, c / epsilon
+    q20 --> q21: E, e / epsilon
+    q21 --> q22: L, l / epsilon
+    q22 --> q23: TAB, SPACE / epsilon
+    q23 --> q23: TAB, SPACE / epsilon
+    q23 --> q24: D, d / epsilon
+    q24 --> q25: E, e / epsilon
+    q25 --> q26: V, v / epsilon
+    q26 --> q27: E, e / epsilon
+    q27 --> q28: L, l / epsilon
+    q28 --> q29: O, o / epsilon
+    q29 --> q30: P, p / epsilon
+    q3 --> q4: H, h / epsilon
+    q30 --> q31: M, m / epsilon
+    q31 --> q32: E, e / epsilon
+    q32 --> q33: N, n / epsilon
+    q33 --> q_aceptacion: T, t / MACHINE_LEARNING
+    q35 --> q36: A, a / epsilon
+    q36 --> q37: C, c / epsilon
+    q37 --> q38: H, h / epsilon
+    q38 --> q39: I, i / epsilon
+    q39 --> q40: N, n / epsilon
+    q4 --> q5: I, i / epsilon
+    q40 --> q41: E, e / epsilon
+    q41 --> q42: - / epsilon
+    q42 --> q43: L, l / epsilon
+    q43 --> q44: E, e / epsilon
+    q44 --> q45: A, a / epsilon
+    q45 --> q46: R, r / epsilon
+    q46 --> q47: N, n / epsilon
+    q47 --> q48: I, i / epsilon
+    q48 --> q49: N, n / epsilon
+    q49 --> q50: G, g / epsilon
+    q5 --> q6: N, n / epsilon
+    q50 --> q51: TAB, SPACE / epsilon
+    q51 --> q51: TAB, SPACE / epsilon
+    q51 --> q52: M, m / epsilon
+    q52 --> q53: O, o / epsilon
+    q53 --> q54: D, d / epsilon
+    q54 --> q55: E, e / epsilon
+    q55 --> q56: L, l / epsilon
+    q56 --> q57: TAB, SPACE / epsilon
+    q57 --> q57: TAB, SPACE / epsilon
+    q57 --> q58: D, d / epsilon
+    q58 --> q59: E, e / epsilon
+    q59 --> q60: V, v / epsilon
+    q6 --> q7: E, e / epsilon
+    q60 --> q61: E, e / epsilon
+    q61 --> q62: L, l / epsilon
+    q62 --> q63: O, o / epsilon
+    q63 --> q64: P, p / epsilon
+    q64 --> q65: M, m / epsilon
+    q65 --> q66: E, e / epsilon
+    q66 --> q67: N, n / epsilon
+    q67 --> q_aceptacion: T, t / MACHINE_LEARNING
+    q69 --> q_aceptacion: L, l / MACHINE_LEARNING
+    q7 --> q8: TAB, SPACE / epsilon
+    q71 --> q72: A, a / epsilon
+    q72 --> q73: C, c / epsilon
+    q73 --> q74: H, h / epsilon
+    q74 --> q75: I, i / epsilon
+    q75 --> q76: N, n / epsilon
+    q76 --> q77: E, e / epsilon
+    q77 --> q78: TAB, SPACE / epsilon
+    q78 --> q78: TAB, SPACE / epsilon
+    q78 --> q79: L, l / epsilon
+    q79 --> q80: E, e / epsilon
+    q8 --> q8: TAB, SPACE / epsilon
+    q8 --> q9: L, l / epsilon
+    q80 --> q81: A, a / epsilon
+    q81 --> q82: R, r / epsilon
+    q82 --> q83: N, n / epsilon
+    q83 --> q84: I, i / epsilon
+    q84 --> q85: N, n / epsilon
+    q85 --> q_aceptacion: G, g / MACHINE_LEARNING
+    q87 --> q88: A, a / epsilon
+    q88 --> q89: C, c / epsilon
+    q89 --> q90: H, h / epsilon
+    q9 --> q10: E, e / epsilon
+    q90 --> q91: I, i / epsilon
+    q91 --> q92: N, n / epsilon
+    q92 --> q93: E, e / epsilon
+    q93 --> q94: - / epsilon
+    q94 --> q95: L, l / epsilon
+    q95 --> q96: E, e / epsilon
+    q96 --> q97: A, a / epsilon
+    q97 --> q98: R, r / epsilon
+    q98 --> q99: N, n / epsilon
+    q99 --> q100: I, i / epsilon
 ```
 
-## DevOps Engineer
+## MONGODB
 
-### DOCKER
+Aliases: `MongoDB`
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: DOCKER ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+- Q = {q0, q1, q2, q3, q4, q5, q6, q_aceptacion}
+- Sigma = {'B', 'D', 'G', 'M', 'N', 'O', 'b', 'd', 'g', 'm', 'n', 'o'}
+- Gamma = {B, D, G, M, N, O}
+- Initial state: q0
+- F = {q_aceptacion}
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `M, m` | q1 | epsilon |
+| q1 | `O, o` | q2 | epsilon |
+| q2 | `N, n` | q3 | epsilon |
+| q3 | `G, g` | q4 | epsilon |
+| q4 | `O, o` | q5 | epsilon |
+| q5 | `D, d` | q6 | epsilon |
+| q6 | `B, b` | q_aceptacion | MONGODB |
 
-2. Alfabeto de entrada (Σ):
-   Σ = {C, D, E, K, O, R, c, d, e, k, o, r}
-
-3. Alfabeto de salida (Γ):
-   Γ = {C, D, E, K, O, R}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, d) = q2,  ω(q0, d) = D
-  δ(q0, D) = q2,  ω(q0, D) = D
-  δ(q2, o) = q3,  ω(q2, o) = O
-  δ(q2, O) = q3,  ω(q2, O) = O
-  δ(q3, c) = q4,  ω(q3, c) = C
-  δ(q3, C) = q4,  ω(q3, C) = C
-  δ(q4, k) = q5,  ω(q4, k) = K
-  δ(q4, K) = q5,  ω(q4, K) = K
-  δ(q5, e) = q6,  ω(q5, e) = E
-  δ(q5, E) = q6,  ω(q5, E) = E
-  δ(q6, r) = q1,  ω(q6, r) = R
-  δ(q6, R) = q1,  ω(q6, R) = R
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: M, m / epsilon
+    q1 --> q2: O, o / epsilon
+    q2 --> q3: N, n / epsilon
+    q3 --> q4: G, g / epsilon
+    q4 --> q5: O, o / epsilon
+    q5 --> q6: D, d / epsilon
+    q6 --> q_aceptacion: B, b / MONGODB
 ```
 
-### KUBERNETES
+## MYSQL
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: KUBERNETES ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `MySQL`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18}
+- Q = {q0, q1, q2, q3, q4, q_aceptacion}
+- Sigma = {'L', 'M', 'Q', 'S', 'Y', 'l', 'm', 'q', 's', 'y'}
+- Gamma = {L, M, Q, S, Y}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {8, B, E, K, N, R, S, T, U, b, e, k, n, r, s, t, u}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `M, m` | q1 | epsilon |
+| q1 | `Y, y` | q2 | epsilon |
+| q2 | `S, s` | q3 | epsilon |
+| q3 | `Q, q` | q4 | epsilon |
+| q4 | `L, l` | q_aceptacion | MYSQL |
 
-3. Alfabeto de salida (Γ):
-   Γ = {B, E, K, N, R, S, T, U}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, k) = q2,  ω(q0, k) = K
-  δ(q0, K) = q2,  ω(q0, K) = K
-  δ(q2, u) = q3,  ω(q2, u) = U
-  δ(q2, U) = q3,  ω(q2, U) = U
-  δ(q2, 8) = q11,  ω(q2, 8) = U
-  δ(q3, b) = q4,  ω(q3, b) = B
-  δ(q3, B) = q4,  ω(q3, B) = B
-  δ(q4, e) = q5,  ω(q4, e) = E
-  δ(q4, E) = q5,  ω(q4, E) = E
-  δ(q5, r) = q6,  ω(q5, r) = R
-  δ(q5, R) = q6,  ω(q5, R) = R
-  δ(q6, n) = q7,  ω(q6, n) = N
-  δ(q6, N) = q7,  ω(q6, N) = N
-  δ(q7, e) = q8,  ω(q7, e) = E
-  δ(q7, E) = q8,  ω(q7, E) = E
-  δ(q8, t) = q9,  ω(q8, t) = T
-  δ(q8, T) = q9,  ω(q8, T) = T
-  δ(q9, e) = q10,  ω(q9, e) = E
-  δ(q9, E) = q10,  ω(q9, E) = E
-  δ(q10, s) = q1,  ω(q10, s) = S
-  δ(q10, S) = q1,  ω(q10, S) = S
-  δ(q11, s) = q12,  ω(q11, s) = B
-  δ(q11, S) = q12,  ω(q11, S) = B
-  δ(q12, ε) = q13,  ω(q12, ε) = E
-  δ(q13, ε) = q14,  ω(q13, ε) = R
-  δ(q14, ε) = q15,  ω(q14, ε) = N
-  δ(q15, ε) = q16,  ω(q15, ε) = E
-  δ(q16, ε) = q17,  ω(q16, ε) = T
-  δ(q17, ε) = q18,  ω(q17, ε) = E
-  δ(q18, ε) = q1,  ω(q18, ε) = S
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: M, m / epsilon
+    q1 --> q2: Y, y / epsilon
+    q2 --> q3: S, s / epsilon
+    q3 --> q4: Q, q / epsilon
+    q4 --> q_aceptacion: L, l / MYSQL
 ```
 
-### LINUX
+## NODE_JS
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: LINUX ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `NodeJS`, `Node.js`, `node`, `Node`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5}
+- Q = {q0, q1, q10, q11, q12, q14, q15, q16, q18, q19, q2, q20, q3, q4, q5, q7, q8, q9, q_aceptacion}
+- Sigma = {'.', 'D', 'E', 'J', 'N', 'O', 'S', 'd', 'e', 'j', 'n', 'o', 's'}
+- Gamma = {D, E, J, N, O, S, _}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {I, L, N, U, X, i, l, n, u, x}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `N, n` | q1 | epsilon |
+| q0 | `N, n` | q14 | epsilon |
+| q0 | `N, n` | q18 | epsilon |
+| q0 | `N, n` | q7 | epsilon |
+| q1 | `O, o` | q2 | epsilon |
+| q10 | `.` | q11 | epsilon |
+| q11 | `J, j` | q12 | epsilon |
+| q12 | `S, s` | q_aceptacion | NODE_JS |
+| q14 | `O, o` | q15 | epsilon |
+| q15 | `D, d` | q16 | epsilon |
+| q16 | `E, e` | q_aceptacion | NODE_JS |
+| q18 | `O, o` | q19 | epsilon |
+| q19 | `D, d` | q20 | epsilon |
+| q2 | `D, d` | q3 | epsilon |
+| q20 | `E, e` | q_aceptacion | NODE_JS |
+| q3 | `E, e` | q4 | epsilon |
+| q4 | `J, j` | q5 | epsilon |
+| q5 | `S, s` | q_aceptacion | NODE_JS |
+| q7 | `O, o` | q8 | epsilon |
+| q8 | `D, d` | q9 | epsilon |
+| q9 | `E, e` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {I, L, N, U, X}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, l) = q2,  ω(q0, l) = L
-  δ(q0, L) = q2,  ω(q0, L) = L
-  δ(q2, i) = q3,  ω(q2, i) = I
-  δ(q2, I) = q3,  ω(q2, I) = I
-  δ(q3, n) = q4,  ω(q3, n) = N
-  δ(q3, N) = q4,  ω(q3, N) = N
-  δ(q4, u) = q5,  ω(q4, u) = U
-  δ(q4, U) = q5,  ω(q4, U) = U
-  δ(q5, x) = q1,  ω(q5, x) = X
-  δ(q5, X) = q1,  ω(q5, X) = X
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: N, n / epsilon
+    q0 --> q14: N, n / epsilon
+    q0 --> q18: N, n / epsilon
+    q0 --> q7: N, n / epsilon
+    q1 --> q2: O, o / epsilon
+    q10 --> q11: . / epsilon
+    q11 --> q12: J, j / epsilon
+    q12 --> q_aceptacion: S, s / NODE_JS
+    q14 --> q15: O, o / epsilon
+    q15 --> q16: D, d / epsilon
+    q16 --> q_aceptacion: E, e / NODE_JS
+    q18 --> q19: O, o / epsilon
+    q19 --> q20: D, d / epsilon
+    q2 --> q3: D, d / epsilon
+    q20 --> q_aceptacion: E, e / NODE_JS
+    q3 --> q4: E, e / epsilon
+    q4 --> q5: J, j / epsilon
+    q5 --> q_aceptacion: S, s / NODE_JS
+    q7 --> q8: O, o / epsilon
+    q8 --> q9: D, d / epsilon
+    q9 --> q10: E, e / epsilon
 ```
 
-### CI_CD
+## NOSQL
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: CI_CD ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `NoSQL`, `nosql`, `No SQL`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23, q24, q25}
+- Q = {q0, q1, q11, q12, q13, q14, q15, q2, q3, q4, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'L', 'N', 'O', 'Q', 'S', 'l', 'n', 'o', 'q', 's'}
+- Gamma = {L, N, O, Q, S}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , -, /, A, B, C, D, G, H, I, L, N, O, S, T, U, a, b, c, d, g, h, i, l, n, o, s, t, u}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `N, n` | q1 | epsilon |
+| q0 | `N, n` | q11 | epsilon |
+| q0 | `N, n` | q6 | epsilon |
+| q1 | `O, o` | q2 | epsilon |
+| q11 | `O, o` | q12 | epsilon |
+| q12 | `TAB, SPACE` | q13 | epsilon |
+| q13 | `TAB, SPACE` | q13 | epsilon |
+| q13 | `S, s` | q14 | epsilon |
+| q14 | `Q, q` | q15 | epsilon |
+| q15 | `L, l` | q_aceptacion | NOSQL |
+| q2 | `S, s` | q3 | epsilon |
+| q3 | `Q, q` | q4 | epsilon |
+| q4 | `L, l` | q_aceptacion | NOSQL |
+| q6 | `O, o` | q7 | epsilon |
+| q7 | `S, s` | q8 | epsilon |
+| q8 | `Q, q` | q9 | epsilon |
+| q9 | `L, l` | q_aceptacion | NOSQL |
 
-3. Alfabeto de salida (Γ):
-   Γ = {C, D, I, _}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, c) = q2,  ω(q0, c) = C
-  δ(q0, C) = q2,  ω(q0, C) = C
-  δ(q0, g) = q8,  ω(q0, g) = C
-  δ(q0, G) = q8,  ω(q0, G) = C
-  δ(q2, i) = q3,  ω(q2, i) = I
-  δ(q2, I) = q3,  ω(q2, I) = I
-  δ(q3, /) = q4,  ω(q3, /) = _
-  δ(q3, -) = q6,  ω(q3, -) = _
-  δ(q4, c) = q5,  ω(q4, c) = C
-  δ(q4, C) = q5,  ω(q4, C) = C
-  δ(q5, d) = q1,  ω(q5, d) = D
-  δ(q5, D) = q1,  ω(q5, D) = D
-  δ(q6, c) = q7,  ω(q6, c) = C
-  δ(q6, C) = q7,  ω(q6, C) = C
-  δ(q7, d) = q1,  ω(q7, d) = D
-  δ(q7, D) = q1,  ω(q7, D) = D
-  δ(q8, i) = q9,  ω(q8, i) = I
-  δ(q8, I) = q9,  ω(q8, I) = I
-  δ(q9, t) = q10,  ω(q9, t) = _
-  δ(q9, T) = q10,  ω(q9, T) = _
-  δ(q10, h) = q11,  ω(q10, h) = C
-  δ(q10, H) = q11,  ω(q10, H) = C
-  δ(q10, l) = q21,  ω(q10, l) = C
-  δ(q10, L) = q21,  ω(q10, L) = C
-  δ(q11, u) = q12,  ω(q11, u) = D
-  δ(q11, U) = q12,  ω(q11, U) = D
-  δ(q12, b) = q13,  ω(q12, b) = ε
-  δ(q12, B) = q13,  ω(q12, B) = ε
-  δ(q13,  ) = q14,  ω(q13,  ) = ε
-  δ(q14, a) = q15,  ω(q14, a) = ε
-  δ(q14, A) = q15,  ω(q14, A) = ε
-  δ(q15, c) = q16,  ω(q15, c) = ε
-  δ(q15, C) = q16,  ω(q15, C) = ε
-  δ(q16, t) = q17,  ω(q16, t) = ε
-  δ(q16, T) = q17,  ω(q16, T) = ε
-  δ(q17, i) = q18,  ω(q17, i) = ε
-  δ(q17, I) = q18,  ω(q17, I) = ε
-  δ(q18, o) = q19,  ω(q18, o) = ε
-  δ(q18, O) = q19,  ω(q18, O) = ε
-  δ(q19, n) = q20,  ω(q19, n) = ε
-  δ(q19, N) = q20,  ω(q19, N) = ε
-  δ(q20, s) = q1,  ω(q20, s) = ε
-  δ(q20, S) = q1,  ω(q20, S) = ε
-  δ(q21, a) = q22,  ω(q21, a) = D
-  δ(q21, A) = q22,  ω(q21, A) = D
-  δ(q22, b) = q23,  ω(q22, b) = ε
-  δ(q22, B) = q23,  ω(q22, B) = ε
-  δ(q23,  ) = q24,  ω(q23,  ) = ε
-  δ(q24, c) = q25,  ω(q24, c) = ε
-  δ(q24, C) = q25,  ω(q24, C) = ε
-  δ(q25, i) = q1,  ω(q25, i) = ε
-  δ(q25, I) = q1,  ω(q25, I) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: N, n / epsilon
+    q0 --> q11: N, n / epsilon
+    q0 --> q6: N, n / epsilon
+    q1 --> q2: O, o / epsilon
+    q11 --> q12: O, o / epsilon
+    q12 --> q13: TAB, SPACE / epsilon
+    q13 --> q13: TAB, SPACE / epsilon
+    q13 --> q14: S, s / epsilon
+    q14 --> q15: Q, q / epsilon
+    q15 --> q_aceptacion: L, l / NOSQL
+    q2 --> q3: S, s / epsilon
+    q3 --> q4: Q, q / epsilon
+    q4 --> q_aceptacion: L, l / NOSQL
+    q6 --> q7: O, o / epsilon
+    q7 --> q8: S, s / epsilon
+    q8 --> q9: Q, q / epsilon
+    q9 --> q_aceptacion: L, l / NOSQL
 ```
 
-### AMAZON_WEB_SERVICES
+## NUMPY
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: AMAZON_WEB_SERVICES ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `numpy`, `NumPy`, `Numpy`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23, q24, q25, q26, q27, q28, q29, q30, q31, q32, q33, q34, q35, q36}
+- Q = {q0, q1, q11, q12, q13, q14, q2, q3, q4, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'M', 'N', 'P', 'U', 'Y', 'm', 'n', 'p', 'u', 'y'}
+- Gamma = {M, N, P, U, Y}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , A, B, C, E, I, M, N, O, R, S, V, W, Z, a, b, c, e, i, m, n, o, r, s, v, w, z}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `N, n` | q1 | epsilon |
+| q0 | `N, n` | q11 | epsilon |
+| q0 | `N, n` | q6 | epsilon |
+| q1 | `U, u` | q2 | epsilon |
+| q11 | `U, u` | q12 | epsilon |
+| q12 | `M, m` | q13 | epsilon |
+| q13 | `P, p` | q14 | epsilon |
+| q14 | `Y, y` | q_aceptacion | NUMPY |
+| q2 | `M, m` | q3 | epsilon |
+| q3 | `P, p` | q4 | epsilon |
+| q4 | `Y, y` | q_aceptacion | NUMPY |
+| q6 | `U, u` | q7 | epsilon |
+| q7 | `M, m` | q8 | epsilon |
+| q8 | `P, p` | q9 | epsilon |
+| q9 | `Y, y` | q_aceptacion | NUMPY |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, B, C, E, I, M, N, O, R, S, V, W, Z, _}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, a) = q2,  ω(q0, a) = A
-  δ(q0, A) = q2,  ω(q0, A) = A
-  δ(q2, w) = q3,  ω(q2, w) = M
-  δ(q2, W) = q3,  ω(q2, W) = M
-  δ(q2, m) = q20,  ω(q2, m) = M
-  δ(q2, M) = q20,  ω(q2, M) = M
-  δ(q3, s) = q4,  ω(q3, s) = A
-  δ(q3, S) = q4,  ω(q3, S) = A
-  δ(q4, ε) = q5,  ω(q4, ε) = Z
-  δ(q5, ε) = q6,  ω(q5, ε) = O
-  δ(q6, ε) = q7,  ω(q6, ε) = N
-  δ(q7, ε) = q8,  ω(q7, ε) = _
-  δ(q8, ε) = q9,  ω(q8, ε) = W
-  δ(q9, ε) = q10,  ω(q9, ε) = E
-  δ(q10, ε) = q11,  ω(q10, ε) = B
-  δ(q11, ε) = q12,  ω(q11, ε) = _
-  δ(q12, ε) = q13,  ω(q12, ε) = S
-  δ(q13, ε) = q14,  ω(q13, ε) = E
-  δ(q14, ε) = q15,  ω(q14, ε) = R
-  δ(q15, ε) = q16,  ω(q15, ε) = V
-  δ(q16, ε) = q17,  ω(q16, ε) = I
-  δ(q17, ε) = q18,  ω(q17, ε) = C
-  δ(q18, ε) = q19,  ω(q18, ε) = E
-  δ(q19, ε) = q1,  ω(q19, ε) = S
-  δ(q20, a) = q21,  ω(q20, a) = A
-  δ(q20, A) = q21,  ω(q20, A) = A
-  δ(q21, z) = q22,  ω(q21, z) = Z
-  δ(q21, Z) = q22,  ω(q21, Z) = Z
-  δ(q22, o) = q23,  ω(q22, o) = O
-  δ(q22, O) = q23,  ω(q22, O) = O
-  δ(q23, n) = q24,  ω(q23, n) = N
-  δ(q23, N) = q24,  ω(q23, N) = N
-  δ(q24,  ) = q25,  ω(q24,  ) = _
-  δ(q25, w) = q26,  ω(q25, w) = W
-  δ(q25, W) = q26,  ω(q25, W) = W
-  δ(q26, e) = q27,  ω(q26, e) = E
-  δ(q26, E) = q27,  ω(q26, E) = E
-  δ(q27, b) = q28,  ω(q27, b) = B
-  δ(q27, B) = q28,  ω(q27, B) = B
-  δ(q28,  ) = q29,  ω(q28,  ) = _
-  δ(q29, s) = q30,  ω(q29, s) = S
-  δ(q29, S) = q30,  ω(q29, S) = S
-  δ(q30, e) = q31,  ω(q30, e) = E
-  δ(q30, E) = q31,  ω(q30, E) = E
-  δ(q31, r) = q32,  ω(q31, r) = R
-  δ(q31, R) = q32,  ω(q31, R) = R
-  δ(q32, v) = q33,  ω(q32, v) = V
-  δ(q32, V) = q33,  ω(q32, V) = V
-  δ(q33, i) = q34,  ω(q33, i) = I
-  δ(q33, I) = q34,  ω(q33, I) = I
-  δ(q34, c) = q35,  ω(q34, c) = C
-  δ(q34, C) = q35,  ω(q34, C) = C
-  δ(q35, e) = q36,  ω(q35, e) = E
-  δ(q35, E) = q36,  ω(q35, E) = E
-  δ(q36, s) = q1,  ω(q36, s) = S
-  δ(q36, S) = q1,  ω(q36, S) = S
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: N, n / epsilon
+    q0 --> q11: N, n / epsilon
+    q0 --> q6: N, n / epsilon
+    q1 --> q2: U, u / epsilon
+    q11 --> q12: U, u / epsilon
+    q12 --> q13: M, m / epsilon
+    q13 --> q14: P, p / epsilon
+    q14 --> q_aceptacion: Y, y / NUMPY
+    q2 --> q3: M, m / epsilon
+    q3 --> q4: P, p / epsilon
+    q4 --> q_aceptacion: Y, y / NUMPY
+    q6 --> q7: U, u / epsilon
+    q7 --> q8: M, m / epsilon
+    q8 --> q9: P, p / epsilon
+    q9 --> q_aceptacion: Y, y / NUMPY
 ```
 
-### GOOGLE_CLOUD
+## PANDAS
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: GOOGLE_CLOUD ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `pandas`, `Pandas`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23, q24, q25, q26, q27, q28, q29, q30}
+- Q = {q0, q1, q10, q11, q2, q3, q4, q5, q7, q8, q9, q_aceptacion}
+- Sigma = {'A', 'D', 'N', 'P', 'S', 'a', 'd', 'n', 'p', 's'}
+- Gamma = {A, D, N, P, S}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , A, C, D, E, F, G, L, M, O, P, R, T, U, a, c, d, e, f, g, l, m, o, p, r, t, u}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `P, p` | q1 | epsilon |
+| q0 | `P, p` | q7 | epsilon |
+| q1 | `A, a` | q2 | epsilon |
+| q10 | `A, a` | q11 | epsilon |
+| q11 | `S, s` | q_aceptacion | PANDAS |
+| q2 | `N, n` | q3 | epsilon |
+| q3 | `D, d` | q4 | epsilon |
+| q4 | `A, a` | q5 | epsilon |
+| q5 | `S, s` | q_aceptacion | PANDAS |
+| q7 | `A, a` | q8 | epsilon |
+| q8 | `N, n` | q9 | epsilon |
+| q9 | `D, d` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {C, D, E, G, L, O, U, _}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, g) = q2,  ω(q0, g) = G
-  δ(q0, G) = q2,  ω(q0, G) = G
-  δ(q1,  ) = q23,  ω(q1,  ) = ε
-  δ(q2, c) = q3,  ω(q2, c) = O
-  δ(q2, C) = q3,  ω(q2, C) = O
-  δ(q2, o) = q13,  ω(q2, o) = O
-  δ(q2, O) = q13,  ω(q2, O) = O
-  δ(q3, p) = q4,  ω(q3, p) = O
-  δ(q3, P) = q4,  ω(q3, P) = O
-  δ(q4, ε) = q5,  ω(q4, ε) = G
-  δ(q5, ε) = q6,  ω(q5, ε) = L
-  δ(q6, ε) = q7,  ω(q6, ε) = E
-  δ(q7, ε) = q8,  ω(q7, ε) = _
-  δ(q8, ε) = q9,  ω(q8, ε) = C
-  δ(q9, ε) = q10,  ω(q9, ε) = L
-  δ(q10, ε) = q11,  ω(q10, ε) = O
-  δ(q11, ε) = q12,  ω(q11, ε) = U
-  δ(q12, ε) = q1,  ω(q12, ε) = D
-  δ(q13, o) = q14,  ω(q13, o) = O
-  δ(q13, O) = q14,  ω(q13, O) = O
-  δ(q14, g) = q15,  ω(q14, g) = G
-  δ(q14, G) = q15,  ω(q14, G) = G
-  δ(q15, l) = q16,  ω(q15, l) = L
-  δ(q15, L) = q16,  ω(q15, L) = L
-  δ(q16, e) = q17,  ω(q16, e) = E
-  δ(q16, E) = q17,  ω(q16, E) = E
-  δ(q17,  ) = q18,  ω(q17,  ) = _
-  δ(q18, c) = q19,  ω(q18, c) = C
-  δ(q18, C) = q19,  ω(q18, C) = C
-  δ(q19, l) = q20,  ω(q19, l) = L
-  δ(q19, L) = q20,  ω(q19, L) = L
-  δ(q20, o) = q21,  ω(q20, o) = O
-  δ(q20, O) = q21,  ω(q20, O) = O
-  δ(q21, u) = q22,  ω(q21, u) = U
-  δ(q21, U) = q22,  ω(q21, U) = U
-  δ(q22, d) = q1,  ω(q22, d) = D
-  δ(q22, D) = q1,  ω(q22, D) = D
-  δ(q23, p) = q24,  ω(q23, p) = ε
-  δ(q23, P) = q24,  ω(q23, P) = ε
-  δ(q24, l) = q25,  ω(q24, l) = ε
-  δ(q24, L) = q25,  ω(q24, L) = ε
-  δ(q25, a) = q26,  ω(q25, a) = ε
-  δ(q25, A) = q26,  ω(q25, A) = ε
-  δ(q26, t) = q27,  ω(q26, t) = ε
-  δ(q26, T) = q27,  ω(q26, T) = ε
-  δ(q27, f) = q28,  ω(q27, f) = ε
-  δ(q27, F) = q28,  ω(q27, F) = ε
-  δ(q28, o) = q29,  ω(q28, o) = ε
-  δ(q28, O) = q29,  ω(q28, O) = ε
-  δ(q29, r) = q30,  ω(q29, r) = ε
-  δ(q29, R) = q30,  ω(q29, R) = ε
-  δ(q30, m) = q1,  ω(q30, m) = ε
-  δ(q30, M) = q1,  ω(q30, M) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: P, p / epsilon
+    q0 --> q7: P, p / epsilon
+    q1 --> q2: A, a / epsilon
+    q10 --> q11: A, a / epsilon
+    q11 --> q_aceptacion: S, s / PANDAS
+    q2 --> q3: N, n / epsilon
+    q3 --> q4: D, d / epsilon
+    q4 --> q5: A, a / epsilon
+    q5 --> q_aceptacion: S, s / PANDAS
+    q7 --> q8: A, a / epsilon
+    q8 --> q9: N, n / epsilon
+    q9 --> q10: D, d / epsilon
 ```
 
-### AZURE
+## POSTGRESQL
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: AZURE ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Postgres`, `PostgreSQL`, `postgresql`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19}
+- Q = {q0, q1, q10, q11, q12, q13, q14, q15, q16, q17, q19, q2, q20, q21, q22, q23, q24, q25, q26, q27, q3, q4, q5, q6, q7, q9, q_aceptacion}
+- Sigma = {'E', 'G', 'L', 'O', 'P', 'Q', 'R', 'S', 'T', 'e', 'g', 'l', 'o', 'p', 'q', 'r', 's', 't'}
+- Gamma = {E, G, L, O, P, Q, R, S, T}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , A, C, E, F, I, M, O, R, S, T, U, Z, a, c, e, f, i, m, o, r, s, t, u, z}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `P, p` | q1 | epsilon |
+| q0 | `P, p` | q19 | epsilon |
+| q0 | `P, p` | q9 | epsilon |
+| q1 | `O, o` | q2 | epsilon |
+| q10 | `S, s` | q11 | epsilon |
+| q11 | `T, t` | q12 | epsilon |
+| q12 | `G, g` | q13 | epsilon |
+| q13 | `R, r` | q14 | epsilon |
+| q14 | `E, e` | q15 | epsilon |
+| q15 | `S, s` | q16 | epsilon |
+| q16 | `Q, q` | q17 | epsilon |
+| q17 | `L, l` | q_aceptacion | POSTGRESQL |
+| q19 | `O, o` | q20 | epsilon |
+| q2 | `S, s` | q3 | epsilon |
+| q20 | `S, s` | q21 | epsilon |
+| q21 | `T, t` | q22 | epsilon |
+| q22 | `G, g` | q23 | epsilon |
+| q23 | `R, r` | q24 | epsilon |
+| q24 | `E, e` | q25 | epsilon |
+| q25 | `S, s` | q26 | epsilon |
+| q26 | `Q, q` | q27 | epsilon |
+| q27 | `L, l` | q_aceptacion | POSTGRESQL |
+| q3 | `T, t` | q4 | epsilon |
+| q4 | `G, g` | q5 | epsilon |
+| q5 | `R, r` | q6 | epsilon |
+| q6 | `E, e` | q7 | epsilon |
+| q7 | `S, s` | q_aceptacion | POSTGRESQL |
+| q9 | `O, o` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, E, R, U, Z}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, a) = q2,  ω(q0, a) = A
-  δ(q0, A) = q2,  ω(q0, A) = A
-  δ(q0, m) = q6,  ω(q0, m) = A
-  δ(q0, M) = q6,  ω(q0, M) = A
-  δ(q2, z) = q3,  ω(q2, z) = Z
-  δ(q2, Z) = q3,  ω(q2, Z) = Z
-  δ(q3, u) = q4,  ω(q3, u) = U
-  δ(q3, U) = q4,  ω(q3, U) = U
-  δ(q4, r) = q5,  ω(q4, r) = R
-  δ(q4, R) = q5,  ω(q4, R) = R
-  δ(q5, e) = q1,  ω(q5, e) = E
-  δ(q5, E) = q1,  ω(q5, E) = E
-  δ(q6, i) = q7,  ω(q6, i) = Z
-  δ(q6, I) = q7,  ω(q6, I) = Z
-  δ(q7, c) = q8,  ω(q7, c) = U
-  δ(q7, C) = q8,  ω(q7, C) = U
-  δ(q8, r) = q9,  ω(q8, r) = R
-  δ(q8, R) = q9,  ω(q8, R) = R
-  δ(q9, o) = q10,  ω(q9, o) = E
-  δ(q9, O) = q10,  ω(q9, O) = E
-  δ(q10, s) = q11,  ω(q10, s) = ε
-  δ(q10, S) = q11,  ω(q10, S) = ε
-  δ(q11, o) = q12,  ω(q11, o) = ε
-  δ(q11, O) = q12,  ω(q11, O) = ε
-  δ(q12, f) = q13,  ω(q12, f) = ε
-  δ(q12, F) = q13,  ω(q12, F) = ε
-  δ(q13, t) = q14,  ω(q13, t) = ε
-  δ(q13, T) = q14,  ω(q13, T) = ε
-  δ(q14,  ) = q15,  ω(q14,  ) = ε
-  δ(q15, a) = q16,  ω(q15, a) = ε
-  δ(q15, A) = q16,  ω(q15, A) = ε
-  δ(q16, z) = q17,  ω(q16, z) = ε
-  δ(q16, Z) = q17,  ω(q16, Z) = ε
-  δ(q17, u) = q18,  ω(q17, u) = ε
-  δ(q17, U) = q18,  ω(q17, U) = ε
-  δ(q18, r) = q19,  ω(q18, r) = ε
-  δ(q18, R) = q19,  ω(q18, R) = ε
-  δ(q19, e) = q1,  ω(q19, e) = ε
-  δ(q19, E) = q1,  ω(q19, E) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: P, p / epsilon
+    q0 --> q19: P, p / epsilon
+    q0 --> q9: P, p / epsilon
+    q1 --> q2: O, o / epsilon
+    q10 --> q11: S, s / epsilon
+    q11 --> q12: T, t / epsilon
+    q12 --> q13: G, g / epsilon
+    q13 --> q14: R, r / epsilon
+    q14 --> q15: E, e / epsilon
+    q15 --> q16: S, s / epsilon
+    q16 --> q17: Q, q / epsilon
+    q17 --> q_aceptacion: L, l / POSTGRESQL
+    q19 --> q20: O, o / epsilon
+    q2 --> q3: S, s / epsilon
+    q20 --> q21: S, s / epsilon
+    q21 --> q22: T, t / epsilon
+    q22 --> q23: G, g / epsilon
+    q23 --> q24: R, r / epsilon
+    q24 --> q25: E, e / epsilon
+    q25 --> q26: S, s / epsilon
+    q26 --> q27: Q, q / epsilon
+    q27 --> q_aceptacion: L, l / POSTGRESQL
+    q3 --> q4: T, t / epsilon
+    q4 --> q5: G, g / epsilon
+    q5 --> q6: R, r / epsilon
+    q6 --> q7: E, e / epsilon
+    q7 --> q_aceptacion: S, s / POSTGRESQL
+    q9 --> q10: O, o / epsilon
 ```
 
-### TERRAFORM
+## PYTHON
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: TERRAFORM ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Python`, `python`, `py`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9}
+- Q = {q0, q1, q10, q11, q13, q2, q3, q4, q5, q7, q8, q9, q_aceptacion}
+- Sigma = {'H', 'N', 'O', 'P', 'T', 'Y', 'h', 'n', 'o', 'p', 't', 'y'}
+- Gamma = {H, N, O, P, T, Y}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = {A, E, F, M, O, R, T, a, e, f, m, o, r, t}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `P, p` | q1 | epsilon |
+| q0 | `P, p` | q13 | epsilon |
+| q0 | `P, p` | q7 | epsilon |
+| q1 | `Y, y` | q2 | epsilon |
+| q10 | `O, o` | q11 | epsilon |
+| q11 | `N, n` | q_aceptacion | PYTHON |
+| q13 | `Y, y` | q_aceptacion | PYTHON |
+| q2 | `T, t` | q3 | epsilon |
+| q3 | `H, h` | q4 | epsilon |
+| q4 | `O, o` | q5 | epsilon |
+| q5 | `N, n` | q_aceptacion | PYTHON |
+| q7 | `Y, y` | q8 | epsilon |
+| q8 | `T, t` | q9 | epsilon |
+| q9 | `H, h` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, E, F, M, O, R, T}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, t) = q2,  ω(q0, t) = T
-  δ(q0, T) = q2,  ω(q0, T) = T
-  δ(q2, e) = q3,  ω(q2, e) = E
-  δ(q2, E) = q3,  ω(q2, E) = E
-  δ(q3, r) = q4,  ω(q3, r) = R
-  δ(q3, R) = q4,  ω(q3, R) = R
-  δ(q4, r) = q5,  ω(q4, r) = R
-  δ(q4, R) = q5,  ω(q4, R) = R
-  δ(q5, a) = q6,  ω(q5, a) = A
-  δ(q5, A) = q6,  ω(q5, A) = A
-  δ(q6, f) = q7,  ω(q6, f) = F
-  δ(q6, F) = q7,  ω(q6, F) = F
-  δ(q7, o) = q8,  ω(q7, o) = O
-  δ(q7, O) = q8,  ω(q7, O) = O
-  δ(q8, r) = q9,  ω(q8, r) = R
-  δ(q8, R) = q9,  ω(q8, R) = R
-  δ(q9, m) = q1,  ω(q9, m) = M
-  δ(q9, M) = q1,  ω(q9, M) = M
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: P, p / epsilon
+    q0 --> q13: P, p / epsilon
+    q0 --> q7: P, p / epsilon
+    q1 --> q2: Y, y / epsilon
+    q10 --> q11: O, o / epsilon
+    q11 --> q_aceptacion: N, n / PYTHON
+    q13 --> q_aceptacion: Y, y / PYTHON
+    q2 --> q3: T, t / epsilon
+    q3 --> q4: H, h / epsilon
+    q4 --> q5: O, o / epsilon
+    q5 --> q_aceptacion: N, n / PYTHON
+    q7 --> q8: Y, y / epsilon
+    q8 --> q9: T, t / epsilon
+    q9 --> q10: H, h / epsilon
 ```
 
-## Data Engineer
+## PYTORCH
 
-### SPARK
+Aliases: `Py Torch`, `PyTorch`, `pytorch`
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: SPARK ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+- Q = {q0, q1, q10, q11, q12, q13, q14, q16, q17, q18, q19, q2, q20, q21, q3, q4, q5, q6, q7, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'C', 'H', 'O', 'P', 'R', 'T', 'Y', 'c', 'h', 'o', 'p', 'r', 't', 'y'}
+- Gamma = {C, H, O, P, R, T, Y}
+- Initial state: q0
+- F = {q_aceptacion}
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `P, p` | q1 | epsilon |
+| q0 | `P, p` | q16 | epsilon |
+| q0 | `P, p` | q9 | epsilon |
+| q1 | `Y, y` | q2 | epsilon |
+| q10 | `T, t` | q11 | epsilon |
+| q11 | `O, o` | q12 | epsilon |
+| q12 | `R, r` | q13 | epsilon |
+| q13 | `C, c` | q14 | epsilon |
+| q14 | `H, h` | q_aceptacion | PYTORCH |
+| q16 | `Y, y` | q17 | epsilon |
+| q17 | `T, t` | q18 | epsilon |
+| q18 | `O, o` | q19 | epsilon |
+| q19 | `R, r` | q20 | epsilon |
+| q2 | `TAB, SPACE` | q3 | epsilon |
+| q20 | `C, c` | q21 | epsilon |
+| q21 | `H, h` | q_aceptacion | PYTORCH |
+| q3 | `TAB, SPACE` | q3 | epsilon |
+| q3 | `T, t` | q4 | epsilon |
+| q4 | `O, o` | q5 | epsilon |
+| q5 | `R, r` | q6 | epsilon |
+| q6 | `C, c` | q7 | epsilon |
+| q7 | `H, h` | q_aceptacion | PYTORCH |
+| q9 | `Y, y` | q10 | epsilon |
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , A, C, E, H, K, P, R, S, Y, a, c, e, h, k, p, r, s, y}
-
-3. Alfabeto de salida (Γ):
-   Γ = {A, K, P, R, S}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, a) = q2,  ω(q0, a) = S
-  δ(q0, A) = q2,  ω(q0, A) = S
-  δ(q0, s) = q13,  ω(q0, s) = S
-  δ(q0, S) = q13,  ω(q0, S) = S
-  δ(q0, p) = q17,  ω(q0, p) = S
-  δ(q0, P) = q17,  ω(q0, P) = S
-  δ(q2, p) = q3,  ω(q2, p) = P
-  δ(q2, P) = q3,  ω(q2, P) = P
-  δ(q3, a) = q4,  ω(q3, a) = A
-  δ(q3, A) = q4,  ω(q3, A) = A
-  δ(q4, c) = q5,  ω(q4, c) = R
-  δ(q4, C) = q5,  ω(q4, C) = R
-  δ(q5, h) = q6,  ω(q5, h) = K
-  δ(q5, H) = q6,  ω(q5, H) = K
-  δ(q6, e) = q7,  ω(q6, e) = ε
-  δ(q6, E) = q7,  ω(q6, E) = ε
-  δ(q7,  ) = q8,  ω(q7,  ) = ε
-  δ(q8, s) = q9,  ω(q8, s) = ε
-  δ(q8, S) = q9,  ω(q8, S) = ε
-  δ(q9, p) = q10,  ω(q9, p) = ε
-  δ(q9, P) = q10,  ω(q9, P) = ε
-  δ(q10, a) = q11,  ω(q10, a) = ε
-  δ(q10, A) = q11,  ω(q10, A) = ε
-  δ(q11, r) = q12,  ω(q11, r) = ε
-  δ(q11, R) = q12,  ω(q11, R) = ε
-  δ(q12, k) = q1,  ω(q12, k) = ε
-  δ(q12, K) = q1,  ω(q12, K) = ε
-  δ(q13, p) = q14,  ω(q13, p) = P
-  δ(q13, P) = q14,  ω(q13, P) = P
-  δ(q14, a) = q15,  ω(q14, a) = A
-  δ(q14, A) = q15,  ω(q14, A) = A
-  δ(q15, r) = q16,  ω(q15, r) = R
-  δ(q15, R) = q16,  ω(q15, R) = R
-  δ(q16, k) = q1,  ω(q16, k) = K
-  δ(q16, K) = q1,  ω(q16, K) = K
-  δ(q17, y) = q18,  ω(q17, y) = P
-  δ(q17, Y) = q18,  ω(q17, Y) = P
-  δ(q18, s) = q19,  ω(q18, s) = A
-  δ(q18, S) = q19,  ω(q18, S) = A
-  δ(q19, p) = q20,  ω(q19, p) = R
-  δ(q19, P) = q20,  ω(q19, P) = R
-  δ(q20, a) = q21,  ω(q20, a) = K
-  δ(q20, A) = q21,  ω(q20, A) = K
-  δ(q21, r) = q22,  ω(q21, r) = ε
-  δ(q21, R) = q22,  ω(q21, R) = ε
-  δ(q22, k) = q1,  ω(q22, k) = ε
-  δ(q22, K) = q1,  ω(q22, K) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: P, p / epsilon
+    q0 --> q16: P, p / epsilon
+    q0 --> q9: P, p / epsilon
+    q1 --> q2: Y, y / epsilon
+    q10 --> q11: T, t / epsilon
+    q11 --> q12: O, o / epsilon
+    q12 --> q13: R, r / epsilon
+    q13 --> q14: C, c / epsilon
+    q14 --> q_aceptacion: H, h / PYTORCH
+    q16 --> q17: Y, y / epsilon
+    q17 --> q18: T, t / epsilon
+    q18 --> q19: O, o / epsilon
+    q19 --> q20: R, r / epsilon
+    q2 --> q3: TAB, SPACE / epsilon
+    q20 --> q21: C, c / epsilon
+    q21 --> q_aceptacion: H, h / PYTORCH
+    q3 --> q3: TAB, SPACE / epsilon
+    q3 --> q4: T, t / epsilon
+    q4 --> q5: O, o / epsilon
+    q5 --> q6: R, r / epsilon
+    q6 --> q7: C, c / epsilon
+    q7 --> q_aceptacion: H, h / PYTORCH
+    q9 --> q10: Y, y / epsilon
 ```
 
-### AIRFLOW
+## REACT
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: AIRFLOW ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `React.js`, `ReactJS`, `react`, `React`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19}
+- Q = {q0, q1, q10, q11, q12, q13, q14, q16, q17, q18, q19, q2, q21, q22, q23, q24, q3, q4, q5, q6, q7, q9, q_aceptacion}
+- Sigma = {'.', 'A', 'C', 'E', 'J', 'R', 'S', 'T', 'a', 'c', 'e', 'j', 'r', 's', 't'}
+- Gamma = {A, C, E, R, T}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , A, C, E, F, H, I, L, O, P, R, W, a, c, e, f, h, i, l, o, p, r, w}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `R, r` | q1 | epsilon |
+| q0 | `R, r` | q16 | epsilon |
+| q0 | `R, r` | q21 | epsilon |
+| q0 | `R, r` | q9 | epsilon |
+| q1 | `E, e` | q2 | epsilon |
+| q10 | `A, a` | q11 | epsilon |
+| q11 | `C, c` | q12 | epsilon |
+| q12 | `T, t` | q13 | epsilon |
+| q13 | `J, j` | q14 | epsilon |
+| q14 | `S, s` | q_aceptacion | REACT |
+| q16 | `E, e` | q17 | epsilon |
+| q17 | `A, a` | q18 | epsilon |
+| q18 | `C, c` | q19 | epsilon |
+| q19 | `T, t` | q_aceptacion | REACT |
+| q2 | `A, a` | q3 | epsilon |
+| q21 | `E, e` | q22 | epsilon |
+| q22 | `A, a` | q23 | epsilon |
+| q23 | `C, c` | q24 | epsilon |
+| q24 | `T, t` | q_aceptacion | REACT |
+| q3 | `C, c` | q4 | epsilon |
+| q4 | `T, t` | q5 | epsilon |
+| q5 | `.` | q6 | epsilon |
+| q6 | `J, j` | q7 | epsilon |
+| q7 | `S, s` | q_aceptacion | REACT |
+| q9 | `E, e` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, F, I, L, O, R, W}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, a) = q2,  ω(q0, a) = A
-  δ(q0, A) = q2,  ω(q0, A) = A
-  δ(q2, i) = q3,  ω(q2, i) = I
-  δ(q2, I) = q3,  ω(q2, I) = I
-  δ(q2, p) = q8,  ω(q2, p) = I
-  δ(q2, P) = q8,  ω(q2, P) = I
-  δ(q3, r) = q4,  ω(q3, r) = R
-  δ(q3, R) = q4,  ω(q3, R) = R
-  δ(q4, f) = q5,  ω(q4, f) = F
-  δ(q4, F) = q5,  ω(q4, F) = F
-  δ(q5, l) = q6,  ω(q5, l) = L
-  δ(q5, L) = q6,  ω(q5, L) = L
-  δ(q6, o) = q7,  ω(q6, o) = O
-  δ(q6, O) = q7,  ω(q6, O) = O
-  δ(q7, w) = q1,  ω(q7, w) = W
-  δ(q7, W) = q1,  ω(q7, W) = W
-  δ(q8, a) = q9,  ω(q8, a) = R
-  δ(q8, A) = q9,  ω(q8, A) = R
-  δ(q9, c) = q10,  ω(q9, c) = F
-  δ(q9, C) = q10,  ω(q9, C) = F
-  δ(q10, h) = q11,  ω(q10, h) = L
-  δ(q10, H) = q11,  ω(q10, H) = L
-  δ(q11, e) = q12,  ω(q11, e) = O
-  δ(q11, E) = q12,  ω(q11, E) = O
-  δ(q12,  ) = q13,  ω(q12,  ) = W
-  δ(q13, a) = q14,  ω(q13, a) = ε
-  δ(q13, A) = q14,  ω(q13, A) = ε
-  δ(q14, i) = q15,  ω(q14, i) = ε
-  δ(q14, I) = q15,  ω(q14, I) = ε
-  δ(q15, r) = q16,  ω(q15, r) = ε
-  δ(q15, R) = q16,  ω(q15, R) = ε
-  δ(q16, f) = q17,  ω(q16, f) = ε
-  δ(q16, F) = q17,  ω(q16, F) = ε
-  δ(q17, l) = q18,  ω(q17, l) = ε
-  δ(q17, L) = q18,  ω(q17, L) = ε
-  δ(q18, o) = q19,  ω(q18, o) = ε
-  δ(q18, O) = q19,  ω(q18, O) = ε
-  δ(q19, w) = q1,  ω(q19, w) = ε
-  δ(q19, W) = q1,  ω(q19, W) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: R, r / epsilon
+    q0 --> q16: R, r / epsilon
+    q0 --> q21: R, r / epsilon
+    q0 --> q9: R, r / epsilon
+    q1 --> q2: E, e / epsilon
+    q10 --> q11: A, a / epsilon
+    q11 --> q12: C, c / epsilon
+    q12 --> q13: T, t / epsilon
+    q13 --> q14: J, j / epsilon
+    q14 --> q_aceptacion: S, s / REACT
+    q16 --> q17: E, e / epsilon
+    q17 --> q18: A, a / epsilon
+    q18 --> q19: C, c / epsilon
+    q19 --> q_aceptacion: T, t / REACT
+    q2 --> q3: A, a / epsilon
+    q21 --> q22: E, e / epsilon
+    q22 --> q23: A, a / epsilon
+    q23 --> q24: C, c / epsilon
+    q24 --> q_aceptacion: T, t / REACT
+    q3 --> q4: C, c / epsilon
+    q4 --> q5: T, t / epsilon
+    q5 --> q6: . / epsilon
+    q6 --> q7: J, j / epsilon
+    q7 --> q_aceptacion: S, s / REACT
+    q9 --> q10: E, e / epsilon
 ```
 
-### ETL
+## REST_API
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: ETL ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `RESTful APIs`, `REST API`, `REST APIs`, `RESTful API`, `rest api`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23}
+- Q = {q0, q1, q10, q11, q13, q14, q15, q16, q17, q18, q19, q2, q21, q22, q23, q24, q25, q26, q27, q28, q3, q30, q31, q32, q33, q34, q35, q36, q37, q38, q39, q4, q41, q42, q43, q44, q45, q46, q47, q5, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'E', 'F', 'I', 'L', 'P', 'R', 'S', 'T', 'U', 'a', 'e', 'f', 'i', 'l', 'p', 'r', 's', 't', 'u'}
+- Gamma = {A, E, I, P, R, S, T, _}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , A, C, D, E, F, L, M, N, O, R, S, T, X, a, c, d, e, f, l, m, n, o, r, s, t, x}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `R, r` | q1 | epsilon |
+| q0 | `R, r` | q13 | epsilon |
+| q0 | `R, r` | q21 | epsilon |
+| q0 | `R, r` | q30 | epsilon |
+| q0 | `R, r` | q41 | epsilon |
+| q1 | `E, e` | q2 | epsilon |
+| q10 | `I, i` | q11 | epsilon |
+| q11 | `S, s` | q_aceptacion | REST_API |
+| q13 | `E, e` | q14 | epsilon |
+| q14 | `S, s` | q15 | epsilon |
+| q15 | `T, t` | q16 | epsilon |
+| q16 | `TAB, SPACE` | q17 | epsilon |
+| q17 | `TAB, SPACE` | q17 | epsilon |
+| q17 | `A, a` | q18 | epsilon |
+| q18 | `P, p` | q19 | epsilon |
+| q19 | `I, i` | q_aceptacion | REST_API |
+| q2 | `S, s` | q3 | epsilon |
+| q21 | `E, e` | q22 | epsilon |
+| q22 | `S, s` | q23 | epsilon |
+| q23 | `T, t` | q24 | epsilon |
+| q24 | `TAB, SPACE` | q25 | epsilon |
+| q25 | `TAB, SPACE` | q25 | epsilon |
+| q25 | `A, a` | q26 | epsilon |
+| q26 | `P, p` | q27 | epsilon |
+| q27 | `I, i` | q28 | epsilon |
+| q28 | `S, s` | q_aceptacion | REST_API |
+| q3 | `T, t` | q4 | epsilon |
+| q30 | `E, e` | q31 | epsilon |
+| q31 | `S, s` | q32 | epsilon |
+| q32 | `T, t` | q33 | epsilon |
+| q33 | `F, f` | q34 | epsilon |
+| q34 | `U, u` | q35 | epsilon |
+| q35 | `L, l` | q36 | epsilon |
+| q36 | `TAB, SPACE` | q37 | epsilon |
+| q37 | `TAB, SPACE` | q37 | epsilon |
+| q37 | `A, a` | q38 | epsilon |
+| q38 | `P, p` | q39 | epsilon |
+| q39 | `I, i` | q_aceptacion | REST_API |
+| q4 | `F, f` | q5 | epsilon |
+| q41 | `E, e` | q42 | epsilon |
+| q42 | `S, s` | q43 | epsilon |
+| q43 | `T, t` | q44 | epsilon |
+| q44 | `TAB, SPACE` | q45 | epsilon |
+| q45 | `TAB, SPACE` | q45 | epsilon |
+| q45 | `A, a` | q46 | epsilon |
+| q46 | `P, p` | q47 | epsilon |
+| q47 | `I, i` | q_aceptacion | REST_API |
+| q5 | `U, u` | q6 | epsilon |
+| q6 | `L, l` | q7 | epsilon |
+| q7 | `TAB, SPACE` | q8 | epsilon |
+| q8 | `TAB, SPACE` | q8 | epsilon |
+| q8 | `A, a` | q9 | epsilon |
+| q9 | `P, p` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {E, L, T}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, e) = q2,  ω(q0, e) = E
-  δ(q0, E) = q2,  ω(q0, E) = E
-  δ(q2, t) = q3,  ω(q2, t) = T
-  δ(q2, T) = q3,  ω(q2, T) = T
-  δ(q2, x) = q4,  ω(q2, x) = T
-  δ(q2, X) = q4,  ω(q2, X) = T
-  δ(q3, l) = q1,  ω(q3, l) = L
-  δ(q3, L) = q1,  ω(q3, L) = L
-  δ(q4, t) = q5,  ω(q4, t) = L
-  δ(q4, T) = q5,  ω(q4, T) = L
-  δ(q5, r) = q6,  ω(q5, r) = ε
-  δ(q5, R) = q6,  ω(q5, R) = ε
-  δ(q6, a) = q7,  ω(q6, a) = ε
-  δ(q6, A) = q7,  ω(q6, A) = ε
-  δ(q7, c) = q8,  ω(q7, c) = ε
-  δ(q7, C) = q8,  ω(q7, C) = ε
-  δ(q8, t) = q9,  ω(q8, t) = ε
-  δ(q8, T) = q9,  ω(q8, T) = ε
-  δ(q9,  ) = q10,  ω(q9,  ) = ε
-  δ(q10, t) = q11,  ω(q10, t) = ε
-  δ(q10, T) = q11,  ω(q10, T) = ε
-  δ(q11, r) = q12,  ω(q11, r) = ε
-  δ(q11, R) = q12,  ω(q11, R) = ε
-  δ(q12, a) = q13,  ω(q12, a) = ε
-  δ(q12, A) = q13,  ω(q12, A) = ε
-  δ(q13, n) = q14,  ω(q13, n) = ε
-  δ(q13, N) = q14,  ω(q13, N) = ε
-  δ(q14, s) = q15,  ω(q14, s) = ε
-  δ(q14, S) = q15,  ω(q14, S) = ε
-  δ(q15, f) = q16,  ω(q15, f) = ε
-  δ(q15, F) = q16,  ω(q15, F) = ε
-  δ(q16, o) = q17,  ω(q16, o) = ε
-  δ(q16, O) = q17,  ω(q16, O) = ε
-  δ(q17, r) = q18,  ω(q17, r) = ε
-  δ(q17, R) = q18,  ω(q17, R) = ε
-  δ(q18, m) = q19,  ω(q18, m) = ε
-  δ(q18, M) = q19,  ω(q18, M) = ε
-  δ(q19,  ) = q20,  ω(q19,  ) = ε
-  δ(q20, l) = q21,  ω(q20, l) = ε
-  δ(q20, L) = q21,  ω(q20, L) = ε
-  δ(q21, o) = q22,  ω(q21, o) = ε
-  δ(q21, O) = q22,  ω(q21, O) = ε
-  δ(q22, a) = q23,  ω(q22, a) = ε
-  δ(q22, A) = q23,  ω(q22, A) = ε
-  δ(q23, d) = q1,  ω(q23, d) = ε
-  δ(q23, D) = q1,  ω(q23, D) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: R, r / epsilon
+    q0 --> q13: R, r / epsilon
+    q0 --> q21: R, r / epsilon
+    q0 --> q30: R, r / epsilon
+    q0 --> q41: R, r / epsilon
+    q1 --> q2: E, e / epsilon
+    q10 --> q11: I, i / epsilon
+    q11 --> q_aceptacion: S, s / REST_API
+    q13 --> q14: E, e / epsilon
+    q14 --> q15: S, s / epsilon
+    q15 --> q16: T, t / epsilon
+    q16 --> q17: TAB, SPACE / epsilon
+    q17 --> q17: TAB, SPACE / epsilon
+    q17 --> q18: A, a / epsilon
+    q18 --> q19: P, p / epsilon
+    q19 --> q_aceptacion: I, i / REST_API
+    q2 --> q3: S, s / epsilon
+    q21 --> q22: E, e / epsilon
+    q22 --> q23: S, s / epsilon
+    q23 --> q24: T, t / epsilon
+    q24 --> q25: TAB, SPACE / epsilon
+    q25 --> q25: TAB, SPACE / epsilon
+    q25 --> q26: A, a / epsilon
+    q26 --> q27: P, p / epsilon
+    q27 --> q28: I, i / epsilon
+    q28 --> q_aceptacion: S, s / REST_API
+    q3 --> q4: T, t / epsilon
+    q30 --> q31: E, e / epsilon
+    q31 --> q32: S, s / epsilon
+    q32 --> q33: T, t / epsilon
+    q33 --> q34: F, f / epsilon
+    q34 --> q35: U, u / epsilon
+    q35 --> q36: L, l / epsilon
+    q36 --> q37: TAB, SPACE / epsilon
+    q37 --> q37: TAB, SPACE / epsilon
+    q37 --> q38: A, a / epsilon
+    q38 --> q39: P, p / epsilon
+    q39 --> q_aceptacion: I, i / REST_API
+    q4 --> q5: F, f / epsilon
+    q41 --> q42: E, e / epsilon
+    q42 --> q43: S, s / epsilon
+    q43 --> q44: T, t / epsilon
+    q44 --> q45: TAB, SPACE / epsilon
+    q45 --> q45: TAB, SPACE / epsilon
+    q45 --> q46: A, a / epsilon
+    q46 --> q47: P, p / epsilon
+    q47 --> q_aceptacion: I, i / REST_API
+    q5 --> q6: U, u / epsilon
+    q6 --> q7: L, l / epsilon
+    q7 --> q8: TAB, SPACE / epsilon
+    q8 --> q8: TAB, SPACE / epsilon
+    q8 --> q9: A, a / epsilon
+    q9 --> q10: P, p / epsilon
 ```
 
-### KAFKA
+## SCIKIT_LEARN
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: KAFKA ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `sklearn`, `scikit learn`, `Scikit-learn`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16}
+- Q = {q0, q1, q10, q11, q12, q13, q14, q15, q16, q17, q18, q2, q20, q21, q22, q23, q24, q25, q26, q27, q28, q29, q3, q30, q4, q5, q6, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', '-', 'A', 'C', 'E', 'I', 'K', 'L', 'N', 'R', 'S', 'T', 'a', 'c', 'e', 'i', 'k', 'l', 'n', 'r', 's', 't'}
+- Gamma = {A, C, E, I, K, L, N, R, S, T, _}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , A, C, E, F, H, K, P, a, c, e, f, h, k, p}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `S, s` | q1 | epsilon |
+| q0 | `S, s` | q20 | epsilon |
+| q0 | `S, s` | q8 | epsilon |
+| q1 | `K, k` | q2 | epsilon |
+| q10 | `K, k` | q11 | epsilon |
+| q11 | `I, i` | q12 | epsilon |
+| q12 | `T, t` | q13 | epsilon |
+| q13 | `TAB, SPACE` | q14 | epsilon |
+| q14 | `TAB, SPACE` | q14 | epsilon |
+| q14 | `L, l` | q15 | epsilon |
+| q15 | `E, e` | q16 | epsilon |
+| q16 | `A, a` | q17 | epsilon |
+| q17 | `R, r` | q18 | epsilon |
+| q18 | `N, n` | q_aceptacion | SCIKIT_LEARN |
+| q2 | `L, l` | q3 | epsilon |
+| q20 | `C, c` | q21 | epsilon |
+| q21 | `I, i` | q22 | epsilon |
+| q22 | `K, k` | q23 | epsilon |
+| q23 | `I, i` | q24 | epsilon |
+| q24 | `T, t` | q25 | epsilon |
+| q25 | `-` | q26 | epsilon |
+| q26 | `L, l` | q27 | epsilon |
+| q27 | `E, e` | q28 | epsilon |
+| q28 | `A, a` | q29 | epsilon |
+| q29 | `R, r` | q30 | epsilon |
+| q3 | `E, e` | q4 | epsilon |
+| q30 | `N, n` | q_aceptacion | SCIKIT_LEARN |
+| q4 | `A, a` | q5 | epsilon |
+| q5 | `R, r` | q6 | epsilon |
+| q6 | `N, n` | q_aceptacion | SCIKIT_LEARN |
+| q8 | `C, c` | q9 | epsilon |
+| q9 | `I, i` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, F, K}
-
-4. Estado inicial (q0):
-   q0 = q0
-
-5. Estados de aceptación (F):
-   F = {q1}
-
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, k) = q2,  ω(q0, k) = K
-  δ(q0, K) = q2,  ω(q0, K) = K
-  δ(q0, a) = q6,  ω(q0, a) = K
-  δ(q0, A) = q6,  ω(q0, A) = K
-  δ(q2, a) = q3,  ω(q2, a) = A
-  δ(q2, A) = q3,  ω(q2, A) = A
-  δ(q3, f) = q4,  ω(q3, f) = F
-  δ(q3, F) = q4,  ω(q3, F) = F
-  δ(q4, k) = q5,  ω(q4, k) = K
-  δ(q4, K) = q5,  ω(q4, K) = K
-  δ(q5, a) = q1,  ω(q5, a) = A
-  δ(q5, A) = q1,  ω(q5, A) = A
-  δ(q6, p) = q7,  ω(q6, p) = A
-  δ(q6, P) = q7,  ω(q6, P) = A
-  δ(q7, a) = q8,  ω(q7, a) = F
-  δ(q7, A) = q8,  ω(q7, A) = F
-  δ(q8, c) = q9,  ω(q8, c) = K
-  δ(q8, C) = q9,  ω(q8, C) = K
-  δ(q9, h) = q10,  ω(q9, h) = A
-  δ(q9, H) = q10,  ω(q9, H) = A
-  δ(q10, e) = q11,  ω(q10, e) = ε
-  δ(q10, E) = q11,  ω(q10, E) = ε
-  δ(q11,  ) = q12,  ω(q11,  ) = ε
-  δ(q12, k) = q13,  ω(q12, k) = ε
-  δ(q12, K) = q13,  ω(q12, K) = ε
-  δ(q13, a) = q14,  ω(q13, a) = ε
-  δ(q13, A) = q14,  ω(q13, A) = ε
-  δ(q14, f) = q15,  ω(q14, f) = ε
-  δ(q14, F) = q15,  ω(q14, F) = ε
-  δ(q15, k) = q16,  ω(q15, k) = ε
-  δ(q15, K) = q16,  ω(q15, K) = ε
-  δ(q16, a) = q1,  ω(q16, a) = ε
-  δ(q16, A) = q1,  ω(q16, A) = ε
-====================================================
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: S, s / epsilon
+    q0 --> q20: S, s / epsilon
+    q0 --> q8: S, s / epsilon
+    q1 --> q2: K, k / epsilon
+    q10 --> q11: K, k / epsilon
+    q11 --> q12: I, i / epsilon
+    q12 --> q13: T, t / epsilon
+    q13 --> q14: TAB, SPACE / epsilon
+    q14 --> q14: TAB, SPACE / epsilon
+    q14 --> q15: L, l / epsilon
+    q15 --> q16: E, e / epsilon
+    q16 --> q17: A, a / epsilon
+    q17 --> q18: R, r / epsilon
+    q18 --> q_aceptacion: N, n / SCIKIT_LEARN
+    q2 --> q3: L, l / epsilon
+    q20 --> q21: C, c / epsilon
+    q21 --> q22: I, i / epsilon
+    q22 --> q23: K, k / epsilon
+    q23 --> q24: I, i / epsilon
+    q24 --> q25: T, t / epsilon
+    q25 --> q26: - / epsilon
+    q26 --> q27: L, l / epsilon
+    q27 --> q28: E, e / epsilon
+    q28 --> q29: A, a / epsilon
+    q29 --> q30: R, r / epsilon
+    q3 --> q4: E, e / epsilon
+    q30 --> q_aceptacion: N, n / SCIKIT_LEARN
+    q4 --> q5: A, a / epsilon
+    q5 --> q6: R, r / epsilon
+    q6 --> q_aceptacion: N, n / SCIKIT_LEARN
+    q8 --> q9: C, c / epsilon
+    q9 --> q10: I, i / epsilon
 ```
 
-### DATA_WAREHOUSE
+## SPARK
 
-```text
-=== DEFINICIÓN FORMAL 7-TUPLA: DATA_WAREHOUSE ===
-M = (Q, Σ, Γ, δ, ω, q0, F)
+Aliases: `Apache Spark`, `Spark`, `spark`, `PySpark`, `pyspark`
 
-1. Conjunto de estados (Q):
-   Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23, q24, q25, q26, q27, q28, q29, q30, q31, q32, q33, q34, q35, q36, q37}
+- Q = {q0, q1, q10, q11, q13, q14, q15, q16, q18, q19, q2, q20, q21, q23, q24, q25, q26, q27, q28, q3, q30, q31, q32, q33, q34, q35, q4, q5, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'A', 'C', 'E', 'H', 'K', 'P', 'R', 'S', 'Y', 'a', 'c', 'e', 'h', 'k', 'p', 'r', 's', 'y'}
+- Gamma = {A, K, P, R, S}
+- Initial state: q0
+- F = {q_aceptacion}
 
-2. Alfabeto de entrada (Σ):
-   Σ = { , A, D, E, H, O, R, S, T, U, W, a, d, e, h, o, r, s, t, u, w}
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `A, a` | q1 | epsilon |
+| q0 | `S, s` | q13 | epsilon |
+| q0 | `S, s` | q18 | epsilon |
+| q0 | `P, p` | q23 | epsilon |
+| q0 | `P, p` | q30 | epsilon |
+| q1 | `P, p` | q2 | epsilon |
+| q10 | `R, r` | q11 | epsilon |
+| q11 | `K, k` | q_aceptacion | SPARK |
+| q13 | `P, p` | q14 | epsilon |
+| q14 | `A, a` | q15 | epsilon |
+| q15 | `R, r` | q16 | epsilon |
+| q16 | `K, k` | q_aceptacion | SPARK |
+| q18 | `P, p` | q19 | epsilon |
+| q19 | `A, a` | q20 | epsilon |
+| q2 | `A, a` | q3 | epsilon |
+| q20 | `R, r` | q21 | epsilon |
+| q21 | `K, k` | q_aceptacion | SPARK |
+| q23 | `Y, y` | q24 | epsilon |
+| q24 | `S, s` | q25 | epsilon |
+| q25 | `P, p` | q26 | epsilon |
+| q26 | `A, a` | q27 | epsilon |
+| q27 | `R, r` | q28 | epsilon |
+| q28 | `K, k` | q_aceptacion | SPARK |
+| q3 | `C, c` | q4 | epsilon |
+| q30 | `Y, y` | q31 | epsilon |
+| q31 | `S, s` | q32 | epsilon |
+| q32 | `P, p` | q33 | epsilon |
+| q33 | `A, a` | q34 | epsilon |
+| q34 | `R, r` | q35 | epsilon |
+| q35 | `K, k` | q_aceptacion | SPARK |
+| q4 | `H, h` | q5 | epsilon |
+| q5 | `E, e` | q6 | epsilon |
+| q6 | `TAB, SPACE` | q7 | epsilon |
+| q7 | `TAB, SPACE` | q7 | epsilon |
+| q7 | `S, s` | q8 | epsilon |
+| q8 | `P, p` | q9 | epsilon |
+| q9 | `A, a` | q10 | epsilon |
 
-3. Alfabeto de salida (Γ):
-   Γ = {A, D, E, H, O, R, S, T, U, W, _}
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: A, a / epsilon
+    q0 --> q13: S, s / epsilon
+    q0 --> q18: S, s / epsilon
+    q0 --> q23: P, p / epsilon
+    q0 --> q30: P, p / epsilon
+    q1 --> q2: P, p / epsilon
+    q10 --> q11: R, r / epsilon
+    q11 --> q_aceptacion: K, k / SPARK
+    q13 --> q14: P, p / epsilon
+    q14 --> q15: A, a / epsilon
+    q15 --> q16: R, r / epsilon
+    q16 --> q_aceptacion: K, k / SPARK
+    q18 --> q19: P, p / epsilon
+    q19 --> q20: A, a / epsilon
+    q2 --> q3: A, a / epsilon
+    q20 --> q21: R, r / epsilon
+    q21 --> q_aceptacion: K, k / SPARK
+    q23 --> q24: Y, y / epsilon
+    q24 --> q25: S, s / epsilon
+    q25 --> q26: P, p / epsilon
+    q26 --> q27: A, a / epsilon
+    q27 --> q28: R, r / epsilon
+    q28 --> q_aceptacion: K, k / SPARK
+    q3 --> q4: C, c / epsilon
+    q30 --> q31: Y, y / epsilon
+    q31 --> q32: S, s / epsilon
+    q32 --> q33: P, p / epsilon
+    q33 --> q34: A, a / epsilon
+    q34 --> q35: R, r / epsilon
+    q35 --> q_aceptacion: K, k / SPARK
+    q4 --> q5: H, h / epsilon
+    q5 --> q6: E, e / epsilon
+    q6 --> q7: TAB, SPACE / epsilon
+    q7 --> q7: TAB, SPACE / epsilon
+    q7 --> q8: S, s / epsilon
+    q8 --> q9: P, p / epsilon
+    q9 --> q10: A, a / epsilon
+```
 
-4. Estado inicial (q0):
-   q0 = q0
+## SPRING_BOOT
 
-5. Estados de aceptación (F):
-   F = {q1}
+Aliases: `Spring Boot`, `SpringBoot`, `spring boot`, `Spring`
 
-6 & 7. Funciones de transición (δ) y salida (ω):
-  δ(q0, d) = q2,  ω(q0, d) = D
-  δ(q0, D) = q2,  ω(q0, D) = D
-  δ(q2, a) = q3,  ω(q2, a) = A
-  δ(q2, A) = q3,  ω(q2, A) = A
-  δ(q2, w) = q15,  ω(q2, w) = A
-  δ(q2, W) = q15,  ω(q2, W) = A
-  δ(q3, t) = q4,  ω(q3, t) = T
-  δ(q3, T) = q4,  ω(q3, T) = T
-  δ(q4, a) = q5,  ω(q4, a) = A
-  δ(q4, A) = q5,  ω(q4, A) = A
-  δ(q5,  ) = q6,  ω(q5,  ) = _
-  δ(q6, w) = q7,  ω(q6, w) = W
-  δ(q6, W) = q7,  ω(q6, W) = W
-  δ(q7, a) = q8,  ω(q7, a) = A
-  δ(q7, A) = q8,  ω(q7, A) = A
-  δ(q8, r) = q9,  ω(q8, r) = R
-  δ(q8, R) = q9,  ω(q8, R) = R
-  δ(q9, e) = q10,  ω(q9, e) = E
-  δ(q9, E) = q10,  ω(q9, E) = E
-  δ(q10, h) = q11,  ω(q10, h) = H
-  δ(q10, H) = q11,  ω(q10, H) = H
-  δ(q11, o) = q12,  ω(q11, o) = O
-  δ(q11, O) = q12,  ω(q11, O) = O
-  δ(q12, u) = q13,  ω(q12, u) = U
-  δ(q12, U) = q13,  ω(q12, U) = U
-  δ(q13, s) = q14,  ω(q13, s) = S
-  δ(q13, S) = q14,  ω(q13, S) = S
-  δ(q14, e) = q1,  ω(q14, e) = E
-  δ(q14, E) = q1,  ω(q14, E) = E
-  δ(q15, ε) = q16,  ω(q15, ε) = T
-  δ(q15, h) = q27,  ω(q15, h) = T
-  δ(q15, H) = q27,  ω(q15, H) = T
-  δ(q16, ε) = q17,  ω(q16, ε) = A
-  δ(q17, ε) = q18,  ω(q17, ε) = _
-  δ(q18, ε) = q19,  ω(q18, ε) = W
-  δ(q19, ε) = q20,  ω(q19, ε) = A
-  δ(q20, ε) = q21,  ω(q20, ε) = R
-  δ(q21, ε) = q22,  ω(q21, ε) = E
-  δ(q22, ε) = q23,  ω(q22, ε) = H
-  δ(q23, ε) = q24,  ω(q23, ε) = O
-  δ(q24, ε) = q25,  ω(q24, ε) = U
-  δ(q25, ε) = q26,  ω(q25, ε) = S
-  δ(q26, ε) = q1,  ω(q26, ε) = E
-  δ(q27, ε) = q28,  ω(q27, ε) = A
-  δ(q28, ε) = q29,  ω(q28, ε) = _
-  δ(q29, ε) = q30,  ω(q29, ε) = W
-  δ(q30, ε) = q31,  ω(q30, ε) = A
-  δ(q31, ε) = q32,  ω(q31, ε) = R
-  δ(q32, ε) = q33,  ω(q32, ε) = E
-  δ(q33, ε) = q34,  ω(q33, ε) = H
-  δ(q34, ε) = q35,  ω(q34, ε) = O
-  δ(q35, ε) = q36,  ω(q35, ε) = U
-  δ(q36, ε) = q37,  ω(q36, ε) = S
-  δ(q37, ε) = q1,  ω(q37, ε) = E
-====================================================
+- Q = {q0, q1, q10, q12, q13, q14, q15, q16, q17, q18, q19, q2, q20, q22, q23, q24, q25, q26, q27, q28, q29, q3, q30, q31, q33, q34, q35, q36, q37, q4, q5, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'B', 'G', 'I', 'N', 'O', 'P', 'R', 'S', 'T', 'b', 'g', 'i', 'n', 'o', 'p', 'r', 's', 't'}
+- Gamma = {B, G, I, N, O, P, R, S, T, _}
+- Initial state: q0
+- F = {q_aceptacion}
+
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `S, s` | q1 | epsilon |
+| q0 | `S, s` | q12 | epsilon |
+| q0 | `S, s` | q22 | epsilon |
+| q0 | `S, s` | q33 | epsilon |
+| q1 | `P, p` | q2 | epsilon |
+| q10 | `T, t` | q_aceptacion | SPRING_BOOT |
+| q12 | `P, p` | q13 | epsilon |
+| q13 | `R, r` | q14 | epsilon |
+| q14 | `I, i` | q15 | epsilon |
+| q15 | `N, n` | q16 | epsilon |
+| q16 | `G, g` | q17 | epsilon |
+| q17 | `B, b` | q18 | epsilon |
+| q18 | `O, o` | q19 | epsilon |
+| q19 | `O, o` | q20 | epsilon |
+| q2 | `R, r` | q3 | epsilon |
+| q20 | `T, t` | q_aceptacion | SPRING_BOOT |
+| q22 | `P, p` | q23 | epsilon |
+| q23 | `R, r` | q24 | epsilon |
+| q24 | `I, i` | q25 | epsilon |
+| q25 | `N, n` | q26 | epsilon |
+| q26 | `G, g` | q27 | epsilon |
+| q27 | `TAB, SPACE` | q28 | epsilon |
+| q28 | `TAB, SPACE` | q28 | epsilon |
+| q28 | `B, b` | q29 | epsilon |
+| q29 | `O, o` | q30 | epsilon |
+| q3 | `I, i` | q4 | epsilon |
+| q30 | `O, o` | q31 | epsilon |
+| q31 | `T, t` | q_aceptacion | SPRING_BOOT |
+| q33 | `P, p` | q34 | epsilon |
+| q34 | `R, r` | q35 | epsilon |
+| q35 | `I, i` | q36 | epsilon |
+| q36 | `N, n` | q37 | epsilon |
+| q37 | `G, g` | q_aceptacion | SPRING_BOOT |
+| q4 | `N, n` | q5 | epsilon |
+| q5 | `G, g` | q6 | epsilon |
+| q6 | `TAB, SPACE` | q7 | epsilon |
+| q7 | `TAB, SPACE` | q7 | epsilon |
+| q7 | `B, b` | q8 | epsilon |
+| q8 | `O, o` | q9 | epsilon |
+| q9 | `O, o` | q10 | epsilon |
+
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: S, s / epsilon
+    q0 --> q12: S, s / epsilon
+    q0 --> q22: S, s / epsilon
+    q0 --> q33: S, s / epsilon
+    q1 --> q2: P, p / epsilon
+    q10 --> q_aceptacion: T, t / SPRING_BOOT
+    q12 --> q13: P, p / epsilon
+    q13 --> q14: R, r / epsilon
+    q14 --> q15: I, i / epsilon
+    q15 --> q16: N, n / epsilon
+    q16 --> q17: G, g / epsilon
+    q17 --> q18: B, b / epsilon
+    q18 --> q19: O, o / epsilon
+    q19 --> q20: O, o / epsilon
+    q2 --> q3: R, r / epsilon
+    q20 --> q_aceptacion: T, t / SPRING_BOOT
+    q22 --> q23: P, p / epsilon
+    q23 --> q24: R, r / epsilon
+    q24 --> q25: I, i / epsilon
+    q25 --> q26: N, n / epsilon
+    q26 --> q27: G, g / epsilon
+    q27 --> q28: TAB, SPACE / epsilon
+    q28 --> q28: TAB, SPACE / epsilon
+    q28 --> q29: B, b / epsilon
+    q29 --> q30: O, o / epsilon
+    q3 --> q4: I, i / epsilon
+    q30 --> q31: O, o / epsilon
+    q31 --> q_aceptacion: T, t / SPRING_BOOT
+    q33 --> q34: P, p / epsilon
+    q34 --> q35: R, r / epsilon
+    q35 --> q36: I, i / epsilon
+    q36 --> q37: N, n / epsilon
+    q37 --> q_aceptacion: G, g / SPRING_BOOT
+    q4 --> q5: N, n / epsilon
+    q5 --> q6: G, g / epsilon
+    q6 --> q7: TAB, SPACE / epsilon
+    q7 --> q7: TAB, SPACE / epsilon
+    q7 --> q8: B, b / epsilon
+    q8 --> q9: O, o / epsilon
+    q9 --> q10: O, o / epsilon
+```
+
+## SQL
+
+Aliases: `SQL`, `sql`
+
+- Q = {q0, q1, q2, q4, q5, q_aceptacion}
+- Sigma = {'L', 'Q', 'S', 'l', 'q', 's'}
+- Gamma = {L, Q, S}
+- Initial state: q0
+- F = {q_aceptacion}
+
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `S, s` | q1 | epsilon |
+| q0 | `S, s` | q4 | epsilon |
+| q1 | `Q, q` | q2 | epsilon |
+| q2 | `L, l` | q_aceptacion | SQL |
+| q4 | `Q, q` | q5 | epsilon |
+| q5 | `L, l` | q_aceptacion | SQL |
+
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: S, s / epsilon
+    q0 --> q4: S, s / epsilon
+    q1 --> q2: Q, q / epsilon
+    q2 --> q_aceptacion: L, l / SQL
+    q4 --> q5: Q, q / epsilon
+    q5 --> q_aceptacion: L, l / SQL
+```
+
+## TENSORFLOW
+
+Aliases: `Tensor Flow`, `TensorFlow`, `tf`, `tensorflow`
+
+- Q = {q0, q1, q10, q12, q13, q14, q15, q16, q17, q18, q19, q2, q20, q22, q24, q25, q26, q27, q28, q29, q3, q30, q31, q32, q4, q5, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'\t', ' ', 'E', 'F', 'L', 'N', 'O', 'R', 'S', 'T', 'W', 'e', 'f', 'l', 'n', 'o', 'r', 's', 't', 'w'}
+- Gamma = {E, F, L, N, O, R, S, T, W}
+- Initial state: q0
+- F = {q_aceptacion}
+
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `T, t` | q1 | epsilon |
+| q0 | `T, t` | q12 | epsilon |
+| q0 | `T, t` | q22 | epsilon |
+| q0 | `T, t` | q24 | epsilon |
+| q1 | `E, e` | q2 | epsilon |
+| q10 | `W, w` | q_aceptacion | TENSORFLOW |
+| q12 | `E, e` | q13 | epsilon |
+| q13 | `N, n` | q14 | epsilon |
+| q14 | `S, s` | q15 | epsilon |
+| q15 | `O, o` | q16 | epsilon |
+| q16 | `R, r` | q17 | epsilon |
+| q17 | `F, f` | q18 | epsilon |
+| q18 | `L, l` | q19 | epsilon |
+| q19 | `O, o` | q20 | epsilon |
+| q2 | `N, n` | q3 | epsilon |
+| q20 | `W, w` | q_aceptacion | TENSORFLOW |
+| q22 | `F, f` | q_aceptacion | TENSORFLOW |
+| q24 | `E, e` | q25 | epsilon |
+| q25 | `N, n` | q26 | epsilon |
+| q26 | `S, s` | q27 | epsilon |
+| q27 | `O, o` | q28 | epsilon |
+| q28 | `R, r` | q29 | epsilon |
+| q29 | `F, f` | q30 | epsilon |
+| q3 | `S, s` | q4 | epsilon |
+| q30 | `L, l` | q31 | epsilon |
+| q31 | `O, o` | q32 | epsilon |
+| q32 | `W, w` | q_aceptacion | TENSORFLOW |
+| q4 | `O, o` | q5 | epsilon |
+| q5 | `R, r` | q6 | epsilon |
+| q6 | `TAB, SPACE` | q7 | epsilon |
+| q7 | `TAB, SPACE` | q7 | epsilon |
+| q7 | `F, f` | q8 | epsilon |
+| q8 | `L, l` | q9 | epsilon |
+| q9 | `O, o` | q10 | epsilon |
+
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: T, t / epsilon
+    q0 --> q12: T, t / epsilon
+    q0 --> q22: T, t / epsilon
+    q0 --> q24: T, t / epsilon
+    q1 --> q2: E, e / epsilon
+    q10 --> q_aceptacion: W, w / TENSORFLOW
+    q12 --> q13: E, e / epsilon
+    q13 --> q14: N, n / epsilon
+    q14 --> q15: S, s / epsilon
+    q15 --> q16: O, o / epsilon
+    q16 --> q17: R, r / epsilon
+    q17 --> q18: F, f / epsilon
+    q18 --> q19: L, l / epsilon
+    q19 --> q20: O, o / epsilon
+    q2 --> q3: N, n / epsilon
+    q20 --> q_aceptacion: W, w / TENSORFLOW
+    q22 --> q_aceptacion: F, f / TENSORFLOW
+    q24 --> q25: E, e / epsilon
+    q25 --> q26: N, n / epsilon
+    q26 --> q27: S, s / epsilon
+    q27 --> q28: O, o / epsilon
+    q28 --> q29: R, r / epsilon
+    q29 --> q30: F, f / epsilon
+    q3 --> q4: S, s / epsilon
+    q30 --> q31: L, l / epsilon
+    q31 --> q32: O, o / epsilon
+    q32 --> q_aceptacion: W, w / TENSORFLOW
+    q4 --> q5: O, o / epsilon
+    q5 --> q6: R, r / epsilon
+    q6 --> q7: TAB, SPACE / epsilon
+    q7 --> q7: TAB, SPACE / epsilon
+    q7 --> q8: F, f / epsilon
+    q8 --> q9: L, l / epsilon
+    q9 --> q10: O, o / epsilon
+```
+
+## TERRAFORM
+
+Aliases: `Terraform`, `terraform`
+
+- Q = {q0, q1, q10, q11, q12, q13, q14, q15, q16, q17, q2, q3, q4, q5, q6, q7, q8, q_aceptacion}
+- Sigma = {'A', 'E', 'F', 'M', 'O', 'R', 'T', 'a', 'e', 'f', 'm', 'o', 'r', 't'}
+- Gamma = {A, E, F, M, O, R, T}
+- Initial state: q0
+- F = {q_aceptacion}
+
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `T, t` | q1 | epsilon |
+| q0 | `T, t` | q10 | epsilon |
+| q1 | `E, e` | q2 | epsilon |
+| q10 | `E, e` | q11 | epsilon |
+| q11 | `R, r` | q12 | epsilon |
+| q12 | `R, r` | q13 | epsilon |
+| q13 | `A, a` | q14 | epsilon |
+| q14 | `F, f` | q15 | epsilon |
+| q15 | `O, o` | q16 | epsilon |
+| q16 | `R, r` | q17 | epsilon |
+| q17 | `M, m` | q_aceptacion | TERRAFORM |
+| q2 | `R, r` | q3 | epsilon |
+| q3 | `R, r` | q4 | epsilon |
+| q4 | `A, a` | q5 | epsilon |
+| q5 | `F, f` | q6 | epsilon |
+| q6 | `O, o` | q7 | epsilon |
+| q7 | `R, r` | q8 | epsilon |
+| q8 | `M, m` | q_aceptacion | TERRAFORM |
+
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: T, t / epsilon
+    q0 --> q10: T, t / epsilon
+    q1 --> q2: E, e / epsilon
+    q10 --> q11: E, e / epsilon
+    q11 --> q12: R, r / epsilon
+    q12 --> q13: R, r / epsilon
+    q13 --> q14: A, a / epsilon
+    q14 --> q15: F, f / epsilon
+    q15 --> q16: O, o / epsilon
+    q16 --> q17: R, r / epsilon
+    q17 --> q_aceptacion: M, m / TERRAFORM
+    q2 --> q3: R, r / epsilon
+    q3 --> q4: R, r / epsilon
+    q4 --> q5: A, a / epsilon
+    q5 --> q6: F, f / epsilon
+    q6 --> q7: O, o / epsilon
+    q7 --> q8: R, r / epsilon
+    q8 --> q_aceptacion: M, m / TERRAFORM
+```
+
+## TYPESCRIPT
+
+Aliases: `TS`, `Typescript`, `TypeScript`
+
+- Q = {q0, q1, q10, q11, q13, q14, q15, q16, q17, q18, q19, q20, q21, q3, q4, q5, q6, q7, q8, q9, q_aceptacion}
+- Sigma = {'C', 'E', 'I', 'P', 'R', 'S', 'T', 'Y', 'c', 'e', 'i', 'p', 'r', 's', 't', 'y'}
+- Gamma = {C, E, I, P, R, S, T, Y}
+- Initial state: q0
+- F = {q_aceptacion}
+
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `T, t` | q1 | epsilon |
+| q0 | `T, t` | q13 | epsilon |
+| q0 | `T, t` | q3 | epsilon |
+| q1 | `S, s` | q_aceptacion | TYPESCRIPT |
+| q10 | `P, p` | q11 | epsilon |
+| q11 | `T, t` | q_aceptacion | TYPESCRIPT |
+| q13 | `Y, y` | q14 | epsilon |
+| q14 | `P, p` | q15 | epsilon |
+| q15 | `E, e` | q16 | epsilon |
+| q16 | `S, s` | q17 | epsilon |
+| q17 | `C, c` | q18 | epsilon |
+| q18 | `R, r` | q19 | epsilon |
+| q19 | `I, i` | q20 | epsilon |
+| q20 | `P, p` | q21 | epsilon |
+| q21 | `T, t` | q_aceptacion | TYPESCRIPT |
+| q3 | `Y, y` | q4 | epsilon |
+| q4 | `P, p` | q5 | epsilon |
+| q5 | `E, e` | q6 | epsilon |
+| q6 | `S, s` | q7 | epsilon |
+| q7 | `C, c` | q8 | epsilon |
+| q8 | `R, r` | q9 | epsilon |
+| q9 | `I, i` | q10 | epsilon |
+
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: T, t / epsilon
+    q0 --> q13: T, t / epsilon
+    q0 --> q3: T, t / epsilon
+    q1 --> q_aceptacion: S, s / TYPESCRIPT
+    q10 --> q11: P, p / epsilon
+    q11 --> q_aceptacion: T, t / TYPESCRIPT
+    q13 --> q14: Y, y / epsilon
+    q14 --> q15: P, p / epsilon
+    q15 --> q16: E, e / epsilon
+    q16 --> q17: S, s / epsilon
+    q17 --> q18: C, c / epsilon
+    q18 --> q19: R, r / epsilon
+    q19 --> q20: I, i / epsilon
+    q20 --> q21: P, p / epsilon
+    q21 --> q_aceptacion: T, t / TYPESCRIPT
+    q3 --> q4: Y, y / epsilon
+    q4 --> q5: P, p / epsilon
+    q5 --> q6: E, e / epsilon
+    q6 --> q7: S, s / epsilon
+    q7 --> q8: C, c / epsilon
+    q8 --> q9: R, r / epsilon
+    q9 --> q10: I, i / epsilon
+```
+
+## VUE
+
+Aliases: `Vue.js`, `VueJS`, `vue`, `Vue`
+
+- Q = {q0, q1, q10, q12, q13, q15, q16, q2, q3, q4, q5, q7, q8, q9, q_aceptacion}
+- Sigma = {'.', 'E', 'J', 'S', 'U', 'V', 'e', 'j', 's', 'u', 'v'}
+- Gamma = {E, U, V}
+- Initial state: q0
+- F = {q_aceptacion}
+
+| Source | Input alternatives | Destination | Output word |
+|---|---|---|---|
+| q0 | `V, v` | q1 | epsilon |
+| q0 | `V, v` | q12 | epsilon |
+| q0 | `V, v` | q15 | epsilon |
+| q0 | `V, v` | q7 | epsilon |
+| q1 | `U, u` | q2 | epsilon |
+| q10 | `S, s` | q_aceptacion | VUE |
+| q12 | `U, u` | q13 | epsilon |
+| q13 | `E, e` | q_aceptacion | VUE |
+| q15 | `U, u` | q16 | epsilon |
+| q16 | `E, e` | q_aceptacion | VUE |
+| q2 | `E, e` | q3 | epsilon |
+| q3 | `.` | q4 | epsilon |
+| q4 | `J, j` | q5 | epsilon |
+| q5 | `S, s` | q_aceptacion | VUE |
+| q7 | `U, u` | q8 | epsilon |
+| q8 | `E, e` | q9 | epsilon |
+| q9 | `J, j` | q10 | epsilon |
+
+```mermaid
+stateDiagram-v2
+    [*] --> q0
+    q_aceptacion --> [*]
+    q0 --> q1: V, v / epsilon
+    q0 --> q12: V, v / epsilon
+    q0 --> q15: V, v / epsilon
+    q0 --> q7: V, v / epsilon
+    q1 --> q2: U, u / epsilon
+    q10 --> q_aceptacion: S, s / VUE
+    q12 --> q13: U, u / epsilon
+    q13 --> q_aceptacion: E, e / VUE
+    q15 --> q16: U, u / epsilon
+    q16 --> q_aceptacion: E, e / VUE
+    q2 --> q3: E, e / epsilon
+    q3 --> q4: . / epsilon
+    q4 --> q5: J, j / epsilon
+    q5 --> q_aceptacion: S, s / VUE
+    q7 --> q8: U, u / epsilon
+    q8 --> q9: E, e / epsilon
+    q9 --> q10: J, j / epsilon
 ```

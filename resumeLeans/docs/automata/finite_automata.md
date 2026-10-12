@@ -382,7 +382,7 @@ More specifically:
 LINUX
 DOCKER
 KUBERNETES
-(JENKINS | GITHUB_ACTIONS | GITLAB_CI)
+(CI_CD | JENKINS | GITHUB_ACTIONS | GITLAB_CI)
 (AWS | AZURE | GCP)
 TERRAFORM
 GIT
@@ -422,6 +422,7 @@ q_0,q_1,q_2,q_3,q_4,q_5,q_6,q_7
 LINUX,
 DOCKER,
 KUBERNETES,
+CI_CD,
 JENKINS,
 GITHUB\_ACTIONS,
 GITLAB\_CI,
@@ -452,8 +453,8 @@ F_{DO} = \{q_7\}
 | `q0` | `LINUX` | `q1` |
 | `q1` | `DOCKER` | `q2` |
 | `q2` | `KUBERNETES` | `q3` |
-| `q3` | `JENKINS`, `GITHUB_ACTIONS`, `GITLAB_CI` | `q4` |
-| `q4` | `JENKINS`, `GITHUB_ACTIONS`, `GITLAB_CI` | `q4` |
+| `q3` | `CI_CD`, `JENKINS`, `GITHUB_ACTIONS`, `GITLAB_CI` | `q4` |
+| `q4` | `CI_CD`, `JENKINS`, `GITHUB_ACTIONS`, `GITLAB_CI` | `q4` |
 | `q4` | `AWS`, `AZURE`, `GCP` | `q5` |
 | `q5` | `AWS`, `AZURE`, `GCP` | `q5` |
 | `q5` | `TERRAFORM` | `q6` |
@@ -471,8 +472,8 @@ stateDiagram-v2
     q1 --> q2: DOCKER
     q2 --> q3: KUBERNETES
 
-    q3 --> q4: JENKINS / GITHUB_ACTIONS / GITLAB_CI
-    q4 --> q4: JENKINS / GITHUB_ACTIONS / GITLAB_CI
+    q3 --> q4: CI_CD / JENKINS / GITHUB_ACTIONS / GITLAB_CI
+    q4 --> q4: CI_CD / JENKINS / GITHUB_ACTIONS / GITLAB_CI
 
     q4 --> q5: AWS / AZURE / GCP
     q5 --> q5: AWS / AZURE / GCP

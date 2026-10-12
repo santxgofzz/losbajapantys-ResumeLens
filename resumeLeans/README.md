@@ -129,7 +129,13 @@ The project also uses the libraries listed in `requirements.txt`.
 
 ## Create the virtual environment
 
-From the project folder, create the virtual environment:
+From the repository root, enter the Python project folder first:
+
+```bash
+cd resumeLeans
+```
+
+Then create the virtual environment:
 
 ```bash
 python -m venv .venv
@@ -351,3 +357,19 @@ docs/literature_review.md
 **Computación y Estructuras Discretas III**  
 Universidad Icesi  
 2026-2
+
+## Integration notes
+
+The FST recognizes ASCII case variants and repeated horizontal spaces/tabs in supported multiword aliases. Original extraction values are unchanged. Unknown aliases have no output. Java, MySQL and MongoDB are retained as JAVA, MYSQL and MONGODB; they do not imply a different skill or change the profile requirements.
+
+The bundled example does not mention REST API, which is mandatory in the team's Full Stack pattern, so its rejection is expected. `main.py` supplies example personal data manually. For another candidate, call `process_resume(resume_text, personal_info)`; see [module contracts](docs/design.md).
+
+The current FST definitions and Mermaid diagrams are generated from the implementation:
+
+```bash
+python -m scripts.document_transducers
+```
+
+The older PNG diagrams in `docs/Transducers/GRAPHICS` are historical; use the [generated reference](docs/Transducers/Definiciones%20formales%20transducers.md) for the current model.
+
+See [test scenarios](docs/test-cases.md), [formalization](docs/formalization.md), and [technical sources](docs/literature_review.md) for more detail.

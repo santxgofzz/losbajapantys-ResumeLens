@@ -36,13 +36,15 @@ def extract_phones(text: str) -> list[str]:
     return re.findall(PHONE_PATTERN, text)
 
 
-PROGRAMMING_LANGUAGES_PATTERN = r"(?<![\w.])(?:JavaScript|JS|TypeScript|TS|Python|Java)\b"
+PROGRAMMING_LANGUAGES_PATTERN = (
+    r"(?<![\w.])(?:JavaScript|JS|TypeScript|TS|Python|py(?![ \t]+Torch\b)|Java)\b"
+)
 
 
 def extract_programming_languages(text: str) -> list[str]:
     """Return supported language mentions with original case, order and repeats.
 
-    Match JavaScript/JS, TypeScript/TS, Python and Java throughout the text.
+    Match JavaScript/JS, TypeScript/TS, Python/py and Java throughout the text.
     Exclude longer words and dotted suffixes such as the js in React.js.
     """
     return re.findall(PROGRAMMING_LANGUAGES_PATTERN, text, flags=re.IGNORECASE)
@@ -50,9 +52,9 @@ def extract_programming_languages(text: str) -> list[str]:
 
 FRAMEWORKS_PATTERN = (
     r"(?<![\w.])"
-    r"(?:React(?:\.js|JS)?|Angular|Vue(?:\.js)?|Node(?:JS|\.js)|"
-    r"Django|Spring Boot|Pandas|NumPy|Scikit[- ]learn|sklearn|"
-    r"Tensor ?Flow|Py ?Torch)"
+    r"(?:React(?:\.js|JS)?|Angular(?:\.js|JS)?|Vue(?:\.js|JS)?|Node(?:JS|\.js)?|"
+    r"Django|Spring(?:[ \t]*Boot|(?!\s+Boot))|Pandas|NumPy|Scikit[- ]learn|sklearn|"
+    r"Tensor ?Flow|tf|Py ?Torch)"
     r"(?!\w|\.\w)"
 )
 
@@ -61,7 +63,8 @@ def extract_frameworks(text: str) -> list[str]:
     """Return supported frameworks, libraries and runtimes as originally written.
 
     Search the entire text without normalizing case or spelling. Preserve
-    order and repetitions. Multiword variants use a single literal space.
+    order and repetitions. Spring Boot allows horizontal whitespace; other
+    multiword variants use a single literal space.
     """
     return re.findall(FRAMEWORKS_PATTERN, text, flags=re.IGNORECASE)
 
@@ -98,29 +101,40 @@ def extract_tools(text: str) -> list[str]:
     return re.findall(TOOLS_PATTERN, text, flags=re.IGNORECASE)
 
 
+EDUCATION_FIELD_PATTERN = (
+    r"(?:Systems[ \t]+Engineering|Computer[ \t]+Science|Software[ \t]+Engineering|"
+    r"Computer[ \t]+Engineering|Data[ \t]+Science|Artificial[ \t]+Intelligence|"
+    r"Machine[ \t]+Learning|Information[ \t]+Technology)"
+)
+
 EDUCATION_PATTERN = (
     r"(?<![\w.])"
     r"(?:(?:Bachelor|Master)['’]s[ \t]+degree|"
-    r"(?:Bachelor|Master)[ \t]+of[ \t]+Science|PhD|Ph\.D\.|[BM]Sc|[BM]\.Sc\.)"
+    r"(?:Bachelor|Master)[ \t]+of[ \t]+(?:Science|Engineering)|PhD|Ph\.D\.|[BM]Sc|[BM]\.Sc\.)"
     r"[ \t]+in[ \t]+"
-    r"(?:Systems[ \t]+Engineering|Computer[ \t]+Science|Software[ \t]+Engineering|"
-    r"Computer[ \t]+Engineering|Data[ \t]+Science|Artificial[ \t]+Intelligence|"
-    r"Machine[ \t]+Learning|Information[ \t]+Technology)\b"
+    + EDUCATION_FIELD_PATTERN
+    + r"(?:[ \t]*(?:\band\b|&|/)[ \t]*(?:"
+    + EDUCATION_FIELD_PATTERN + r"|Mathematics))*\b"
+    r"(?![ \t]*(?:\band\b|&|/))"
 )
 
 
 def extract_education(text: str) -> list[str]:
     """Return supported English degree-and-field phrases as originally written.
 
-    Require an explicit degree followed by 'in' and a listed computing field.
+    Require a degree followed by 'in' and a listed computing field. Preserve
+    supported compound fields; reject a following unsupported and/&/ component.
     Do not infer completion status, institutions or equivalent qualifications.
     """
     return re.findall(EDUCATION_PATTERN, text, flags=re.IGNORECASE)
 
 
 EXPERIENCE_PATTERN = (
-    r"(?<![\w.+-])[0-9]+(?:\.[0-9]+)?\+?"
-    r"[ \t]+(?:years?|months?)[ \t]+(?:of[ \t]+)?"
+    r"(?<![\w.+−–—-])[0-9]+(?:\.[0-9]+)?\+?"
+    r"(?:[ \t]*(?:[-–—]|\bto\b)[ \t]*[0-9]+(?:\.[0-9]+)?)?"
+    r"[ \t]+(?:years?|months?)"
+    r"(?:[ \t]+and[ \t]+[0-9]+(?:\.[0-9]+)?[ \t]+(?:years?|months?))*"
+    r"[ \t]+(?:of[ \t]+)?"
     r"(?:(?:professional|work)[ \t]+)?experience\b"
 )
 
@@ -128,7 +142,8 @@ EXPERIENCE_PATTERN = (
 def extract_experience(text: str) -> list[str]:
     """Return explicit numeric experience durations, preserving original text.
 
-    Support years/months, decimals and a trailing plus sign on the number.
+    Support years/months, decimals, plus signs, numeric ranges and durations
+    joined by 'and', preserving the entire supported expression.
     Do not calculate durations from dates or infer relevance to a job profile.
     """
     return re.findall(EXPERIENCE_PATTERN, text, flags=re.IGNORECASE)
@@ -136,8 +151,8 @@ def extract_experience(text: str) -> list[str]:
 
 OTHER_QUALIFICATIONS_PATTERN = (
     r"(?<![\w.])"
-    r"(?:REST[ \t]+APIs?|NoSQL|SQL|"
-    r"machine(?:-|[ \t]+)learning[ \t]+model[ \t]+development|"
+    r"(?:REST(?:ful)?[ \t]+APIs?|No[ \t]*SQL|SQL|ML|"
+    r"machine(?:-|[ \t]+)learning(?:[ \t]+model[ \t]+development|(?![ \t]+model\b))|"
     r"CI[/-]CD|ETL|Extract[ \t]+Transform[ \t]+Load|Data[ \t]+Warehouse|DWH|DW)"
     r"(?!\w|\.\w)"
 )

@@ -1,6 +1,10 @@
 from pyformlang.fst import FST
 
 TRANSFORMACIONES = {
+    "Java": "JAVA", "MySQL": "MYSQL", "MongoDB": "MONGODB",
+    "RESTful APIs": "REST_API",
+    "machine learning model development": "MACHINE_LEARNING",
+    "machine-learning model development": "MACHINE_LEARNING",
     "JS": "JAVASCRIPT", "Javascript": "JAVASCRIPT", "JavaScript": "JAVASCRIPT",
     "TS": "TYPESCRIPT", "Typescript": "TYPESCRIPT", "TypeScript": "TYPESCRIPT",
     "React.js": "REACT", "ReactJS": "REACT", "react": "REACT", "React": "REACT",
@@ -64,7 +68,11 @@ TRANSFORMACIONES = {
 }
 
 def construir_transducer(diccionario_transformaciones: dict) -> FST:
-    """Construye dinámicamente un único FST que contiene todas las rutas de normalización."""
+    """Build one FST with case variants and horizontal whitespace transitions.
+
+    Each alias has its own route; only its final transition emits the token.
+    Spaces in aliases accept one or more spaces/tabs. Input is never rewritten.
+    """
     fst = FST()
     estado_inicial = "q0"
     estado_final = "q_aceptacion"
@@ -84,7 +92,13 @@ def construir_transducer(diccionario_transformaciones: dict) -> FST:
             siguiente_estado = estado_final if es_ultima_letra else f"q{contador_estados}"
             salida_transicion = caracteres_salida if es_ultima_letra else []
             
-            fst.add_transition(estado_actual, letra, siguiente_estado, salida_transicion)
+            variantes = {letra.lower(), letra.upper()} if letra.isascii() and letra.isalpha() else {letra}
+            if letra == " ":
+                variantes = {" ", "\t"}
+            for variante in sorted(variantes):
+                fst.add_transition(estado_actual, variante, siguiente_estado, salida_transicion)
+                if letra == " ":
+                    fst.add_transition(siguiente_estado, variante, siguiente_estado, [])
             
             estado_actual = siguiente_estado
             contador_estados += 1
@@ -110,13 +124,9 @@ def normalizar_skills(datos_crudos_regex: dict) -> list[str]:
     
     for lista in listas_tecnicas:
         for palabra in lista:
-            try:
-                resultado = list(FST_SKILLS.translate(list(palabra)))
-                if resultado:
-                    token = "".join(resultado[0])
-                    tokens_normalizados.add(token)
-            except Exception:
-                pass
+            resultado = next(FST_SKILLS.translate(list(palabra)), None)
+            if resultado is not None:
+                tokens_normalizados.add("".join(resultado))
 
     return sorted(list(tokens_normalizados))
 
